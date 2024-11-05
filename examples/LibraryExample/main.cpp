@@ -6,7 +6,6 @@ int main(int argc, char* argv[]) {
 	QApplication app(argc, argv);
 
 	VariantTable::TableView* tableView = new VariantTable::TableView;
-	//VariantTable::Model* model = new VariantTable::Model(5,3, tableView);
 
 	VariantTable::BoolCell* boolCell = new VariantTable::BoolCell("Test", true);
 	

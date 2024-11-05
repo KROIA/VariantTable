@@ -1,5 +1,7 @@
-#include "Delegate.h"
+﻿#include "Delegate.h"
 #include "Model.h"
+#include <QApplication>
+#include <QPainter>
 
 
 namespace VariantTable
@@ -89,7 +91,50 @@ namespace VariantTable
             // Skip drawing the cell's data if the editor is active
             return;
         }
+        QRect rect = option.rect;
+		QPoint TL = rect.topLeft();
+        float xPos = rect.width() / 10;
+        float height = rect.height();
+        float size = 30;
+        float yOffset = (height - size) / 2;
         // Call the base class implementation to draw the item normally
-        QStyledItemDelegate::paint(painter, option, index);
+       // QStyledItemDelegate::paint(painter, option, index);
+        // Example: Draw a checkbox indicator for the first column
+        if (index.column() == 0) {
+            //checkBoxRect.moveTop(checkBoxRect.top() + (checkBoxRect.height() - 16) / 2); // Center the checkbox vertically
+            bool checked = index.data(Qt::EditRole).toBool();
+            QStyleOptionButton button;
+            button.rect = QRect(xPos+TL.x(), yOffset+ TL.y(), size, size);
+            button.state = checked ? QStyle::State_On : QStyle::State_Off;
+            button.state |= QStyle::State_Enabled;
+
+            QApplication::style()->drawControl(QStyle::CE_CheckBox, &button, painter);
+        }
+        // Example: Draw a dropdown indicator for the second column
+        else if (index.column() == 1) {
+            
+            //dropDownIndicatorRect.moveTop(dropDownIndicatorRect.top() + (dropDownIndicatorRect.height() - 16) / 2); // Center the icon
+            
+            
+           
+            //float width = dropDownIndicatorRect.width();
+            // Draw a simple dropdown arrow (triangle)
+            QPointF points[3] = {
+                QPointF(xPos - size / 2,yOffset) + TL,
+                QPointF(xPos + size / 2,yOffset) + TL,
+                QPointF(xPos,size + yOffset) + TL,
+            };
+
+            // Create a linear gradient from gray (tip) to black (base)
+            QLinearGradient gradient(points[2], points[0]); // Gradient from bottom right to top
+            gradient.setColorAt(0, Qt::gray); // Tip color
+            gradient.setColorAt(1, Qt::black); // Base color
+
+            // Set the gradient as brush and draw the triangle
+            painter->setBrush(gradient);
+            painter->drawPolygon(points, 3); // Draw the triangle
+            
+        }
+
     }
 }

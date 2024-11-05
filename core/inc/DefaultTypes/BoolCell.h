@@ -78,7 +78,7 @@ namespace VariantTable
 			{
 				checkBox->setText(m_text);
 				checkBox->setChecked(m_value);
-				checkBox->setMinimumSize(QSize(250, 100));
+				//checkBox->setMinimumSize(QSize(250, 100));
 			}
 		}
 
@@ -89,7 +89,7 @@ namespace VariantTable
 				QSize size = m_editor->sizeHint();
 				return size;
 			}
-			return QSize(option.rect.width(), option.rect.height());
+			return QSize(option.rect.width(), option.rect.height()/2);
 		}
 
 		QWidget* createEditorWidget(QWidget* parent) const override
