@@ -1,5 +1,8 @@
 #include <QApplication>
 #include <QTableView>
+#include <QVBoxLayout>
+#include <QPushButton>
+#include <QToolTip>
 #include "VariantTable.h"
 
 int main(int argc, char* argv[]) {
@@ -7,13 +10,40 @@ int main(int argc, char* argv[]) {
 
 	VariantTable::TableView* tableView = new VariantTable::TableView;
 
-	VariantTable::BoolCell* boolCell = new VariantTable::BoolCell("Test", true);
+	VariantTable::CellDataBasePtr boolCell = VariantTable::CheckBox::create("Test", true);
+	VariantTable::CellDataBasePtr radioBox = VariantTable::RadioButton::create(QStringList{ "RadioA" ,"RadioB"});
 	
-	tableView->getModel()->setCellData(0, 0, boolCell);
+	tableView->getModel()->setCellData(0, 0, VariantTable::CheckBox::create("Test", true));
+	tableView->getModel()->setCellData(1, 0, VariantTable::RadioButton::create(QStringList{ "RadioA" ,"RadioB" }));
+	tableView->getModel()->setCellData(2, 0, VariantTable::CheckBoxList::create(QStringList{ "Box1" ,"Box2", "Box3"}));
+	tableView->getModel()->setCellData(3, 0, VariantTable::ComboBox::create(QStringList{ "Option1" ,"Option2", "Option3"}));
+	tableView->getModel()->setCellData(4, 0, VariantTable::LineEdit::create("Hello World"));
+	tableView->getModel()->setCellData(5, 5, boolCell);
+	tableView->getModel()->setCellData(4, 4, radioBox);
 
 	tableView->resize(800, 600);
 	tableView->resizeRowToContents(0);
 	tableView->show();
+
+	QWidget* widget = new QWidget;
+	QVBoxLayout* layout = new QVBoxLayout;
+	QPushButton* upButton = new QPushButton("Up");
+	QPushButton* downButton = new QPushButton("Down");
+	layout->addWidget(upButton);
+	layout->addWidget(downButton);
+	widget->setLayout(layout);
+
+	QObject::connect(upButton, &QPushButton::clicked, [tableView]() {
+		VariantTable::Model* model = tableView->getModel();
+		model->moveRow(5, 0);
+		});
+
+	QObject::connect(downButton, &QPushButton::clicked, [tableView]() {
+		VariantTable::Model* model = tableView->getModel();
+		
+		});
+
+	widget->show();
 
 	return app.exec();
 }

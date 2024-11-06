@@ -9,7 +9,8 @@
 
 namespace VariantTable
 {
-    class VARIANT_TABLE_EXPORT Delegate : public QStyledItemDelegate {
+    class VARIANT_TABLE_EXPORT Delegate : public QStyledItemDelegate 
+    {
         Q_OBJECT
         friend class Model;
         Delegate(Model *parent);
@@ -23,6 +24,5 @@ namespace VariantTable
         void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
         private:
 		Model* m_model;
-        //mutable QModelIndex m_activeEditorIndex; // Track the active editor index
 	};
 }

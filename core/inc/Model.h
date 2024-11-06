@@ -8,6 +8,8 @@
 #include <QDebug>
 #include <type_traits>
 #include <typeinfo>
+#include <QMimeData>
+
 
 class QTableView;
 
@@ -15,73 +17,87 @@ namespace VariantTable
 {
 	class Delegate;
     class TableView;
-    class VARIANT_TABLE_EXPORT Model : public QAbstractTableModel {
+    class VARIANT_TABLE_EXPORT Model : public QAbstractTableModel 
+    {
         Q_OBJECT
 
         public:
-
-        template<typename CellDataType>
-        static void registerType()
-        {
-            // Check base type
-            static_assert(std::is_base_of<CellDataBase, CellDataType>::value,
-                          "CelllDataType must be derived from CellDataBase");
-			
-			size_t typeId = typeid(CellDataType).hash_code();
-            if (s_cellFactories.find(typeId) != s_cellFactories.end())
-            {
-				qDebug() << "Type already registered";
-                return;
-            }
-			s_cellFactories[typeId] = new CellDataType();
-        }
-		static const std::unordered_map<size_t, CellDataBase*>& getRegisteredTypes()
-		{
-			return s_cellFactories;
-		}
-
-        Model(int rows, int cols, TableView* parent = nullptr);
+        Model(TableView* parent = nullptr);
+        ~Model();
         
 		void setTableView(TableView* view);
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
         int columnCount(const QModelIndex& parent = QModelIndex()) const override;
-
         QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
-
         bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
 
         Qt::ItemFlags flags(const QModelIndex& index) const;
 
-		static const CellDataBase* getRegisteredType(size_t typeId);
-        template<typename CellDataType>
-		static const CellDataType* getRegisteredType()
-        {
-			// Check base type
-			static_assert(std::is_base_of<CellDataBase, CellDataType>::value,
-						  "CelllDataType must be derived from CellDataBase");
-			size_t typeId = typeid(CellDataType).hash_code();
-			return dynamic_cast<const CellDataType*>(getRegisteredType(typeId));
-        }
-
-		Delegate* getDelegate() const { return m_delegate; }
-
-		void setCellData(int row, int col, CellDataBase* data);
-		CellDataBase* getCellData(int row, int col) const;
+		
 
 		bool isIndexSelected(const QModelIndex& index) const;
-		void onNewEditorCreated(QWidget* editor, const QModelIndex& index) const;
+        QVector<unsigned int> getSelectedRows() const;
+		QVector<unsigned int> getSelectedColumns() const;
 
+		// Table operations
+     //   bool insertRow(int row, const QModelIndex& parent = QModelIndex()) override;
+		bool insertRow(int row, const QVector<CellDataBasePtr>& data);
+        bool insertRow(int row, CellDataTypeID defaultType);
+        bool insertRow(int row, CellDataBasePtr typeTemplate);
+        bool insertRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
+
+        
+       // bool insertColumn(int col, const QModelIndex& parent = QModelIndex());
+		bool insertColumn(int col, const QVector<CellDataBasePtr>& data);
+		bool insertColumn(int col, CellDataTypeID defaultType);
+		bool insertColumn(int col, CellDataBasePtr typeTemplate);
+		bool insertColumns(int col, int count, const QModelIndex& parent = QModelIndex()) override;
+
+
+        
+       // bool removeRow(int row, const QModelIndex& parent = QModelIndex()) override;
+        bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
+
+
+       // bool removeColumn(int column, const QModelIndex& parent = QModelIndex()) override;
+        bool removeColumns(int column, int count, const QModelIndex& parent = QModelIndex()) override;
+
+
+		bool moveRowUp(unsigned int row, unsigned int amount = 1);
+		//bool moveRowsUp(QVector<unsigned int> rows, unsigned int amount = 1);
+
+		bool moveRowDown(unsigned int row, unsigned int amount = 1);
+		//bool moveRowsDown(QVector<unsigned int> rows, unsigned int amount = 1);
+
+		bool swapRows(unsigned int row1, unsigned int row2);
+		bool moveRow(unsigned int sourceRow, unsigned int destinationRow);
+
+
+      //  bool moveRow(const QModelIndex& sourceParent, int sourceRow,
+      //      const QModelIndex& destinationParent, int destinationChild) override;
+      //  bool moveColumn(const QModelIndex& sourceParent, int sourceColumn,
+      //      const QModelIndex& destinationParent, int destinationChild) override;
+
+
+
+        void setCellData(int row, int col, CellDataBasePtr data);
+        CellDataBasePtr getCellData(int row, int col) const;
+
+
+        Delegate* getDelegate() const { return m_delegate; }
+
+       
         private:
+            //void onNewEditorCreated(QWidget* editor, const QModelIndex& index) const;
         struct CellData
         {
-            CellDataBase* data;
+            CellDataBasePtr data = nullptr;
         };
         QVector<QVector<CellData>> m_data;  // 2D array of data values
         Delegate *m_delegate;
 		TableView* m_view;
 
-		static std::unordered_map<size_t, CellDataBase*> s_cellFactories;
-		static bool s_defaultFactoriesAdded;
+		
        
     };
 }

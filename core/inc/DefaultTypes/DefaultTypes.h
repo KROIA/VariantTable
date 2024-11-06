@@ -1,3 +1,8 @@
 #pragma once
 
-#include "BoolCell.h"
+#include "CheckBox.h"
+#include "LineEdit.h"
+#include "RadioButton.h"
+#include "ComboBox.h"
+#include "CheckBoxList.h"
+

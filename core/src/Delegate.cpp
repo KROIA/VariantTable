@@ -27,7 +27,7 @@ namespace VariantTable
         }
         else 
         {
-            CellDataBase* cellData = model->getCellData(index.row(), index.column());
+            CellDataBasePtr cellData = model->getCellData(index.row(), index.column());
             if (!cellData)
                 editor = QStyledItemDelegate::createEditor(parent, option, index);
             else
@@ -35,7 +35,7 @@ namespace VariantTable
                 editor = cellData->createEditorWidget(parent);
             }
         }
-		m_model->onNewEditorCreated(editor, index);
+		//m_model->onNewEditorCreated(editor, index);
 		return editor;
     }
 
@@ -47,7 +47,7 @@ namespace VariantTable
         if (!customModel)
             return;
 
-        CellDataBase* cellData = customModel->getCellData(index.row(), index.column());
+        CellDataBasePtr cellData = customModel->getCellData(index.row(), index.column());
         if (!cellData)
             return;
         cellData->getData(editor);
@@ -62,7 +62,7 @@ namespace VariantTable
         if (!customModel)
             return;
 
-        CellDataBase* cellData = customModel->getCellData(index.row(), index.column());
+        CellDataBasePtr cellData = customModel->getCellData(index.row(), index.column());
         if (!cellData)
 			return;
 		cellData->setData(editor);
@@ -76,7 +76,7 @@ namespace VariantTable
         if (!model)
             return QStyledItemDelegate::sizeHint(option, index);
 
-        CellDataBase* cellData = model->getCellData(index.row(), index.column());
+        CellDataBasePtr cellData = model->getCellData(index.row(), index.column());
         if (!cellData)
             return QStyledItemDelegate::sizeHint(option, index);
 
@@ -86,6 +86,23 @@ namespace VariantTable
 
     void Delegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
     {
+        // Check if this index is the active editor index
+        if (m_model->isIndexSelected(index)) {
+            // Skip drawing the cell's data if the editor is active
+            return;
+        }
+
+        const Model* model = qobject_cast<const Model*>(index.model());
+        if (!model)
+            return;
+
+        CellDataBasePtr cellData = model->getCellData(index.row(), index.column());
+        if (!cellData)
+            return;
+
+        return cellData->drawEditorPlaceholder(painter, option);
+
+        /*
         // Check if this index is the active editor index
         if (m_model->isIndexSelected(index)) {
             // Skip drawing the cell's data if the editor is active
@@ -135,6 +152,7 @@ namespace VariantTable
             painter->drawPolygon(points, 3); // Draw the triangle
             
         }
+        */
 
     }
 }

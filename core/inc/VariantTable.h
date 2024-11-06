@@ -12,4 +12,5 @@
 //#include "Delegate.h"
 
 #include "DefaultTypes/DefaultTypes.h"
+#include "CellTypeRegistry.h"
 /// USER_SECTION_END
