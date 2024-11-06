@@ -12,17 +12,20 @@
 
 namespace VariantTable
 {
+    QVector<Model*> Model::m_models;
+
     Model::Model(TableView* parent)
         : QAbstractTableModel(parent)
         , m_data(0, QVector<CellData>(0))
 		, m_delegate(new Delegate(this))
 		, m_view(nullptr)
     {
-        setTableView(parent);       
+        setTableView(parent);    
+		m_models.push_back(this);
     }
     Model::~Model()
     {
-
+		m_models.removeOne(this);
     }
 
     void Model::setTableView(TableView* view)
@@ -91,6 +94,17 @@ namespace VariantTable
 		if (m_data[row].size() <= col)
 			return nullptr;
 		return m_data[row][col].data;
+    }
+    void Model::iconThemeChanged()
+    {
+        for (Model* model : m_models)
+        {
+            model->iconThemeChanged_internal();
+        }
+    }
+    void Model::iconThemeChanged_internal()
+    {
+		emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
     }
     bool Model::isIndexSelected(const QModelIndex& index) const
     {

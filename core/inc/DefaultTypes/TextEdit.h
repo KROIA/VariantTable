@@ -4,26 +4,22 @@
 #include "CellDataBase.h"
 
 
-class QRadioButton;
+class QTextEdit;
 
 namespace VariantTable
 {
-	class VARIANT_TABLE_EXPORT RadioButton : public CellDataBase
+	class VARIANT_TABLE_EXPORT TextEdit : public CellDataBase
 	{
-		VT_CELL_DATA_OBJ(RadioButton);
-	public:
-		RadioButton();
-		RadioButton(const RadioButton& other);
-		RadioButton(const QStringList& options);
+		VT_CELL_DATA_OBJ(TextEdit);
+		public:
+		TextEdit();
+		TextEdit(const TextEdit& other);
+		TextEdit(const QString& text);
 
 
 
-		void setOptions(const QStringList& text);
-		const QStringList& getOptions() const;
-
-		void setSelectedIndex(int index);
-		int getSelectedIndex() const;
-
+		void setText(const QString& text);
+		QString getText() const;
 
 		void setData(const QVariant& data) override;
 		void setData(QWidget* editor) override;
@@ -32,16 +28,14 @@ namespace VariantTable
 
 		void setColor(const QColor& color) override;
 
+
 		QSize getSizeHint(const QStyleOptionViewItem& option) const override;
 
 		QWidget* createEditorWidget(QWidget* parent) const override;
 		void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const override;
 		QString getToolTip() const override;
-	private:
-		QStringList m_options;
-		int m_selectedIndex = -1;
-
-		mutable QWidget* m_editorWidget = nullptr;
-		mutable QVector<QRadioButton*> m_editorButtons;
+		private:
+		QString m_text;
+		mutable QTextEdit* m_editor = nullptr;
 	};
 }

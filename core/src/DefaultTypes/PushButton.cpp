@@ -1,99 +1,79 @@
-#include "DefaultTypes/CheckBox.h"
+#include "DefaultTypes/PushButton.h"
 #include "IconManager.h"
 
-#include <QCheckBox>
+#include <QPushButton>
 #include <QApplication>
 #include <QPainter>
 #include <QVBoxLayout>
 
 namespace VariantTable
 {
-	CheckBox::CheckBox()
+	PushButton::PushButton()
 		: CellDataBase()
-		, m_text("QCheckBox")
-		, m_value(false)
+		, m_text("QPushButton")
 	{
 
 	}
-	CheckBox::CheckBox(const CheckBox& other)
+	PushButton::PushButton(const PushButton& other)
 		: CellDataBase(other)
 		, m_text(other.m_text)
-		, m_value(other.m_value)
 	{
 
 	}
-	CheckBox::CheckBox(const QString& text, bool value)
+	PushButton::PushButton(const QString& text)
 		: CellDataBase()
 		, m_text(text)
-		, m_value(value)
 	{
 
 	}
 
 
-	void CheckBox::setText(const QString& text)
+	void PushButton::setText(const QString& text)
 	{
 		m_text = text;
 	}
-	const QString& CheckBox::getText() const
+	const QString& PushButton::getText() const
 	{
 		return m_text;
 	}
-	void CheckBox::setChecked(bool value)
-	{
-		if (m_editor)
-			m_editor->setChecked(value);
-		m_value = value;
-	}
-	bool CheckBox::isChecked() const
-	{
-		if (m_editor)
-			return m_editor->isChecked();
-		return m_value;
-	}
-	void CheckBox::setColor(const QColor& color)
+	void PushButton::setColor(const QColor& color)
 	{
 		CellDataBase::setColor(color);
 		CellDataBase::applyColor(m_editor);
 	}
 
 
-	void CheckBox::setData(const QVariant& data) 	
+	void PushButton::setData(const QVariant& data)
 	{
-		m_value = data.toBool();
+		VT_UNUSED(data);
 	}
-	void CheckBox::setData(QWidget* editor) 
+	void PushButton::setData(QWidget* editor)
 	{
 		VT_UNUSED(editor);
-		//QCheckBox* checkBox = qobject_cast<QCheckBox*>(editor);
+		//QPushButton* checkBox = qobject_cast<QPushButton*>(editor);
 		if (m_editor)
 		{
-			m_value = m_editor->isChecked();
+			//m_value = m_editor->isChecked();
 		}
 	}
-	QVariant CheckBox::getData() const 
+	QVariant PushButton::getData() const
 	{
-		return QVariant(m_value);
+		return QVariant(m_text);
 	}
-	void CheckBox::getData(QWidget* editor) 
+	void PushButton::getData(QWidget* editor)
 	{
 		VT_UNUSED(editor);
-		//QCheckBox* checkBox = qobject_cast<QCheckBox*>(editor);
+		//QPushButton* checkBox = qobject_cast<QPushButton*>(editor);
 		if (m_editor)
 		{
 			m_editor->setText(m_text);
-			m_editor->setChecked(m_value);
 			//checkBox->setMinimumSize(QSize(250, 100));
 		}
 	}
 
-	void CheckBox::setEditable(bool editable)
+	QSize PushButton::getSizeHint(const QStyleOptionViewItem& option) const
 	{
-		editable;
-	}
-	QSize CheckBox::getSizeHint(const QStyleOptionViewItem& option) const
-	{
-	
+
 		if (m_editor)
 		{
 			QSize size = m_editor->sizeHint();
@@ -102,7 +82,7 @@ namespace VariantTable
 		return QSize(option.rect.width(), option.rect.height());
 	}
 
-	QWidget* CheckBox::createEditorWidget(QWidget* parent) const
+	QWidget* PushButton::createEditorWidget(QWidget* parent) const
 	{
 		if (m_editor)
 			return m_editor->parentWidget();
@@ -111,21 +91,22 @@ namespace VariantTable
 		QVBoxLayout* layout = new QVBoxLayout(editor);
 		layout->setContentsMargins(5, 5, 5, 5);
 		editor->setLayout(layout);
-		m_editor = new QCheckBox(editor);
+		m_editor = new QPushButton(editor);
 		m_editor->setText(m_text);
-		m_editor->setChecked(m_value);
 		layout->addWidget(m_editor);
+
+		connect(m_editor, &QPushButton::clicked, this, &PushButton::onButtonClickedInternal);
 
 		CellDataBase::applyColor(editor);
 
 		// Destroy event
 		QObject::connect(layout, &QWidget::destroyed, parent, [this]()
-			{
-				m_editor = nullptr;
-			});
+						 {
+							 m_editor = nullptr;
+						 });
 		return editor;
 	}
-	void CheckBox::drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const
+	void PushButton::drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const
 	{
 		QRect rect = option.rect;
 		QPoint TL = rect.topLeft();
@@ -148,7 +129,7 @@ namespace VariantTable
 		button.state = m_value ? QStyle::State_On : QStyle::State_Off;
 		button.state |= QStyle::State_Enabled;
 
-		QApplication::style()->drawControl(QStyle::CE_CheckBox, &button, painter);*/
+		QApplication::style()->drawControl(QStyle::CE_PushButton, &button, painter);*/
 
 		// Draw text
 		QRect textRect = QRect(xPos + TL.x() + size, yOffset + TL.y(), rect.width() - size, size);
@@ -156,13 +137,15 @@ namespace VariantTable
 
 		// Draw icon
 		QRect iconRect = QRect(xPos + TL.x(), yOffset + TL.y(), size, size);
-		if(m_value)
-			painter->drawPixmap(iconRect, IconManager::getIcon("checkBox-checked.png").pixmap(size,size));
-		else
-			painter->drawPixmap(iconRect, IconManager::getIcon("checkBox-unchecked.png").pixmap(size, size));
+		painter->drawPixmap(iconRect, IconManager::getIcon("press-button.png").pixmap(size, size));
 	}
-	QString CheckBox::getToolTip() const
+	QString PushButton::getToolTip() const
 	{
-		return (m_value?"[X] ":"[  ] ") + m_text;
+		return m_text;
+	}
+
+	void PushButton::onButtonClickedInternal()
+	{
+		emit clicked();
 	}
 }

@@ -85,9 +85,10 @@ namespace VariantTable
 
 
         Delegate* getDelegate() const { return m_delegate; }
-
+        static void iconThemeChanged();
        
         private:
+        void iconThemeChanged_internal();
             //void onNewEditorCreated(QWidget* editor, const QModelIndex& index) const;
         struct CellData
         {
@@ -98,6 +99,6 @@ namespace VariantTable
 		TableView* m_view;
 
 		
-       
+		static QVector<Model*> m_models;
     };
 }

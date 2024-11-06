@@ -20,8 +20,10 @@ namespace VariantTable
 
 			void setText(const QString& text);
 			const QString& getText() const;
-			void setValue(bool value);
-			bool getValue() const;
+			void setChecked(bool value);
+			bool isChecked() const;
+
+			void setColor(const QColor& color) override;
 
 
 			void setData(const QVariant& data) override;
@@ -29,8 +31,8 @@ namespace VariantTable
 			QVariant getData() const override;
 			void getData(QWidget* editor) override;
 
+			void setEditable(bool editable) override;
 			QSize getSizeHint(const QStyleOptionViewItem& option) const override;
-			
 			QWidget* createEditorWidget(QWidget* parent) const override;
 			void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const override;
 			QString getToolTip() const override;

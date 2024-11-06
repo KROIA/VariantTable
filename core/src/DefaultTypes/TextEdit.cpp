@@ -1,26 +1,26 @@
-#include "DefaultTypes/LineEdit.h"
+#include "DefaultTypes/TextEdit.h"
 #include "IconManager.h"
 
-#include <QLineEdit>
+#include <QTextEdit>
 #include <QApplication>
 #include <QPainter>
 #include <QVBoxLayout>
 
 namespace VariantTable
 {
-	LineEdit::LineEdit()
+	TextEdit::TextEdit()
 		: CellDataBase()
-		, m_text("QLineEdit")
+		, m_text("QTextEdit")
 	{
 
 	}
-	LineEdit::LineEdit(const LineEdit& other)
+	TextEdit::TextEdit(const TextEdit& other)
 		: CellDataBase(other)
 		, m_text(other.m_text)
 	{
 
 	}
-	LineEdit::LineEdit(const QString& text)
+	TextEdit::TextEdit(const QString& text)
 		: CellDataBase()
 		, m_text(text)
 	{
@@ -28,52 +28,52 @@ namespace VariantTable
 	}
 
 
-	void LineEdit::setText(const QString& text)
+	void TextEdit::setText(const QString& text)
 	{
 		m_text = text;
 		if (m_editor)
 			m_editor->setText(text);
 	}
-	QString LineEdit::getText() const
+	QString TextEdit::getText() const
 	{
-		if(m_editor)
-			return m_editor->text();
+		if (m_editor)
+			return m_editor->toPlainText();
 		return m_text;
 	}
 
 
-	void LineEdit::setData(const QVariant& data)
+	void TextEdit::setData(const QVariant& data)
 	{
 		m_text = data.toString();
 	}
-	void LineEdit::setData(QWidget* editor)
+	void TextEdit::setData(QWidget* editor)
 	{
 		VT_UNUSED(editor);
-		//QLineEdit* LineEdit = qobject_cast<QLineEdit*>(editor);
+		//QTextEdit* TextEdit = qobject_cast<QTextEdit*>(editor);
 		if (m_editor)
 		{
-			m_text = m_editor->text();
+			m_text = m_editor->toPlainText();
 		}
 	}
-	QVariant LineEdit::getData() const
+	QVariant TextEdit::getData() const
 	{
 		return QVariant(m_text);
 	}
-	void LineEdit::getData(QWidget* editor)
+	void TextEdit::getData(QWidget* editor)
 	{
 		VT_UNUSED(editor);
-		//QLineEdit* LineEdit = qobject_cast<QLineEdit*>(editor);
+		//QTextEdit* TextEdit = qobject_cast<QTextEdit*>(editor);
 		if (m_editor)
 		{
 			m_editor->setText(m_text);
 		}
 	}
-	void LineEdit::setColor(const QColor& color)
+	void TextEdit::setColor(const QColor& color)
 	{
 		CellDataBase::setColor(color);
 		CellDataBase::applyColor(m_editor);
 	}
-	QSize LineEdit::getSizeHint(const QStyleOptionViewItem& option) const
+	QSize TextEdit::getSizeHint(const QStyleOptionViewItem& option) const
 	{
 
 		if (m_editor)
@@ -84,7 +84,7 @@ namespace VariantTable
 		return QSize(option.rect.width(), option.rect.height());
 	}
 
-	QWidget* LineEdit::createEditorWidget(QWidget* parent) const
+	QWidget* TextEdit::createEditorWidget(QWidget* parent) const
 	{
 		if (m_editor)
 			return m_editor;
@@ -93,7 +93,7 @@ namespace VariantTable
 		//QVBoxLayout* layout = new QVBoxLayout(parent);
 		//layout->setContentsMargins(5, 5, 5, 5);
 		//editor->setLayout(layout);
-		m_editor = new QLineEdit(parent);
+		m_editor = new QTextEdit(parent);
 		m_editor->setText(m_text);
 		//layout->addWidget(m_editor);
 
@@ -101,12 +101,12 @@ namespace VariantTable
 
 		// Destroy event
 		QObject::connect(m_editor, &QWidget::destroyed, parent, [this]()
-			{
-				m_editor = nullptr;
-			});
+						 {
+							 m_editor = nullptr;
+						 });
 		return m_editor;
 	}
-	void LineEdit::drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const
+	void TextEdit::drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const
 	{
 		QRect rect = option.rect;
 		QPoint TL = rect.topLeft();
@@ -125,14 +125,15 @@ namespace VariantTable
 		painter->setPen(origPen);
 
 		// Draw text
-		QRect textRect = QRect(xPos + TL.x() + size*2, yOffset + TL.y(), rect.width() - size, size);
-		painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, m_text);
+		QString text = m_text.split("\n").first();
+		QRect textRect = QRect(xPos + TL.x() + size * 2, yOffset + TL.y(), rect.width() - size, size);
+		painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, text);
 
 		// Draw icon
-		QRect iconRect = QRect(xPos + TL.x(), yOffset + TL.y(), size*2, size);
+		QRect iconRect = QRect(xPos + TL.x(), yOffset + TL.y(), size * 2, size);
 		painter->drawPixmap(iconRect, IconManager::getIcon("lineEdit.png").pixmap(size, size));
 	}
-	QString LineEdit::getToolTip() const
+	QString TextEdit::getToolTip() const
 	{
 		return m_text;
 	}

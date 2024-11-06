@@ -2,28 +2,28 @@
 
 #include "VariantTable_base.h"
 #include "CellDataBase.h"
+#include <QDate>
 
 
-class QRadioButton;
+class QDateEdit;
 
 namespace VariantTable
 {
-	class VARIANT_TABLE_EXPORT RadioButton : public CellDataBase
+	class VARIANT_TABLE_EXPORT DateEdit : public CellDataBase
 	{
-		VT_CELL_DATA_OBJ(RadioButton);
-	public:
-		RadioButton();
-		RadioButton(const RadioButton& other);
-		RadioButton(const QStringList& options);
+		VT_CELL_DATA_OBJ(DateEdit);
+		public:
+		static void setFormat(const QString& format);
+		static const QString& getFormat();
+
+		DateEdit();
+		DateEdit(const DateEdit& other);
+		DateEdit(const QDate& date);
 
 
 
-		void setOptions(const QStringList& text);
-		const QStringList& getOptions() const;
-
-		void setSelectedIndex(int index);
-		int getSelectedIndex() const;
-
+		void setDate(const QDate& date);
+		QDate getDate() const;
 
 		void setData(const QVariant& data) override;
 		void setData(QWidget* editor) override;
@@ -32,16 +32,16 @@ namespace VariantTable
 
 		void setColor(const QColor& color) override;
 
+
 		QSize getSizeHint(const QStyleOptionViewItem& option) const override;
 
 		QWidget* createEditorWidget(QWidget* parent) const override;
 		void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const override;
 		QString getToolTip() const override;
-	private:
-		QStringList m_options;
-		int m_selectedIndex = -1;
+		private:
+		QDate m_date;
 
-		mutable QWidget* m_editorWidget = nullptr;
-		mutable QVector<QRadioButton*> m_editorButtons;
+		static QString s_format;
+		mutable QDateEdit* m_editor = nullptr;
 	};
 }

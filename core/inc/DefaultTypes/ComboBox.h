@@ -21,11 +21,17 @@ namespace VariantTable
 		void setOptions(const QStringList& text);
 		const QStringList& getOptions() const;
 
+		void setCurrentIndex(int index);
+	    int getCurrentIndex() const;
+
 
 		void setData(const QVariant& data) override;
 		void setData(QWidget* editor) override;
 		QVariant getData() const override;
 		void getData(QWidget* editor) override;
+
+		void setColor(const QColor& color) override;
+
 
 		QSize getSizeHint(const QStyleOptionViewItem& option) const override;
 
@@ -36,7 +42,7 @@ namespace VariantTable
 		QStringList m_options;
 		int m_selectedIndex = -1;
 
-		mutable QWidget* m_editorWidget = nullptr;
+		//mutable QWidget* m_editorWidget = nullptr;
 		mutable QComboBox* m_combo = nullptr;
 	};
 }

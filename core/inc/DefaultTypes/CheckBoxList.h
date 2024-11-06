@@ -21,11 +21,17 @@ namespace VariantTable
 		void setOptions(const QStringList& text);
 		const QStringList& getOptions() const;
 
+		void setCheckedIndexes(const QVector<int>& indexes);
+		QVector<int> getCheckedIndexes() const;
+
 
 		void setData(const QVariant& data) override;
 		void setData(QWidget* editor) override;
 		QVariant getData() const override;
 		void getData(QWidget* editor) override;
+
+		void setColor(const QColor& color) override;
+
 
 		QSize getSizeHint(const QStyleOptionViewItem& option) const override;
 

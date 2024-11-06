@@ -14,6 +14,11 @@ namespace VariantTable
 		registerType_internal<RadioButton>();
 		registerType_internal<ComboBox>();
 		registerType_internal<CheckBoxList>();
+		registerType_internal<PushButton>();
+		registerType_internal<TextEdit>();
+		registerType_internal<TimeEdit>();
+		registerType_internal<DateEdit>();
+		registerType_internal<DateTimeEdit>();
 	}
 	const CellDataBasePtr CellTypeRegistry::getDefaultType()
 	{

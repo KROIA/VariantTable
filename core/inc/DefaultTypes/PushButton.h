@@ -2,40 +2,48 @@
 
 #include "VariantTable_base.h"
 #include "CellDataBase.h"
+#include <QObject>
 
 
-class QLineEdit;
+class QPushButton;
 
 namespace VariantTable
 {
-	class VARIANT_TABLE_EXPORT LineEdit : public CellDataBase
+	class VARIANT_TABLE_EXPORT PushButton : public QObject, public CellDataBase
 	{
-		VT_CELL_DATA_OBJ(LineEdit);
-	public:
-		LineEdit();
-		LineEdit(const LineEdit& other);
-		LineEdit(const QString& text);
+		VT_CELL_DATA_OBJ(PushButton);
+		Q_OBJECT
+		public:
+		PushButton();
+		PushButton(const PushButton& other);
+		PushButton(const QString& text);
 
 
 
 		void setText(const QString& text);
-		QString getText() const;
+		const QString& getText() const;
+
+		void setColor(const QColor& color) override;
+
 
 		void setData(const QVariant& data) override;
 		void setData(QWidget* editor) override;
 		QVariant getData() const override;
 		void getData(QWidget* editor) override;
 
-		void setColor(const QColor& color) override;
-
-
 		QSize getSizeHint(const QStyleOptionViewItem& option) const override;
 
 		QWidget* createEditorWidget(QWidget* parent) const override;
 		void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const override;
 		QString getToolTip() const override;
-	private:
+
+		signals:
+		void clicked();
+
+		private slots:
+		void onButtonClickedInternal();
+		private:
 		QString m_text;
-		mutable QLineEdit* m_editor = nullptr;
+		mutable QPushButton* m_editor = nullptr;
 	};
 }

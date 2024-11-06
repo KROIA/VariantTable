@@ -3,21 +3,51 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QToolTip>
+#include <QFile>
+
 #include "VariantTable.h"
 
-int main(int argc, char* argv[]) {
-	QApplication app(argc, argv);
+int main(int argc, char* argv[]) 
+{
+	QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+	QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+	QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
 
+	QApplication app(argc, argv);
+	
+	/*QFile file("dark-style.css"); // Adjust path as needed
+	if (file.open(QFile::ReadOnly | QFile::Text)) {
+		QString styleSheet = file.readAll();
+		app.setStyleSheet(styleSheet);
+		file.close();
+	}
+	else {
+		qDebug() << "Failed to load stylesheet.";
+	}*/
 	VariantTable::TableView* tableView = new VariantTable::TableView;
 
 	VariantTable::CellDataBasePtr boolCell = VariantTable::CheckBox::create("Test", true);
 	VariantTable::CellDataBasePtr radioBox = VariantTable::RadioButton::create(QStringList{ "RadioA" ,"RadioB"});
-	
+	auto button = VariantTable::PushButton::create("Button");
+	QObject::connect(static_cast<VariantTable::PushButton*>(button.get()), &VariantTable::PushButton::clicked, []() {
+		qDebug() << "Button clicked";
+		VariantTable::IconManager::Theme theme = VariantTable::IconManager::getTheme();
+		if (theme == VariantTable::IconManager::Theme::color)
+			VariantTable::IconManager::setTheme(VariantTable::IconManager::Theme::black);
+		else
+			VariantTable::IconManager::setTheme(VariantTable::IconManager::Theme::color);
+					 });
+
 	tableView->getModel()->setCellData(0, 0, VariantTable::CheckBox::create("Test", true));
 	tableView->getModel()->setCellData(1, 0, VariantTable::RadioButton::create(QStringList{ "RadioA" ,"RadioB" }));
 	tableView->getModel()->setCellData(2, 0, VariantTable::CheckBoxList::create(QStringList{ "Box1" ,"Box2", "Box3"}));
 	tableView->getModel()->setCellData(3, 0, VariantTable::ComboBox::create(QStringList{ "Option1" ,"Option2", "Option3"}));
 	tableView->getModel()->setCellData(4, 0, VariantTable::LineEdit::create("Hello World"));
+	tableView->getModel()->setCellData(0, 1, VariantTable::TextEdit::create("Hello\nWorld"));
+	tableView->getModel()->setCellData(0, 2, VariantTable::TimeEdit::create(QTime::currentTime()));
+	tableView->getModel()->setCellData(0, 3, VariantTable::DateEdit::create(QDate::currentDate()));
+	tableView->getModel()->setCellData(0, 4, VariantTable::DateTimeEdit::create(QDateTime::currentDateTimeUtc()));
+	tableView->getModel()->setCellData(5, 0, button);
 	tableView->getModel()->setCellData(5, 5, boolCell);
 	tableView->getModel()->setCellData(4, 4, radioBox);
 

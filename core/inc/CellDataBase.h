@@ -76,12 +76,30 @@ namespace VariantTable
 		virtual QVariant getData() const = 0;
 		virtual void getData(QWidget* editor) = 0;
 
+		virtual void setColor(const QColor& color) { m_color = color; }
+		virtual const QColor &getColor() const { return m_color; }
 
 
+		virtual void setEditable(bool editable) { m_isEditable = editable; }
+		virtual bool isEditable() const { return m_isEditable; }
 		virtual QSize getSizeHint(const QStyleOptionViewItem& option) const = 0;
 		virtual QWidget* createEditorWidget(QWidget *parent) const = 0;
 		virtual void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const = 0;
 		virtual QString getToolTip() const = 0;
+
+		protected:
+		void applyColor(QWidget* editor) const
+		{
+			if (editor)
+			{
+				editor->setStyleSheet("background-color: " + m_color.name() + ";");
+			}
+		}
+
+
+		private:
+		QColor m_color = QColor(255,255,255);
+		bool m_isEditable = true;
 	};
 
 	template<typename T>

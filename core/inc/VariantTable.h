@@ -13,4 +13,5 @@
 
 #include "DefaultTypes/DefaultTypes.h"
 #include "CellTypeRegistry.h"
+#include "IconManager.h"
 /// USER_SECTION_END
