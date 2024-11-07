@@ -61,6 +61,7 @@ namespace VariantTable
 				}
 			}
 		}
+		dataChanged();
 	}
 
 	int RadioButton::getSelectedIndex() const
@@ -83,6 +84,7 @@ namespace VariantTable
 	void RadioButton::setData(const QVariant& data)
 	{
 		m_options = data.toStringList();
+		dataChanged();
 	}
 	void RadioButton::setData(QWidget* editor)
 	{

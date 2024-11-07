@@ -19,6 +19,7 @@ namespace VariantTable
 		registerType_internal<TimeEdit>();
 		registerType_internal<DateEdit>();
 		registerType_internal<DateTimeEdit>();
+		registerType_internal<ProgressBar>();
 	}
 	const CellDataBasePtr CellTypeRegistry::getDefaultType()
 	{

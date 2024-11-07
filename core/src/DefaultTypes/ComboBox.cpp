@@ -37,6 +37,7 @@ namespace VariantTable
 		m_options = options;
 		m_selectedIndex = -1;
 		updateText();
+		dataChanged();
 	}
 	const QStringList& ComboBox::getOptions() const
 	{
@@ -49,6 +50,7 @@ namespace VariantTable
 			m_combo->setCurrentIndex(index);
 		}
 		m_selectedIndex = index;
+		dataChanged();
 	}
 	int ComboBox::getCurrentIndex() const
 	{
@@ -61,6 +63,7 @@ namespace VariantTable
 	void ComboBox::setData(const QVariant& data)
 	{
 		m_options = data.toStringList();
+		dataChanged();
 	}
 	void ComboBox::setData(QWidget* editor)
 	{
@@ -126,7 +129,7 @@ namespace VariantTable
 	}
 	void ComboBox::updateText()
 	{
-		QString text = "Nothing selected";
+		QString text;
 		if (m_selectedIndex >= 0 && m_selectedIndex < m_options.size())
 		{
 			text = m_options[m_selectedIndex];

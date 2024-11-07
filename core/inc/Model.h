@@ -17,10 +17,11 @@ namespace VariantTable
 {
 	class Delegate;
     class TableView;
+    class CellDataBase;
     class VARIANT_TABLE_EXPORT Model : public QAbstractTableModel 
     {
         Q_OBJECT
-
+        friend class CellDataBase;
         public:
         Model(TableView* parent = nullptr);
         ~Model();
@@ -83,11 +84,14 @@ namespace VariantTable
         void setCellData(int row, int col, CellDataBasePtr data);
         CellDataBasePtr getCellData(int row, int col) const;
 
+        void remove(CellDataBasePtr data);
+
 
         Delegate* getDelegate() const { return m_delegate; }
         static void iconThemeChanged();
        
         private:
+        void onDataChanged();
         void iconThemeChanged_internal();
             //void onNewEditorCreated(QWidget* editor, const QModelIndex& index) const;
         struct CellData

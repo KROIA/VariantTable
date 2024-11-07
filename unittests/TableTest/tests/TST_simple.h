@@ -1,6 +1,7 @@
 #pragma once
 
 #include "UnitTest.h"
+#include "VariantTable.h"
 //#include <QObject>
 //#include <QCoreapplication>
 
@@ -30,6 +31,8 @@ private:
 		int a = 0;
 		TEST_MESSAGE("is a == 0?");
 		TEST_ASSERT(a == 0);
+
+		
 	}
 
 

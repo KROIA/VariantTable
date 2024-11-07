@@ -46,6 +46,7 @@ namespace VariantTable
 		if (m_editor)
 			m_editor->setDate(date);
 		updateText();
+		dataChanged();
 	}
 	QDate DateTimeEdit::getDate() const
 	{
@@ -59,6 +60,7 @@ namespace VariantTable
 		if (m_editor)
 			m_editor->setTime(time);
 		updateText();
+		dataChanged();
 	}
 	QTime DateTimeEdit::getTime() const
 	{
@@ -72,6 +74,7 @@ namespace VariantTable
 		if (m_editor)
 			m_editor->setDateTime(dateTime);
 		updateText();
+		dataChanged();
 	}
 	QDateTime DateTimeEdit::getDateTime() const
 	{
@@ -85,6 +88,7 @@ namespace VariantTable
 	{
 		m_dateTime = data.toDateTime();
 		updateText();
+		dataChanged();
 	}
 	void DateTimeEdit::setData(QWidget* editor)
 	{

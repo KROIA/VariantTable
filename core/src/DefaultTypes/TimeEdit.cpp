@@ -48,6 +48,7 @@ namespace VariantTable
 		if (m_editor)
 			m_editor->setTime(m_time);
 		updateText();
+		dataChanged();
 	}
 	QTime TimeEdit::getTime() const
 	{
@@ -61,6 +62,7 @@ namespace VariantTable
 	{
 		m_time = data.toTime();
 		updateText();
+		dataChanged();
 	}
 	void TimeEdit::setData(QWidget* editor)
 	{

@@ -46,6 +46,7 @@ namespace VariantTable
 		if (m_editor)
 			m_editor->setDate(m_date);
 		updateText();
+		dataChanged();
 	}
 	QDate DateEdit::getDate() const
 	{
@@ -59,6 +60,7 @@ namespace VariantTable
 	{
 		m_date = data.toDate();
 		updateText();
+		dataChanged();
 	}
 	void DateEdit::setData(QWidget* editor)
 	{

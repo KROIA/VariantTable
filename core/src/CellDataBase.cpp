@@ -1,4 +1,5 @@
 #include "CellDataBase.h"
+#include "Model.h"
 
 #include <QSize>
 #include <QPainter>
@@ -68,6 +69,11 @@ namespace VariantTable
 			editor->setStyleSheet("background-color: " + m_color.name() + ";");
 		}
 	}
+	void CellDataBase::dataChanged() const
+	{
+		if (m_model)
+			m_model->onDataChanged();
+	}
 
 
 	void CellDataBase::drawEditorPlaceholderColorOverlay(QPainter* painter, const QStyleOptionViewItem& option) const
@@ -134,4 +140,7 @@ namespace VariantTable
 						 });
 		return editor;
 	}
+
+
+
 }

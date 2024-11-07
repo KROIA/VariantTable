@@ -38,6 +38,7 @@ namespace VariantTable
 	{
 		m_text = text;
 		setEditorPlaceholderText(m_text);
+		dataChanged();
 	}
 	const QString& CheckBox::getText() const
 	{
@@ -52,7 +53,7 @@ namespace VariantTable
 			updateIcon();
 		}
 		m_value = value;
-		
+		dataChanged();
 	}
 	bool CheckBox::isChecked() const
 	{
@@ -64,6 +65,7 @@ namespace VariantTable
 	void CheckBox::setData(const QVariant& data) 	
 	{
 		m_value = data.toBool();
+		dataChanged();
 	}
 	void CheckBox::setData(QWidget* editor) 
 	{

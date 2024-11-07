@@ -35,6 +35,7 @@ namespace VariantTable
 	{
 		m_text = text;
 		setEditorPlaceholderText(m_text);
+		dataChanged();
 	}
 	const QString& PushButton::getText() const
 	{
@@ -53,6 +54,7 @@ namespace VariantTable
 		{
 			m_text = m_editor->text();
 			setEditorPlaceholderText(m_text);
+			dataChanged();
 		}
 	}
 	QVariant PushButton::getData() const

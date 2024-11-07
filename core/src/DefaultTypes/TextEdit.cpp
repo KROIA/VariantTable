@@ -40,6 +40,7 @@ namespace VariantTable
 			m_editor->setText(text);
 		
 		updateText();
+		dataChanged();
 	}
 	QString TextEdit::getText() const
 	{
@@ -55,6 +56,7 @@ namespace VariantTable
 		if (m_editor)
 			m_editor->setText(m_text);
 		updateText();
+		dataChanged();
 	}
 	void TextEdit::setData(QWidget* editor)
 	{

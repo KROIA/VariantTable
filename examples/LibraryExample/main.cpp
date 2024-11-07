@@ -4,6 +4,7 @@
 #include <QPushButton>
 #include <QToolTip>
 #include <QFile>
+#include <QTimer>
 
 #include "VariantTable.h"
 
@@ -28,6 +29,7 @@ int main(int argc, char* argv[])
 
 	VariantTable::CellDataBasePtr boolCell = VariantTable::CheckBox::create("Test", true);
 	VariantTable::CellDataBasePtr radioBox = VariantTable::RadioButton::create(QStringList{ "RadioA" ,"RadioB"});
+	VariantTable::CellDataBasePtr progressBar = VariantTable::ProgressBar::create(0, 100, 0);
 	auto button = VariantTable::PushButton::create("Button");
 	connect(button, &VariantTable::PushButton::clicked, [radioBox]() {
 		qDebug() << "Button clicked";
@@ -50,9 +52,24 @@ int main(int argc, char* argv[])
 	tableView->getModel()->setCellData(0, 2, VariantTable::TimeEdit::create(QTime::currentTime()));
 	tableView->getModel()->setCellData(0, 3, VariantTable::DateEdit::create(QDate::currentDate()));
 	tableView->getModel()->setCellData(0, 4, VariantTable::DateTimeEdit::create(QDateTime::currentDateTimeUtc()));
+	tableView->getModel()->setCellData(6, 0, progressBar);
 	tableView->getModel()->setCellData(5, 0, button);
 	tableView->getModel()->setCellData(5, 5, boolCell);
-	tableView->getModel()->setCellData(4, 4, radioBox);
+	tableView->getModel()->setCellData(5, 6, boolCell);
+
+	QTimer timer;
+	QObject::connect(&timer, &QTimer::timeout, [tableView, progressBar]() {
+		VariantTable::ProgressBar* bar = dynamic_cast<VariantTable::ProgressBar*>(progressBar.get());
+		if (bar)
+		{
+			bar->setValue(bar->getValue() + 1);
+			if (bar->getValue() >= bar->getMaximum())
+				bar->setValue(bar->getMinimum());
+		}
+		});
+	timer.start(100);
+
+	
 
 	tableView->resize(800, 600);
 	tableView->resizeRowToContents(0);

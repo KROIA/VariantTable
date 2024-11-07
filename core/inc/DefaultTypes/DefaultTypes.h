@@ -10,4 +10,5 @@
 #include "TimeEdit.h"
 #include "DateEdit.h"
 #include "DateTimeEdit.h"
+#include "ProgressBar.h"
 

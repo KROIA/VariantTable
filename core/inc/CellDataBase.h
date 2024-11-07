@@ -15,6 +15,7 @@ class QPainter;
 namespace VariantTable
 {
 	class CellDataBase;
+	class Model;
 	typedef size_t CellDataTypeID;
 
 
@@ -67,6 +68,7 @@ namespace VariantTable
 	class CellDataBase
 	{
 		friend class Delegate;
+		friend class Model;
 		public:
 			CellDataBase();
 			CellDataBase(const CellDataBase &other);
@@ -109,6 +111,7 @@ namespace VariantTable
 			virtual void editorWidgetDestroyed() const = 0;
 
 			void applyColor(QWidget* editor) const;
+			void dataChanged() const;
 
 			virtual void drawEditorPlaceholderColorOverlay(QPainter* painter, const QStyleOptionViewItem& option) const;
 			virtual void drawEditorPlaceholderIcon(QPainter* painter, const QStyleOptionViewItem& option) const;
@@ -116,7 +119,10 @@ namespace VariantTable
 
 		private:
 			QWidget* createEditorWidget_internal(QWidget* parent) const;
+			void setTableData(Model* model) const { m_model = model; }
+			Model* getModel() const { return m_model; }
 
+			
 			QColor m_color = QColor(255,255,255);
 			bool m_isEditable = true;
 			mutable QWidget* m_mainEditorWidget = nullptr;
@@ -131,6 +137,8 @@ namespace VariantTable
 				static float iconHeight;
 			};
 			PlaceholderData m_editorPlaceholderData;
+
+			mutable Model* m_model = nullptr;
 	};
 
 	template<typename T>

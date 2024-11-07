@@ -14,6 +14,7 @@ namespace VariantTable
 		, m_options({ "Option 1", "Option 2", "Option 3" })
 	{
 		updateIcon();
+		updateText();
 	}
 	CheckBoxList::CheckBoxList(const CheckBoxList& other)
 		: CellDataBase(other)
@@ -35,6 +36,7 @@ namespace VariantTable
 		m_options = options;
 		m_selectedIndexes.clear();
 		updateText();
+		dataChanged();
 	}
 	const QStringList& CheckBoxList::getOptions() const
 	{
@@ -51,6 +53,7 @@ namespace VariantTable
 			}
 		}
 		updateText();
+		dataChanged();
 	}
 	QVector<int> CheckBoxList::getCheckedIndexes() const
 	{
@@ -75,6 +78,7 @@ namespace VariantTable
 	{
 		m_options = data.toStringList();
 		updateText();
+		dataChanged();
 	}
 	void CheckBoxList::setData(QWidget* editor)
 	{
@@ -192,8 +196,8 @@ namespace VariantTable
 		}
 		if (!text.isEmpty())
 			text.chop(2); // Remove the last comma and space
-		else
-			text = "Nothing selected";
+		//else
+		//	text = "Nothing selected";
 		setEditorPlaceholderText(text);
 	}
 }
