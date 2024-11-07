@@ -6,9 +6,9 @@
         <file>icons_color/comboBox.png</file>
         <file>icons_color/lineEdit.png</file>
         <file>icons_color/radioButton.png</file>
-        <file>icons_color/press-button.png</file>
         <file>icons_color/calendar.png</file>
         <file>icons_color/clock.png</file>
         <file>icons_color/calendar-and-clock.png</file>
+        <file>icons_color/pushButton.png</file>
     </qresource>
 </RCC>

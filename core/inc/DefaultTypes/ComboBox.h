@@ -31,14 +31,16 @@ namespace VariantTable
 		void getData(QWidget* editor) override;
 
 		QWidget* createEditorWidget(QWidget* parent) const override;
-		void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const override;
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() const override;
+		void updateIcon() override;
 	private:
+		void updateText();
 		QStringList m_options;
 		int m_selectedIndex = -1;
 
-		//mutable QWidget* m_editorWidget = nullptr;
 		mutable QComboBox* m_combo = nullptr;
+
+		static QString s_comboBoxIcon;
 	};
 }

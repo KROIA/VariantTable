@@ -5,7 +5,30 @@
 
 namespace VariantTable
 {
+	float CellDataBase::PlaceholderData::iconXPos = 5;
+	float CellDataBase::PlaceholderData::iconHeight = 20;
 
+	CellDataBase::CellDataBase()
+	{
+		m_color = QColor(255, 255, 255);
+		m_isEditable = true;
+		m_mainEditorWidget = nullptr;
+		m_editorPlaceholderData.text = "";
+		m_editorPlaceholderData.hasIcon = false;
+	}
+	CellDataBase::CellDataBase(const CellDataBase& other)
+	{
+		m_color = other.m_color;
+		m_isEditable = other.m_isEditable;
+		m_mainEditorWidget = nullptr;
+		m_editorPlaceholderData = other.m_editorPlaceholderData;
+
+
+	}
+	CellDataBase::~CellDataBase()
+	{
+
+	}
 
 	void CellDataBase::setColor(const QColor& color)
 	{ 
@@ -32,7 +55,8 @@ namespace VariantTable
 	void CellDataBase::drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const
 	{
 		drawEditorPlaceholderColorOverlay(painter, option);
-		drawEditorPlaceholderIcon(painter, option);
+		if (m_editorPlaceholderData.hasIcon)
+			drawEditorPlaceholderIcon(painter, option);
 		drawEditorPlaceholderText(painter, option);
 	}
 
@@ -59,44 +83,41 @@ namespace VariantTable
 	}
 	void CellDataBase::drawEditorPlaceholderIcon(QPainter* painter, const QStyleOptionViewItem& option) const
 	{
-		if (!m_editorPlaceholderIcon)
-			return;
-
 		QRect rect = option.rect;
 		QPoint TL = rect.topLeft();
-		float xPos = 5;
 		float height = rect.height();
-		float size = 20;
+		const float& xPos = PlaceholderData::iconXPos;
+		const float &size = PlaceholderData::iconHeight;
 		float yOffset = (height - size) / 2;
 
 		
 
-		QSize iconSize = m_editorPlaceholderIcon->availableSizes().first();
+		QSize iconSize = m_editorPlaceholderData.icon.availableSizes().first();
 		float aspectRatio = iconSize.width() / (float)iconSize.height();
 		// Draw icon
 		QRect iconRect = QRect(xPos + TL.x(), yOffset + TL.y(), aspectRatio * size, size);
-		painter->drawPixmap(iconRect, m_editorPlaceholderIcon->pixmap(aspectRatio * size, size));
+		painter->drawPixmap(iconRect, m_editorPlaceholderData.icon.pixmap(aspectRatio * size, size));
 
 	}
 	void CellDataBase::drawEditorPlaceholderText(QPainter* painter, const QStyleOptionViewItem& option) const
 	{
 		QRect rect = option.rect;
 		QPoint TL = rect.topLeft();
-		float xPos = 5;
 		float height = rect.height();
-		float size = 20;
+		float xPos = PlaceholderData::iconXPos;
+		const float& size = PlaceholderData::iconHeight;
 		float yOffset = (height - size) / 2;
 
-		
 		float aspectRatio = 1;
-		if (m_editorPlaceholderIcon)
+		if (m_editorPlaceholderData.hasIcon)
 		{
-			QSize iconSize = m_editorPlaceholderIcon->availableSizes().first();
+			QSize iconSize = m_editorPlaceholderData.icon.availableSizes().first();
 			aspectRatio = iconSize.width() / (float)iconSize.height();
 			xPos += size * aspectRatio;
 		}
+		
 		QRect textRect = QRect(xPos + TL.x(), yOffset + TL.y(), rect.width() - size, size);
-		painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, m_editorPlaceholderText);
+		painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, m_editorPlaceholderData.text);
 	}
 
 

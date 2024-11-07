@@ -32,12 +32,12 @@ int main(int argc, char* argv[])
 	connect(button, &VariantTable::PushButton::clicked, [radioBox]() {
 		qDebug() << "Button clicked";
 		radioBox->setEditable(!radioBox->isEditable());
-		/*VariantTable::IconManager::Theme theme = VariantTable::IconManager::getTheme();
+		VariantTable::IconManager::Theme theme = VariantTable::IconManager::getTheme();
 		if (theme == VariantTable::IconManager::Theme::color)
 			VariantTable::IconManager::setTheme(VariantTable::IconManager::Theme::black);
 		else
 			VariantTable::IconManager::setTheme(VariantTable::IconManager::Theme::color);
-			*/		 
+			 
 			
 			});
 

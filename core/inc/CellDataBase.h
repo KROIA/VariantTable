@@ -68,55 +68,69 @@ namespace VariantTable
 	{
 		friend class Delegate;
 		public:
-		CellDataBase() = default;
-		virtual ~CellDataBase() = default;
+			CellDataBase();
+			CellDataBase(const CellDataBase &other);
+			virtual ~CellDataBase();
 
-		virtual CellDataBasePtr clone() const = 0;
+			virtual CellDataBasePtr clone() const = 0;
 
-		virtual void setData(const QVariant& data) = 0;
-		virtual void setData(QWidget* editor) = 0;
-		virtual QVariant getData() const = 0;
-		virtual void getData(QWidget* editor) = 0;
+			virtual void setData(const QVariant& data) = 0;
+			virtual void setData(QWidget* editor) = 0;
+			virtual QVariant getData() const = 0;
+			virtual void getData(QWidget* editor) = 0;
 
-		virtual void setColor(const QColor& color);
-		virtual const QColor &getColor() const { return m_color; }
+			virtual void setColor(const QColor& color);
+			virtual const QColor &getColor() const { return m_color; }
 
 
-		virtual void setEditable(bool editable);
-		virtual bool isEditable() const { return m_isEditable; }
-		virtual QSize getSizeHint(const QStyleOptionViewItem& option);
+			virtual void setEditable(bool editable);
+			virtual bool isEditable() const { return m_isEditable; }
+			virtual QSize getSizeHint(const QStyleOptionViewItem& option);
 		
-		virtual void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const;
-		virtual QString getToolTip() const = 0;
+			virtual void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const;
+			virtual QString getToolTip() const = 0;
+			virtual void updateIcon() = 0;
 
 		protected:
 
-		void setEditorPlaceholderText(const QString& text) { m_editorPlaceholderText = text; }
-		const QString& getEditorPlaceholderText() const {
-			return m_editorPlaceholderText;
-		}
-		void setEditorPlaceholderIcon(const QIcon* icon) { m_editorPlaceholderIcon = icon; }
-		const QIcon* getEditorPlaceholderIcon() const {
-			return m_editorPlaceholderIcon;
-		}
+			void setEditorPlaceholderText(const QString& text) { m_editorPlaceholderData.text = text; }
+			const QString& getEditorPlaceholderText() const {
+				return m_editorPlaceholderData.text;
+			}
+			void setEditorPlaceholderIcon(const QIcon& icon) { 
+				m_editorPlaceholderData.icon = icon;
+				m_editorPlaceholderData.hasIcon = icon.availableSizes().size() > 0;
+			}
+			const QIcon& getEditorPlaceholderIcon() const {
+				return m_editorPlaceholderData.icon;
+			}
 		
-		virtual QWidget* createEditorWidget(QWidget* parent) const = 0;
-		virtual void editorWidgetDestroyed() const = 0;
+			virtual QWidget* createEditorWidget(QWidget* parent) const = 0;
+			virtual void editorWidgetDestroyed() const = 0;
 
-		void applyColor(QWidget* editor) const;
+			void applyColor(QWidget* editor) const;
 
-		virtual void drawEditorPlaceholderColorOverlay(QPainter* painter, const QStyleOptionViewItem& option) const;
-		virtual void drawEditorPlaceholderIcon(QPainter* painter, const QStyleOptionViewItem& option) const;
-		virtual void drawEditorPlaceholderText(QPainter* painter, const QStyleOptionViewItem& option) const;
+			virtual void drawEditorPlaceholderColorOverlay(QPainter* painter, const QStyleOptionViewItem& option) const;
+			virtual void drawEditorPlaceholderIcon(QPainter* painter, const QStyleOptionViewItem& option) const;
+			virtual void drawEditorPlaceholderText(QPainter* painter, const QStyleOptionViewItem& option) const;
 
 		private:
-		QWidget* createEditorWidget_internal(QWidget* parent) const;
+			QWidget* createEditorWidget_internal(QWidget* parent) const;
 
-		QColor m_color = QColor(255,255,255);
-		QString m_editorPlaceholderText;
-		const QIcon* m_editorPlaceholderIcon = nullptr;
-		bool m_isEditable = true;
-		mutable QWidget* m_mainEditorWidget = nullptr;
+			QColor m_color = QColor(255,255,255);
+			bool m_isEditable = true;
+			mutable QWidget* m_mainEditorWidget = nullptr;
+
+			struct PlaceholderData
+			{
+				QString text;
+				bool hasIcon = false;
+				QIcon icon;
+
+				static float iconXPos;
+				static float iconHeight;
+			};
+			PlaceholderData m_editorPlaceholderData;
 	};
 
 	template<typename T>

@@ -28,11 +28,14 @@ namespace VariantTable
 
 
 		QWidget* createEditorWidget(QWidget* parent) const override;
-		//void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const override;
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() const override;
+		void updateIcon() override;
 		private:
+		void updateText();
 		QString m_text;
 		mutable QTextEdit* m_editor = nullptr;
+
+		static QString s_textEditIcon;
 	};
 }

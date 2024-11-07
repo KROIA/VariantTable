@@ -104,6 +104,13 @@ namespace VariantTable
     }
     void Model::iconThemeChanged_internal()
     {
+		for (int i = 0; i < rowCount(); ++i)
+		{
+			for (int j = 0; j < columnCount(); ++j)
+			{
+				m_data[i][j].data->updateIcon();
+			}
+		}
 		emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
     }
     bool Model::isIndexSelected(const QModelIndex& index) const

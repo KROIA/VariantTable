@@ -7,11 +7,13 @@
 
 namespace VariantTable
 {
+	QString CheckBoxList::s_checkedIcon = "checkBoxList-checked.png";
+
 	CheckBoxList::CheckBoxList()
 		: CellDataBase()
 		, m_options({ "Option 1", "Option 2", "Option 3" })
 	{
-
+		updateIcon();
 	}
 	CheckBoxList::CheckBoxList(const CheckBoxList& other)
 		: CellDataBase(other)
@@ -23,7 +25,8 @@ namespace VariantTable
 		: CellDataBase()
 		, m_options(options)
 	{
-
+		updateIcon();
+		updateText();
 	}
 
 
@@ -31,6 +34,7 @@ namespace VariantTable
 	{
 		m_options = options;
 		m_selectedIndexes.clear();
+		updateText();
 	}
 	const QStringList& CheckBoxList::getOptions() const
 	{
@@ -46,6 +50,7 @@ namespace VariantTable
 				m_checkBoxes[i]->setChecked(m_selectedIndexes.contains(i));
 			}
 		}
+		updateText();
 	}
 	QVector<int> CheckBoxList::getCheckedIndexes() const
 	{
@@ -69,6 +74,7 @@ namespace VariantTable
 	void CheckBoxList::setData(const QVariant& data)
 	{
 		m_options = data.toStringList();
+		updateText();
 	}
 	void CheckBoxList::setData(QWidget* editor)
 	{
@@ -86,6 +92,7 @@ namespace VariantTable
 				}
 			}
 		}
+		updateText();
 	}
 	QVariant CheckBoxList::getData() const
 	{
@@ -153,90 +160,9 @@ namespace VariantTable
 			if (i >= 0 && i < m_checkBoxes.size())
 				m_checkBoxes[i]->setChecked(true);
 		}
-		/*if (m_selectedIndex < 0 || m_selectedIndex >= m_editorButtons.size())
-		{
-			QPalette palette = m_editorWidget->palette();
-			palette.setColor(QPalette::Window, Qt::red);
-			m_editorWidget->setAutoFillBackground(true);  // Required to apply the color
-			m_editorWidget->setPalette(palette);
-		}
-		else
-		{
-			QPalette palette = m_editorWidget->palette();
-			palette.setColor(QPalette::Window, Qt::lightGray);
-			m_editorWidget->setAutoFillBackground(true);  // Required to apply the color
-			m_editorWidget->setPalette(palette);
-		}*/
-
-
-
-		// Destroy event
-		QObject::connect(m_editorWidget, &QWidget::destroyed, parent, [this]()
-			{
-				m_editorWidget = nullptr;
-				m_checkBoxes.clear();
-			});
 		return m_editorWidget;
 	}
-	void CheckBoxList::drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const
-	{
-
-
-		QRect rect = option.rect;
-		QPoint TL = rect.topLeft();
-		float xPos = 5;
-		float height = rect.height();
-		float size = 20;
-		float yOffset = (height - size) / 2;
-
-		QPen origPen = painter->pen();
-		QBrush origBrush = painter->brush();
-		// Set the brush color
-		painter->setBrush(getColor());
-		painter->setPen(getColor());
-		painter->drawRect(rect); // x, y, width, height
-		painter->setBrush(origBrush);
-		painter->setPen(origPen);
-
-		// Draw the checkboxes which are checked in a comumn
-		/*for (int i = 0; i < m_selectedIndexes.size(); ++i)
-		{
-			QRect checkBoxRect = QRect(TL.x() + xPos, TL.y() + yOffset, size, size);
-
-			QStyleOptionButton checkboxOption;
-			checkboxOption.rect = checkBoxRect;
-			checkboxOption.state = QStyle::State_On | QStyle::State_Enabled; // Set the state based on the checkbox
-
-			// Draw the checkbox using the application's style
-			QApplication::style()->drawControl(QStyle::CE_CheckBox, &checkboxOption, painter);
-
-			QStyleOptionButton checkboxOptionLabel;
-			checkboxOptionLabel.rect = QRect(checkBoxRect.x() + checkBoxRect.width(), checkBoxRect.y(), rect.width() - size, size);
-			checkboxOptionLabel.text = m_options[m_selectedIndexes[i]];
-			QApplication::style()->drawControl(QStyle::CE_CheckBoxLabel, &checkboxOptionLabel, painter);
-
-			yOffset += size + 5; // Adjust the position for the next checkbox
-		}*/
-
-		QString text;
-		for (int i : m_selectedIndexes)
-		{
-			if (i >= 0 && i < m_options.size())
-				text += m_options[i] + ", ";
-		}
-		if (!text.isEmpty())
-			text.chop(2); // Remove the last comma and space
-		else
-			text = "Nothing selected";
-
-		QRect textRect = QRect(xPos + TL.x() + size, yOffset + TL.y(), rect.width() - size, size);
-		painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, text);	
-
-
-		// Draw icon
-		QRect iconRect = QRect(xPos + TL.x(), yOffset + TL.y(), size, size);
-		painter->drawPixmap(iconRect, IconManager::getIcon("checkBoxList-checked.png").pixmap(size, size));
-	}
+	
 	QString CheckBoxList::getToolTip() const
 	{
 		QString text;
@@ -251,5 +177,23 @@ namespace VariantTable
 	{
 		m_editorWidget = nullptr;
 		m_checkBoxes.clear();
+	}
+	void CheckBoxList::updateIcon()
+	{
+		setEditorPlaceholderIcon(IconManager::getIcon(s_checkedIcon));
+	}
+	void CheckBoxList::updateText()
+	{
+		QString text;
+		for (int i : m_selectedIndexes)
+		{
+			if (i >= 0 && i < m_options.size())
+				text += m_options[i] + ", ";
+		}
+		if (!text.isEmpty())
+			text.chop(2); // Remove the last comma and space
+		else
+			text = "Nothing selected";
+		setEditorPlaceholderText(text);
 	}
 }

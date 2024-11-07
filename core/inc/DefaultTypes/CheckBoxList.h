@@ -33,14 +33,17 @@ namespace VariantTable
 
 
 		QWidget* createEditorWidget(QWidget* parent) const override;
-		void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const override;
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() const override;
+		void updateIcon() override;
 	private:
+		void updateText();
 		QStringList m_options;
 		QVector<int> m_selectedIndexes;
 
 		mutable QWidget* m_editorWidget = nullptr;
 		mutable QVector<QCheckBox*> m_checkBoxes;
+
+		static QString s_checkedIcon;
 	};
 }
