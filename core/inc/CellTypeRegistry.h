@@ -46,7 +46,7 @@ namespace VariantTable
 			static_assert(std::is_base_of<CellDataBase, CellDataType>::value,
 				"CelllDataType must be derived from CellDataBase");
 			CellDataTypeID typeId = getTypeID<CellDataType>();
-			return dynamic_cast<const CellDataType*>(getRegisteredTypeFromID(typeId));
+			return getRegisteredTypeFromID(typeId);
 		}
 #endif
 

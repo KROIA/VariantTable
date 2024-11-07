@@ -12,19 +12,22 @@ namespace VariantTable
 		: CellDataBase()
 		, m_text("QTextEdit")
 	{
-
+		setEditorPlaceholderIcon(&IconManager::getIcon("lineEdit.png"));
+		setEditorPlaceholderText(m_text.split("\n").first());
 	}
 	TextEdit::TextEdit(const TextEdit& other)
 		: CellDataBase(other)
 		, m_text(other.m_text)
 	{
-
+		setEditorPlaceholderIcon(&IconManager::getIcon("lineEdit.png"));
+		setEditorPlaceholderText(m_text.split("\n").first());
 	}
 	TextEdit::TextEdit(const QString& text)
 		: CellDataBase()
 		, m_text(text)
 	{
-
+		setEditorPlaceholderIcon(&IconManager::getIcon("lineEdit.png"));
+		setEditorPlaceholderText(m_text.split("\n").first());
 	}
 
 
@@ -33,6 +36,8 @@ namespace VariantTable
 		m_text = text;
 		if (m_editor)
 			m_editor->setText(text);
+		
+		setEditorPlaceholderText(m_text.split("\n").first());
 	}
 	QString TextEdit::getText() const
 	{
@@ -45,6 +50,9 @@ namespace VariantTable
 	void TextEdit::setData(const QVariant& data)
 	{
 		m_text = data.toString();
+		if (m_editor)
+			m_editor->setText(m_text);
+		setEditorPlaceholderText(m_text.split("\n").first());
 	}
 	void TextEdit::setData(QWidget* editor)
 	{
@@ -53,6 +61,7 @@ namespace VariantTable
 		if (m_editor)
 		{
 			m_text = m_editor->toPlainText();
+			setEditorPlaceholderText(m_text.split("\n").first());
 		}
 	}
 	QVariant TextEdit::getData() const
@@ -68,21 +77,7 @@ namespace VariantTable
 			m_editor->setText(m_text);
 		}
 	}
-	void TextEdit::setColor(const QColor& color)
-	{
-		CellDataBase::setColor(color);
-		CellDataBase::applyColor(m_editor);
-	}
-	QSize TextEdit::getSizeHint(const QStyleOptionViewItem& option) const
-	{
 
-		if (m_editor)
-		{
-			QSize size = m_editor->sizeHint();
-			return size;
-		}
-		return QSize(option.rect.width(), option.rect.height());
-	}
 
 	QWidget* TextEdit::createEditorWidget(QWidget* parent) const
 	{
@@ -97,16 +92,9 @@ namespace VariantTable
 		m_editor->setText(m_text);
 		//layout->addWidget(m_editor);
 
-		CellDataBase::applyColor(m_editor);
-
-		// Destroy event
-		QObject::connect(m_editor, &QWidget::destroyed, parent, [this]()
-						 {
-							 m_editor = nullptr;
-						 });
 		return m_editor;
 	}
-	void TextEdit::drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const
+	/*void TextEdit::drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const
 	{
 		QRect rect = option.rect;
 		QPoint TL = rect.topLeft();
@@ -126,15 +114,22 @@ namespace VariantTable
 
 		// Draw text
 		QString text = m_text.split("\n").first();
-		QRect textRect = QRect(xPos + TL.x() + size * 2, yOffset + TL.y(), rect.width() - size, size);
+		const QIcon& icon = IconManager::getIcon("lineEdit.png");
+		QSize iconSize = icon.availableSizes().first();
+		float aspectRatio = iconSize.width()/ (float)iconSize.height();
+		QRect textRect = QRect(xPos + TL.x() + size* aspectRatio, yOffset + TL.y(), rect.width() - size, size);
 		painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, text);
 
 		// Draw icon
-		QRect iconRect = QRect(xPos + TL.x(), yOffset + TL.y(), size * 2, size);
+		QRect iconRect = QRect(xPos + TL.x(), yOffset + TL.y(), aspectRatio*size, size);
 		painter->drawPixmap(iconRect, IconManager::getIcon("lineEdit.png").pixmap(size, size));
-	}
+	}*/
 	QString TextEdit::getToolTip() const
 	{
 		return m_text;
+	}
+	void TextEdit::editorWidgetDestroyed() const
+	{
+		m_editor = nullptr;
 	}
 }

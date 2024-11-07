@@ -30,14 +30,12 @@ namespace VariantTable
 		QVariant getData() const override;
 		void getData(QWidget* editor) override;
 
-		void setColor(const QColor& color) override;
 
-
-		QSize getSizeHint(const QStyleOptionViewItem& option) const override;
 
 		QWidget* createEditorWidget(QWidget* parent) const override;
 		void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const override;
 		QString getToolTip() const override;
+		void editorWidgetDestroyed() const override;
 		private:
 		QTime m_time;
 		

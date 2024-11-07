@@ -29,14 +29,17 @@ int main(int argc, char* argv[])
 	VariantTable::CellDataBasePtr boolCell = VariantTable::CheckBox::create("Test", true);
 	VariantTable::CellDataBasePtr radioBox = VariantTable::RadioButton::create(QStringList{ "RadioA" ,"RadioB"});
 	auto button = VariantTable::PushButton::create("Button");
-	QObject::connect(static_cast<VariantTable::PushButton*>(button.get()), &VariantTable::PushButton::clicked, []() {
+	connect(button, &VariantTable::PushButton::clicked, [radioBox]() {
 		qDebug() << "Button clicked";
-		VariantTable::IconManager::Theme theme = VariantTable::IconManager::getTheme();
+		radioBox->setEditable(!radioBox->isEditable());
+		/*VariantTable::IconManager::Theme theme = VariantTable::IconManager::getTheme();
 		if (theme == VariantTable::IconManager::Theme::color)
 			VariantTable::IconManager::setTheme(VariantTable::IconManager::Theme::black);
 		else
 			VariantTable::IconManager::setTheme(VariantTable::IconManager::Theme::color);
-					 });
+			*/		 
+			
+			});
 
 	tableView->getModel()->setCellData(0, 0, VariantTable::CheckBox::create("Test", true));
 	tableView->getModel()->setCellData(1, 0, VariantTable::RadioButton::create(QStringList{ "RadioA" ,"RadioB" }));

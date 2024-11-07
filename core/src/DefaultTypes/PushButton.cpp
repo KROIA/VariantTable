@@ -36,11 +36,6 @@ namespace VariantTable
 	{
 		return m_text;
 	}
-	void PushButton::setColor(const QColor& color)
-	{
-		CellDataBase::setColor(color);
-		CellDataBase::applyColor(m_editor);
-	}
 
 
 	void PushButton::setData(const QVariant& data)
@@ -71,16 +66,6 @@ namespace VariantTable
 		}
 	}
 
-	QSize PushButton::getSizeHint(const QStyleOptionViewItem& option) const
-	{
-
-		if (m_editor)
-		{
-			QSize size = m_editor->sizeHint();
-			return size;
-		}
-		return QSize(option.rect.width(), option.rect.height());
-	}
 
 	QWidget* PushButton::createEditorWidget(QWidget* parent) const
 	{
@@ -97,13 +82,6 @@ namespace VariantTable
 
 		connect(m_editor, &QPushButton::clicked, this, &PushButton::onButtonClickedInternal);
 
-		CellDataBase::applyColor(editor);
-
-		// Destroy event
-		QObject::connect(layout, &QWidget::destroyed, parent, [this]()
-						 {
-							 m_editor = nullptr;
-						 });
 		return editor;
 	}
 	void PushButton::drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const
@@ -142,6 +120,10 @@ namespace VariantTable
 	QString PushButton::getToolTip() const
 	{
 		return m_text;
+	}
+	void PushButton::editorWidgetDestroyed() const
+	{
+		m_editor = nullptr;
 	}
 
 	void PushButton::onButtonClickedInternal()

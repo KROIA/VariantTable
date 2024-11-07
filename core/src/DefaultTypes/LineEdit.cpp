@@ -68,21 +68,6 @@ namespace VariantTable
 			m_editor->setText(m_text);
 		}
 	}
-	void LineEdit::setColor(const QColor& color)
-	{
-		CellDataBase::setColor(color);
-		CellDataBase::applyColor(m_editor);
-	}
-	QSize LineEdit::getSizeHint(const QStyleOptionViewItem& option) const
-	{
-
-		if (m_editor)
-		{
-			QSize size = m_editor->sizeHint();
-			return size;
-		}
-		return QSize(option.rect.width(), option.rect.height());
-	}
 
 	QWidget* LineEdit::createEditorWidget(QWidget* parent) const
 	{
@@ -95,15 +80,7 @@ namespace VariantTable
 		//editor->setLayout(layout);
 		m_editor = new QLineEdit(parent);
 		m_editor->setText(m_text);
-		//layout->addWidget(m_editor);
 
-		CellDataBase::applyColor(m_editor);
-
-		// Destroy event
-		QObject::connect(m_editor, &QWidget::destroyed, parent, [this]()
-			{
-				m_editor = nullptr;
-			});
 		return m_editor;
 	}
 	void LineEdit::drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const
@@ -135,5 +112,9 @@ namespace VariantTable
 	QString LineEdit::getToolTip() const
 	{
 		return m_text;
+	}
+	void LineEdit::editorWidgetDestroyed() const
+	{
+		m_editor = nullptr;
 	}
 }

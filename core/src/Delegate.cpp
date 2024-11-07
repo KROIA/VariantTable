@@ -32,7 +32,7 @@ namespace VariantTable
                 editor = QStyledItemDelegate::createEditor(parent, option, index);
             else
             {
-                editor = cellData->createEditorWidget(parent);
+                editor = cellData->createEditorWidget_internal(parent);
             }
         }
 		//m_model->onNewEditorCreated(editor, index);

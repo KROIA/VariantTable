@@ -115,21 +115,7 @@ namespace VariantTable
 		}
 	}
 
-	void CheckBoxList::setColor(const QColor& color) 
-	{
-		CellDataBase::setColor(color);
-		CellDataBase::applyColor(m_editorWidget);
-	}
 
-	QSize CheckBoxList::getSizeHint(const QStyleOptionViewItem& option) const
-	{
-		if (m_editorWidget)
-		{
-			QSize size = m_editorWidget->sizeHint();
-			return size;
-		}
-		return QSize(option.rect.width(), option.rect.height());
-	}
 
 	QWidget* CheckBoxList::createEditorWidget(QWidget* parent) const
 	{
@@ -150,8 +136,6 @@ namespace VariantTable
 			layout->addWidget(button);
 			m_checkBoxes.push_back(button);
 		}
-		CellDataBase::applyColor(m_editorWidget);
-
 
 		// Set data
 		int maxIndex = std::min(m_checkBoxes.size(), m_options.size());
@@ -262,5 +246,10 @@ namespace VariantTable
 		}
 		text.chop(1); // Remove the last newline
 		return text;
+	}
+	void CheckBoxList::editorWidgetDestroyed() const
+	{
+		m_editorWidget = nullptr;
+		m_checkBoxes.clear();
 	}
 }

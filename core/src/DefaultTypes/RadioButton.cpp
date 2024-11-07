@@ -121,21 +121,6 @@ namespace VariantTable
 		}
 	}
 
-	void RadioButton::setColor(const QColor& color)
-	{
-		CellDataBase::setColor(color);
-		CellDataBase::applyColor(m_editorWidget);
-	}
-
-	QSize RadioButton::getSizeHint(const QStyleOptionViewItem& option) const
-	{
-		if (m_editorWidget)
-		{
-			QSize size = m_editorWidget->sizeHint();
-			return size;
-		}
-		return QSize(option.rect.width(), option.rect.height());
-	}
 
 	QWidget* RadioButton::createEditorWidget(QWidget* parent) const
 	{
@@ -157,9 +142,6 @@ namespace VariantTable
 			m_editorButtons.push_back(button);
 		}
 
-		CellDataBase::applyColor(m_editorWidget);
-
-
 		// Set data
 		int maxIndex = std::min(m_editorButtons.size(), m_options.size());
 		if (m_editorButtons.size() != m_options.size())
@@ -175,14 +157,7 @@ namespace VariantTable
 				m_editorButtons[i]->setChecked(false);
 		}
 
-		
-
-		// Destroy event
-		QObject::connect(m_editorWidget, &QWidget::destroyed, parent, [this]()
-			{
-				m_editorWidget = nullptr;
-				m_editorButtons.clear();
-			});
+	
 		return m_editorWidget;
 	}
 	void RadioButton::drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const
@@ -236,5 +211,10 @@ namespace VariantTable
 		}
 		text.chop(1); // Remove the last newline
 		return text;
+	}
+	void  RadioButton::editorWidgetDestroyed() const
+	{
+		m_editorWidget = nullptr;
+		m_editorButtons.clear();
 	}
 }

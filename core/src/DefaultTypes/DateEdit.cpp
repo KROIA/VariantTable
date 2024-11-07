@@ -78,20 +78,8 @@ namespace VariantTable
 			m_editor->setDate(m_date);
 		}
 	}
-	void DateEdit::setColor(const QColor& color)
-	{
-		CellDataBase::setColor(color);
-		CellDataBase::applyColor(m_editor);
-	}
-	QSize DateEdit::getSizeHint(const QStyleOptionViewItem& option) const
-	{
-		if (m_editor)
-		{
-			QSize size = m_editor->sizeHint();
-			return size;
-		}
-		return QSize(option.rect.width(), option.rect.height());
-	}
+
+
 
 	QWidget* DateEdit::createEditorWidget(QWidget* parent) const
 	{
@@ -107,13 +95,6 @@ namespace VariantTable
 		m_editor->setDate(m_date);
 		//layout->addWidget(m_editor);
 
-		CellDataBase::applyColor(m_editor);
-
-		// Destroy event
-		QObject::connect(m_editor, &QWidget::destroyed, parent, [this]()
-						 {
-							 m_editor = nullptr;
-						 });
 		return m_editor;
 	}
 	void DateEdit::drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const
@@ -146,5 +127,9 @@ namespace VariantTable
 	QString DateEdit::getToolTip() const
 	{
 		return m_date.toString(s_format);
+	}
+	void DateEdit::editorWidgetDestroyed() const
+	{
+		m_editor = nullptr;
 	}
 }

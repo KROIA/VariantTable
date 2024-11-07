@@ -70,11 +70,7 @@ namespace VariantTable
 	{
 		return QVariant(m_options);
 	}
-	void ComboBox::setColor(const QColor& color)
-	{
-		CellDataBase::setColor(color);
-		CellDataBase::applyColor(m_combo);
-	}
+
 	void ComboBox::getData(QWidget* editor)
 	{
 		VT_UNUSED(editor);
@@ -85,16 +81,6 @@ namespace VariantTable
 			m_combo->addItems(m_options);
 			m_combo->setCurrentIndex(m_selectedIndex);
 		}
-	}
-
-	QSize ComboBox::getSizeHint(const QStyleOptionViewItem& option) const
-	{
-		if (m_combo)
-		{
-			QSize size = m_combo->sizeHint();
-			return size;
-		}
-		return QSize(option.rect.width(), option.rect.height());
 	}
 
 	QWidget* ComboBox::createEditorWidget(QWidget* parent) const
@@ -116,15 +102,7 @@ namespace VariantTable
 		// Set options
 		m_combo->addItems(m_options);
 		m_combo->setCurrentIndex(m_selectedIndex);
-		
-		CellDataBase::applyColor(m_combo);
 
-		// Destroy event
-		QObject::connect(m_combo, &QWidget::destroyed, parent, [this]()
-			{
-				//m_editorWidget = nullptr;
-				m_combo = nullptr;
-			});
 		return m_combo;
 	}
 	void ComboBox::drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const
@@ -210,5 +188,10 @@ namespace VariantTable
 		}
 		text.chop(1); // Remove the last newline
 		return text;
+	}
+
+	void ComboBox::editorWidgetDestroyed() const
+	{
+		m_combo = nullptr;
 	}
 }

@@ -51,12 +51,6 @@ namespace VariantTable
 			return m_editor->isChecked();
 		return m_value;
 	}
-	void CheckBox::setColor(const QColor& color)
-	{
-		CellDataBase::setColor(color);
-		CellDataBase::applyColor(m_editor);
-	}
-
 
 	void CheckBox::setData(const QVariant& data) 	
 	{
@@ -87,21 +81,6 @@ namespace VariantTable
 		}
 	}
 
-	void CheckBox::setEditable(bool editable)
-	{
-		editable;
-	}
-	QSize CheckBox::getSizeHint(const QStyleOptionViewItem& option) const
-	{
-	
-		if (m_editor)
-		{
-			QSize size = m_editor->sizeHint();
-			return size;
-		}
-		return QSize(option.rect.width(), option.rect.height());
-	}
-
 	QWidget* CheckBox::createEditorWidget(QWidget* parent) const
 	{
 		if (m_editor)
@@ -116,13 +95,6 @@ namespace VariantTable
 		m_editor->setChecked(m_value);
 		layout->addWidget(m_editor);
 
-		CellDataBase::applyColor(editor);
-
-		// Destroy event
-		QObject::connect(layout, &QWidget::destroyed, parent, [this]()
-			{
-				m_editor = nullptr;
-			});
 		return editor;
 	}
 	void CheckBox::drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const
@@ -164,5 +136,9 @@ namespace VariantTable
 	QString CheckBox::getToolTip() const
 	{
 		return (m_value?"[X] ":"[  ] ") + m_text;
+	}
+	void CheckBox::editorWidgetDestroyed() const
+	{
+		m_editor = nullptr;
 	}
 }
