@@ -72,7 +72,7 @@ namespace VariantTable
 	void CellDataBase::dataChanged() const
 	{
 		if (m_model)
-			m_model->onDataChanged();
+			m_model->onDataChanged(this);
 	}
 
 

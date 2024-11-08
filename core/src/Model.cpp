@@ -101,6 +101,26 @@ namespace VariantTable
     void Model::onDataChanged()
     {
         emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+		
+    }
+    void Model::onDataChanged(const CellDataBase* data)
+    {
+		for (int i = 0; i < rowCount(); ++i)
+		{
+			for (int j = 0; j < columnCount(); ++j)
+			{
+#ifdef VT_USE_SHARED_PTR
+				if (m_data[i][j].data.get() == data)
+#else
+                if (m_data[i][j].data == data)
+#endif
+				{
+					emit dataChanged(index(i, j), index(i, j));
+                    if(m_view)
+					    m_view->update(index(i, j));
+				}
+			}
+		}
     }
     void Model::iconThemeChanged_internal()
     {

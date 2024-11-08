@@ -10,5 +10,6 @@
         <file>icons_color/clock.png</file>
         <file>icons_color/calendar-and-clock.png</file>
         <file>icons_color/pushButton.png</file>
+        <file>icons_color/ProgressBar.png</file>
     </qresource>
 </RCC>

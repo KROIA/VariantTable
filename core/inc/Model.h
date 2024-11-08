@@ -92,6 +92,7 @@ namespace VariantTable
        
         private:
         void onDataChanged();
+		void onDataChanged(const CellDataBase* data);
         void iconThemeChanged_internal();
             //void onNewEditorCreated(QWidget* editor, const QModelIndex& index) const;
         struct CellData

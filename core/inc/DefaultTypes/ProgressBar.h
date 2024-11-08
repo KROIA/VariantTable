@@ -38,8 +38,11 @@ namespace VariantTable
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() const override;
 		void updateIcon() override;
+		void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const override;
 	private:
 		void updateText();
+		void drawLoadingBar(QPainter* painter, const QRect& rect, int percentage,
+							const QPixmap& bar) const;
 		int m_min = 0;
 		int m_max = 100;
 		int m_progress = 0;

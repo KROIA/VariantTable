@@ -90,9 +90,47 @@ namespace VariantTable
 	{
 		return m_text;
 	}
+	void LineEdit::drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const
+	{
+		const QIcon& icon = IconManager::getIcon(s_lineEditIcon);
+		/*QString text = m_text;
+
+		// Draw the text and on the right the icon
+		QRect rect = option.rect;
+		QRect iconRect = rect;
+		float iconMargin = 5;
+		iconRect.setLeft(rect.right() - icon.availableSizes().first().width());
+		iconRect.setTop(rect.top() + iconMargin);
+		iconRect.setBottom(rect.bottom() - iconMargin);
+		iconRect.setRight(rect.right() - iconMargin);
+		rect.setRight(iconRect.left());
+		painter->drawText(rect, Qt::AlignVCenter | Qt::AlignLeft, text);
+		icon.paint(painter, iconRect, Qt::AlignRight, QIcon::Normal, QIcon::On);
+		*/
+
+
+		QRect rect = option.rect;
+		QPoint TL = rect.topLeft();
+		float height = rect.height();
+		//const float xPos = 5;
+		const float size = 15;
+		const float margin = 5;
+		float yOffset = (height - size) / 2;
+
+
+
+		QSize iconSize = icon.availableSizes().first();
+		float aspectRatio = iconSize.width() / (float)iconSize.height();
+		// Draw icon
+		QRect iconRect = QRect(rect.topRight().x() - size - margin, yOffset + TL.y(), aspectRatio * size, size);
+		painter->drawPixmap(iconRect, icon.pixmap(aspectRatio * size, size));
+
+		QRect textRect = QRect(margin + TL.x(), yOffset + TL.y(), rect.width() - iconRect.width() - 3 * margin, size);
+		painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, m_text);
+	}
 	void LineEdit::updateIcon()
 	{
-		setEditorPlaceholderIcon(IconManager::getIcon(s_lineEditIcon));
+		//setEditorPlaceholderIcon(IconManager::getIcon(s_lineEditIcon));
 	}
 	void LineEdit::editorWidgetDestroyed() const
 	{

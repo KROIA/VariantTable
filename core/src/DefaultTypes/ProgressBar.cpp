@@ -40,8 +40,8 @@ namespace VariantTable
 			min = m_max;
 		if (m_bar)
 			m_bar->setMinimum(min);
-		m_min = min;
-		dataChanged();
+		m_min = min; 
+		updateText();
 	}
 
 	void ProgressBar::setMaximum(int max)
@@ -51,7 +51,7 @@ namespace VariantTable
 		if (m_bar)
 			m_bar->setMaximum(max);
 		m_max = max;
-		dataChanged();
+		updateText();
 	}
 
 	void ProgressBar::setValue(int progress)
@@ -61,7 +61,7 @@ namespace VariantTable
 			m_bar->setValue(progress);
 		}
 		m_progress = progress;
-		dataChanged();
+		updateText();
 	}
 	int ProgressBar::getValue() const
 	{
@@ -82,7 +82,7 @@ namespace VariantTable
 	void ProgressBar::setData(const QVariant& data)
 	{
 		m_progress = data.toInt();
-		dataChanged();
+		updateText();
 	}
 	void ProgressBar::setData(QWidget* editor)
 	{
@@ -135,14 +135,38 @@ namespace VariantTable
 	}
 	void ProgressBar::updateIcon()
 	{
-		setEditorPlaceholderIcon(IconManager::getIcon(s_ProgressBarIcon));
+		//setEditorPlaceholderIcon(IconManager::getIcon(s_ProgressBarIconLeftSection));
 	}
 	void ProgressBar::editorWidgetDestroyed() const
 	{
 		m_bar = nullptr;
 	}
+	void ProgressBar::drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const
+	{
+		float marginX = 5;
+		float marginY = 10;
+		QRect rect(option.rect.x() + marginX, option.rect.y() + marginY, option.rect.width() - 2 * marginX, option.rect.height() - 2 * marginY);
+		QPixmap bar = IconManager::getIcon(s_ProgressBarIcon).pixmap(10, 20);
+
+		drawLoadingBar(painter, rect, m_progress, bar);
+	}
 	void ProgressBar::updateText()
 	{
 		setEditorPlaceholderText(getToolTip());
+		dataChanged();
+	}
+
+	void ProgressBar::drawLoadingBar(QPainter* painter, const QRect& rect, int percentage,
+						const QPixmap& bar) const
+	{
+		if (percentage < 0) percentage = 0;
+		if (percentage > 100) percentage = 100;
+
+
+		// Calculate the width for the middle section based on the percentage
+		int totalMiddleWidth = rect.width();
+		int middleWidth = (totalMiddleWidth * percentage) / 100;
+
+		painter->drawPixmap(rect.x() , rect.y(), middleWidth, rect.height(), bar);
 	}
 }
