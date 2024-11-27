@@ -90,8 +90,9 @@ namespace VariantTable
         Delegate* getDelegate() const { return m_delegate; }
         static void iconThemeChanged();
        
-        private:
         void onDataChanged();
+        private:
+        
 		void onDataChanged(const CellDataBase* data);
         void iconThemeChanged_internal();
             //void onNewEditorCreated(QWidget* editor, const QModelIndex& index) const;

@@ -1,12 +1,14 @@
 #include <QApplication>
 #include <QTableView>
 #include <QVBoxLayout>
+#include <qgridlayout.h>
 #include <QPushButton>
 #include <QToolTip>
 #include <QFile>
 #include <QTimer>
 
 #include "VariantTable.h"
+
 
 int main(int argc, char* argv[]) 
 {
@@ -73,7 +75,10 @@ int main(int argc, char* argv[])
 
 	tableView->resize(800, 600);
 	tableView->resizeRowToContents(0);
-	tableView->show();
+
+	QWidget* mainWidget = new QWidget;
+	QGridLayout* mainLayout = new QGridLayout;
+	mainWidget->setLayout(mainLayout);
 
 	QWidget* widget = new QWidget;
 	QVBoxLayout* layout = new QVBoxLayout;
@@ -92,8 +97,43 @@ int main(int argc, char* argv[])
 		VariantTable::Model* model = tableView->getModel();
 		
 		});
+	{
+		QPushButton* selectionButton = new QPushButton("Select Column");
+		QObject::connect(selectionButton, &QPushButton::clicked, [tableView]() {
+			tableView->highlightColumn(5);
+		//	tableView->scrollToColumn(5);
+			tableView->deselectColumn(5);
+						 });
+		layout->addWidget(selectionButton);
+	}
+	{
+		QPushButton* selectionButton = new QPushButton("Select Row");
+		QObject::connect(selectionButton, &QPushButton::clicked, [tableView]() {
+			tableView->highlightRow(5);
+		//	tableView->scrollToRow(5);
+			tableView->selectRow(5);
+						 });
+		layout->addWidget(selectionButton);
+	}
+	{
+		QPushButton* selectionButton = new QPushButton("Select Cell");
+		QObject::connect(selectionButton, &QPushButton::clicked, [tableView]() {
+			tableView->highlightCell(2,2);
+						 });
+		layout->addWidget(selectionButton);
+	}
 
-	widget->show();
+
+	mainLayout->addWidget(widget, 0, 0);
+	mainLayout->addWidget(tableView, 0, 1);
+
+	// Select column 1
+	//tableView->selectColumn(6);
+
+	mainWidget->show();
+	mainWidget->resize(300, 300);
+
+	layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
 	return app.exec();
 }

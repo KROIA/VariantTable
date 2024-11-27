@@ -5,7 +5,6 @@
 #include <QMap>
 
 
-
 namespace VariantTable
 {
 	class VARIANT_TABLE_EXPORT IconManager
@@ -23,6 +22,8 @@ namespace VariantTable
 		static Theme getTheme();
 		static const QIcon &getIcon(const QString& name);
 
+
+
 		private:
 		void loadIcons();
 		QString getThemePath(Theme t);
@@ -30,5 +31,8 @@ namespace VariantTable
 		Theme m_theme;
 		QMap<QString, QIcon> m_icons;
 		static const QStringList s_themes;
+
+
+		
 	};
 }
