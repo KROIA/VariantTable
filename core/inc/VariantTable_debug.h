@@ -89,7 +89,7 @@ namespace VariantTable
 /// USER_SECTION_START 4
 
 /// USER_SECTION_END
-	class VARIANT_TABLE_EXPORT Profiler
+	class VARIANT_TABLE_API Profiler
 	{
 	public:
 		/// USER_SECTION_START 5
@@ -112,7 +112,7 @@ namespace VariantTable
 
 
 #if LOGGER_LIBRARY_AVAILABLE == 1
-	class VARIANT_TABLE_EXPORT Logger 
+	class VARIANT_TABLE_API Logger 
 	{
 		/// USER_SECTION_START 8
 

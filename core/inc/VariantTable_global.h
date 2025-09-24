@@ -11,13 +11,13 @@
 #ifndef BUILD_STATIC
 	//#pragma message("VARIANTTABLE_LIB is a shared library")
 	#if defined(VARIANTTABLE_LIB)
-		#define VARIANT_TABLE_EXPORT __declspec(dllexport)
+		#define VARIANT_TABLE_API __declspec(dllexport)
 	#else
-		#define VARIANT_TABLE_EXPORT __declspec(dllimport)
+		#define VARIANT_TABLE_API __declspec(dllimport)
 	#endif
 #else 
 	//#pragma message("VARIANTTABLE_LIB is a static library")
-	#define VARIANT_TABLE_EXPORT
+	#define VARIANT_TABLE_API
 #endif
 
 /// USER_SECTION_START 2

@@ -29,7 +29,7 @@ namespace VariantTable
 
 /// USER_SECTION_END
 
-	class VARIANT_TABLE_EXPORT LibraryInfo
+	class VARIANT_TABLE_API LibraryInfo
 	{
 		LibraryInfo() = delete;
 		LibraryInfo(const LibraryInfo&) = delete;
