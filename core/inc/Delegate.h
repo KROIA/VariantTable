@@ -9,7 +9,7 @@
 
 namespace VariantTable
 {
-    class VARIANT_TABLE_EXPORT Delegate : public QStyledItemDelegate 
+    class VARIANT_TABLE_API Delegate : public QStyledItemDelegate 
     {
         Q_OBJECT
         friend class Model;

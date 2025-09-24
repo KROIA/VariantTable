@@ -8,7 +8,7 @@ class QComboBox;
 
 namespace VariantTable
 {
-	class VARIANT_TABLE_EXPORT ComboBox : public CellDataBase
+	class VARIANT_TABLE_API ComboBox : public CellDataBase
 	{
 		VT_CELL_DATA_OBJ(ComboBox);
 	public:

@@ -8,7 +8,7 @@ class QLineEdit;
 
 namespace VariantTable
 {
-	class VARIANT_TABLE_EXPORT LineEdit : public CellDataBase
+	class VARIANT_TABLE_API LineEdit : public CellDataBase
 	{
 		VT_CELL_DATA_OBJ(LineEdit);
 	public:

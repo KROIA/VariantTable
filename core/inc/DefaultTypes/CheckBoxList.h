@@ -8,7 +8,7 @@ class QCheckBox;
 
 namespace VariantTable
 {
-	class VARIANT_TABLE_EXPORT CheckBoxList : public CellDataBase
+	class VARIANT_TABLE_API CheckBoxList : public CellDataBase
 	{
 		VT_CELL_DATA_OBJ(CheckBoxList);
 	public:

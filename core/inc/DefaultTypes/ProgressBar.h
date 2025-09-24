@@ -8,7 +8,7 @@ class QProgressBar;
 
 namespace VariantTable
 {
-	class VARIANT_TABLE_EXPORT ProgressBar : public CellDataBase
+	class VARIANT_TABLE_API ProgressBar : public CellDataBase
 	{
 		VT_CELL_DATA_OBJ(ProgressBar);
 	public:

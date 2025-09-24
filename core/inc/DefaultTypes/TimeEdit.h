@@ -9,7 +9,7 @@ class QTimeEdit;
 
 namespace VariantTable
 {
-	class VARIANT_TABLE_EXPORT TimeEdit : public CellDataBase
+	class VARIANT_TABLE_API TimeEdit : public CellDataBase
 	{
 		VT_CELL_DATA_OBJ(TimeEdit);
 		public:

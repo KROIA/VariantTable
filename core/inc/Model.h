@@ -18,7 +18,7 @@ namespace VariantTable
 	class Delegate;
     class TableView;
     class CellDataBase;
-    class VARIANT_TABLE_EXPORT Model : public QAbstractTableModel 
+    class VARIANT_TABLE_API Model : public QAbstractTableModel 
     {
         Q_OBJECT
         friend class CellDataBase;

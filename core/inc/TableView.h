@@ -10,7 +10,7 @@
 
 namespace VariantTable
 {
-    class VARIANT_TABLE_EXPORT TableView : public QTableView
+    class VARIANT_TABLE_API TableView : public QTableView
     {
         friend class Model;
 		friend class Internal::OverlayRect;

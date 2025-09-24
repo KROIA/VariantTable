@@ -9,7 +9,7 @@ class QPushButton;
 
 namespace VariantTable
 {
-	class VARIANT_TABLE_EXPORT PushButton : public QObject, public CellDataBase
+	class VARIANT_TABLE_API PushButton : public QObject, public CellDataBase
 	{
 		VT_CELL_DATA_OBJ(PushButton);
 		Q_OBJECT

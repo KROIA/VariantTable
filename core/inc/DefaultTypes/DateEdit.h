@@ -9,7 +9,7 @@ class QDateEdit;
 
 namespace VariantTable
 {
-	class VARIANT_TABLE_EXPORT DateEdit : public CellDataBase
+	class VARIANT_TABLE_API DateEdit : public CellDataBase
 	{
 		VT_CELL_DATA_OBJ(DateEdit);
 		public:

@@ -7,7 +7,7 @@
 
 namespace VariantTable
 {
-	class VARIANT_TABLE_EXPORT IconManager
+	class VARIANT_TABLE_API IconManager
 	{
 		IconManager();
 		static IconManager& getInstance();

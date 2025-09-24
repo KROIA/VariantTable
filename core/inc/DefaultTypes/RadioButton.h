@@ -8,7 +8,7 @@ class QRadioButton;
 
 namespace VariantTable
 {
-	class VARIANT_TABLE_EXPORT RadioButton : public CellDataBase
+	class VARIANT_TABLE_API RadioButton : public CellDataBase
 	{
 		VT_CELL_DATA_OBJ(RadioButton);
 	public:

@@ -11,7 +11,7 @@
 namespace VariantTable
 {
 
-	class VARIANT_TABLE_EXPORT CellTypeRegistry
+	class VARIANT_TABLE_API CellTypeRegistry
 	{
 		CellTypeRegistry();
 		~CellTypeRegistry();
