@@ -26,6 +26,8 @@ namespace VariantTable
 		QVariant getData() const override;
 		void getData(QWidget* editor) override;
 
+		void setRegularExpression(const QRegExp& regExp);
+		void setRegularExpression(const QString& regExp);
 
 		QWidget* createEditorWidget(QWidget* parent) const override;
 		QString getToolTip() const override;
@@ -34,6 +36,7 @@ namespace VariantTable
 		void updateIcon() override;
 	private:
 		QString m_text;
+		QRegExp m_validatorRegExp;
 		mutable QLineEdit* m_editor = nullptr;
 
 		static QString s_lineEditIcon;

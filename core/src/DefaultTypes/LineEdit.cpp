@@ -5,6 +5,7 @@
 #include <QApplication>
 #include <QPainter>
 #include <QVBoxLayout>
+#include <QRegExpValidator>
 
 namespace VariantTable
 {
@@ -81,9 +82,22 @@ namespace VariantTable
 			return m_editor;
 
 		m_editor = new QLineEdit(parent);
+		m_editor->setValidator(new QRegExpValidator(m_validatorRegExp, m_editor));
 		m_editor->setText(m_text);
 
 		return m_editor;
+	}
+	void LineEdit::setRegularExpression(const QRegExp& regExp)
+	{ 
+		m_validatorRegExp = regExp; 
+		if (m_editor)
+		{
+			m_editor->setValidator(new QRegExpValidator(m_validatorRegExp, m_editor));
+		}
+	}
+	void LineEdit::setRegularExpression(const QString& regExp) 
+	{ 
+		setRegularExpression(QRegExp(regExp));
 	}
 
 	QString LineEdit::getToolTip() const
