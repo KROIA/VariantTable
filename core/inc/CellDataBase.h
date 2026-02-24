@@ -108,6 +108,8 @@ namespace VariantTable
 			const QIcon& getEditorPlaceholderIcon() const {
 				return m_editorPlaceholderData.icon;
 			}
+			float getPlaceholderIconXPos() const { return PlaceholderData::iconXPos; }
+			float getPlaceholderIconHeight() const { return PlaceholderData::iconHeight; }
 		
 			virtual QWidget* createEditorWidget(QWidget* parent) const = 0;
 			virtual void editorWidgetDestroyed() const = 0;
