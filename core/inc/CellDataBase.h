@@ -65,7 +65,7 @@ namespace VariantTable
 
 
 
-	class CellDataBase
+	class VARIANT_TABLE_API CellDataBase
 	{
 		friend class Delegate;
 		friend class Model;
