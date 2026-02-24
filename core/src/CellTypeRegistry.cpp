@@ -21,8 +21,9 @@ namespace VariantTable
 		registerType_internal<DateTimeEdit>();
 		registerType_internal<ProgressBar>();
 
-		qRegisterMetaType<VariantTable::ComboBox::OptionsType>("VariantTable::ComboBox::OptionsType");
-		qRegisterMetaTypeStreamOperators<VariantTable::ComboBox::OptionsType>("VariantTable::ComboBox::OptionsType");
+		qRegisterMetaType<VariantTable::CellDataBase::OptionsType>("VariantTable::CellDataBase::OptionsType");
+		qRegisterMetaTypeStreamOperators<VariantTable::CellDataBase::OptionsType>("VariantTable::CellDataBase::OptionsType");
+
 
 	}
 	const CellDataBasePtr CellTypeRegistry::getDefaultType()

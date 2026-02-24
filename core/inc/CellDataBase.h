@@ -70,6 +70,8 @@ namespace VariantTable
 		friend class Delegate;
 		friend class Model;
 		public:
+			typedef QVector<QPair<QString, QVariant>> OptionsType; // Combination of text and associated data for options, used by some cell types
+
 			CellDataBase();
 			CellDataBase(const CellDataBase &other);
 			virtual ~CellDataBase();
@@ -149,7 +151,10 @@ namespace VariantTable
 
 }
 
+Q_DECLARE_METATYPE(VariantTable::CellDataBase::OptionsType)
 
+VARIANT_TABLE_API QDataStream& operator<<(QDataStream& out, const VariantTable::CellDataBase::OptionsType& t);
+VARIANT_TABLE_API QDataStream& operator>>(QDataStream& in, VariantTable::CellDataBase::OptionsType& t);
 
 template <typename Sender, typename Signal, typename Receiver, typename Slot>
 QMetaObject::Connection connect(

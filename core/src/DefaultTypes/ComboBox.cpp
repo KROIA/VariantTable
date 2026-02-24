@@ -89,6 +89,7 @@ namespace VariantTable
 	void ComboBox::setData(const QVariant& data)
 	{
 		m_options = data.value<OptionsType>();
+		updateText();
 		dataChanged();
 	}
 	void ComboBox::setData(QWidget* editor)
@@ -217,21 +218,3 @@ namespace VariantTable
 }
 
 
-QDataStream& operator<<(QDataStream& out, const VariantTable::ComboBox::OptionsType& t) {
-	for (const auto& option : t)
-	{
-		out << option.first << option.second;
-	}
-	return out;
-}
-
-QDataStream& operator>>(QDataStream& in, VariantTable::ComboBox::OptionsType& t) {
-	QString text;
-	QVariant data;
-	while (!in.atEnd())
-	{
-		in >> text >> data;
-		t.append(qMakePair(text, data));
-	}
-	return in;
-}

@@ -12,14 +12,18 @@ namespace VariantTable
 	{
 		VT_CELL_DATA_OBJ(CheckBoxList);
 	public:
+		
+
 		CheckBoxList();
 		CheckBoxList(const CheckBoxList& other);
 		CheckBoxList(const QStringList& options);
+		CheckBoxList(const OptionsType& options);
 
 
 
 		void setOptions(const QStringList& text);
-		const QStringList& getOptions() const;
+		void setOptions(const QVector<QPair<QString, QVariant>>& data);
+		const QVector<QPair<QString, QVariant>>& getOptions() const;
 
 		void setCheckedIndexes(const QVector<int>& indexes);
 		QVector<int> getCheckedIndexes() const;
@@ -38,7 +42,7 @@ namespace VariantTable
 		void updateIcon() override;
 	private:
 		void updateText();
-		QStringList m_options;
+		QVector<QPair<QString, QVariant>> m_options;
 		QVector<int> m_selectedIndexes;
 
 		mutable QWidget* m_editorWidget = nullptr;

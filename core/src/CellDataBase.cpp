@@ -144,3 +144,22 @@ namespace VariantTable
 
 
 }
+
+QDataStream& operator<<(QDataStream& out, const VariantTable::CellDataBase::OptionsType& t) {
+	for (const auto& option : t)
+	{
+		out << option.first << option.second;
+	}
+	return out;
+}
+
+QDataStream& operator>>(QDataStream& in, VariantTable::CellDataBase::OptionsType& t) {
+	QString text;
+	QVariant data;
+	while (!in.atEnd())
+	{
+		in >> text >> data;
+		t.append(qMakePair(text, data));
+	}
+	return in;
+}

@@ -11,7 +11,10 @@ namespace VariantTable
 
 	CheckBoxList::CheckBoxList()
 		: CellDataBase()
-		, m_options({ "Option 1", "Option 2", "Option 3" })
+		, m_options({
+			{"Option 1",QVariant()},
+			{"Option 2",QVariant()},
+			{"Option 3",QVariant()} })
 	{
 		updateIcon();
 		updateText();
@@ -24,21 +27,42 @@ namespace VariantTable
 	}
 	CheckBoxList::CheckBoxList(const QStringList& options)
 		: CellDataBase()
+		, m_options()
+	{
+		for (const auto& option : options)
+		{
+			m_options.push_back({ option, QVariant() });
+		}
+		updateIcon();
+		updateText();
+	}
+	CheckBoxList::CheckBoxList(const OptionsType& options)
+		: CellDataBase()
 		, m_options(options)
 	{
 		updateIcon();
 		updateText();
 	}
 
-
 	void CheckBoxList::setOptions(const QStringList& options)
 	{
-		m_options = options;
+		m_options.clear();
+		for (const auto& option : options)
+		{
+			m_options.push_back({ option, QVariant() });
+		}
 		m_selectedIndexes.clear();
 		updateText();
 		dataChanged();
 	}
-	const QStringList& CheckBoxList::getOptions() const
+	void CheckBoxList::setOptions(const QVector<QPair<QString, QVariant>>& data)
+	{
+		m_options = data;
+		m_selectedIndexes.clear();
+		updateText();
+		dataChanged();
+	}
+	const QVector<QPair<QString, QVariant>>& CheckBoxList::getOptions() const
 	{
 		return m_options;
 	}
@@ -76,7 +100,7 @@ namespace VariantTable
 
 	void CheckBoxList::setData(const QVariant& data)
 	{
-		m_options = data.toStringList();
+		m_options = data.value<OptionsType>();
 		updateText();
 		dataChanged();
 	}
@@ -100,7 +124,7 @@ namespace VariantTable
 	}
 	QVariant CheckBoxList::getData() const
 	{
-		return QVariant(m_options);
+		return QVariant::fromValue(m_options);
 	}
 	void CheckBoxList::getData(QWidget* editor)
 	{
@@ -115,7 +139,7 @@ namespace VariantTable
 			}
 			for (int i = 0; i < maxIndex; ++i)
 			{
-				m_checkBoxes[i]->setText(m_options[i]);
+				m_checkBoxes[i]->setText(m_options[i].first);
 				m_checkBoxes[i]->setChecked(false);
 			}
 			for (int i : m_selectedIndexes)
@@ -141,9 +165,9 @@ namespace VariantTable
 		m_editorWidget->setLayout(layout);
 
 		// Add Radio Buttons
-		for (const QString& option : m_options)
+		for (const auto& option : m_options)
 		{
-			QCheckBox* button = new QCheckBox(option, m_editorWidget);
+			QCheckBox* button = new QCheckBox(option.first, m_editorWidget);
 			layout->addWidget(button);
 			m_checkBoxes.push_back(button);
 		}
@@ -156,7 +180,7 @@ namespace VariantTable
 		}
 		for (int i = 0; i < maxIndex; ++i)
 		{
-			m_checkBoxes[i]->setText(m_options[i]);
+			m_checkBoxes[i]->setText(m_options[i].first);
 			m_checkBoxes[i]->setChecked(false);
 		}
 		for (int i : m_selectedIndexes)
@@ -172,7 +196,7 @@ namespace VariantTable
 		QString text;
 		for (int i=0; i< m_options.size(); ++i)
 		{
-			text += (m_selectedIndexes.contains(i) ? "[X] " : "[  ] ") + m_options[i] + "\n";
+			text += (m_selectedIndexes.contains(i) ? "[X] " : "[  ] ") + m_options[i].first + "\n";
 		}
 		text.chop(1); // Remove the last newline
 		return text;
@@ -192,7 +216,7 @@ namespace VariantTable
 		for (int i : m_selectedIndexes)
 		{
 			if (i >= 0 && i < m_options.size())
-				text += m_options[i] + ", ";
+				text += m_options[i].first + ", ";
 		}
 		if (!text.isEmpty())
 			text.chop(2); // Remove the last comma and space
