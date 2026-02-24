@@ -59,6 +59,10 @@ int main(int argc, char* argv[])
 	tableView->getModel()->setCellData(5, 5, boolCell);
 	tableView->getModel()->setCellData(5, 6, boolCell);
 
+	bool ret1 = tableView->getModel()->setHeaderData(0, Qt::Horizontal, "Column 1", Qt::DisplayRole);
+	tableView->getModel()->setHeaderData(2, Qt::Horizontal, "Column 3");
+	ret1;
+
 	QTimer timer;
 	QObject::connect(&timer, &QTimer::timeout, [tableView, progressBar]() {
 		VariantTable::ProgressBar* bar = dynamic_cast<VariantTable::ProgressBar*>(progressBar.get());

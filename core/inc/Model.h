@@ -25,6 +25,9 @@ namespace VariantTable
         public:
         Model(TableView* parent = nullptr);
         ~Model();
+
+        QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+        bool setHeaderData(int section, Qt::Orientation orientation, const QVariant& value, int role = Qt::DisplayRole) override;
         
 		void setTableView(TableView* view);
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -101,6 +104,7 @@ namespace VariantTable
             CellDataBasePtr data = nullptr;
         };
         QVector<QVector<CellData>> m_data;  // 2D array of data values
+        QHash<int, QString> m_headers;
         Delegate *m_delegate;
 		TableView* m_view;
 

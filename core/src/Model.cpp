@@ -28,6 +28,25 @@ namespace VariantTable
 		m_models.removeOne(this);
     }
 
+
+    QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
+    {
+        if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+            return m_headers.value(section);
+        }
+        return QVariant();
+    }
+
+    bool Model::setHeaderData(int section, Qt::Orientation orientation, const QVariant& value, int role)
+    {
+        if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+            m_headers[section] = value.toString();
+            emit headerDataChanged(orientation, section, section);
+            return true;
+        }
+        return false;
+    }
+
     void Model::setTableView(TableView* view)
     {
         if (!view)
@@ -278,6 +297,13 @@ namespace VariantTable
             m_data[i].insert(col, CellData{ data[i] });
         }
         endInsertColumns();
+
+		// Ajust the header data for the new column
+		for (int i = columnCount() - 1; i > col; --i)
+		{
+			m_headers[i] = m_headers[i - 1];
+		}
+		m_headers[col] = QString("%1").arg(col + 1);
         return true;
     }
     bool Model::insertColumn(int col, CellDataTypeID defaultType)
@@ -288,6 +314,13 @@ namespace VariantTable
             m_data[i].insert(col, CellData{ CellTypeRegistry::create(defaultType) });
         }
         endInsertColumns();
+
+        // Ajust the header data for the new column
+        for (int i = columnCount() - 1; i > col; --i)
+        {
+            m_headers[i] = m_headers[i - 1];
+        }
+        m_headers[col] = QString("%1").arg(col + 1);
 		return true;
     }
     bool Model::insertColumn(int col, CellDataBasePtr typeTemplate)
@@ -298,6 +331,13 @@ namespace VariantTable
             m_data[i].insert(col, CellData{ typeTemplate->clone()});
         }
         endInsertColumns();
+
+        // Ajust the header data for the new column
+        for (int i = columnCount() - 1; i > col; --i)
+        {
+            m_headers[i] = m_headers[i - 1];
+        }
+        m_headers[col] = QString("%1").arg(col + 1);
         return true;
     }
     bool Model::insertColumns(int col, int count, const QModelIndex& parent)
@@ -311,6 +351,16 @@ namespace VariantTable
             }
         }
         endInsertColumns();
+
+		// Ajust the header data for the new columns
+        for (int i = columnCount() - 1; i > col + count - 1; --i)
+        {
+            m_headers[i] = m_headers[i - count];
+		}
+        for (int i = col; i < col + count; ++i)
+        {
+            m_headers[i] = QString("%1").arg(i + 1);
+		}
 		return true;
     }
 
