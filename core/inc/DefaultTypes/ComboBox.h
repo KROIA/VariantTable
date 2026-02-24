@@ -19,6 +19,7 @@ namespace VariantTable
 		ComboBox();
 		ComboBox(const ComboBox& other);
 		ComboBox(const QStringList& options);
+		ComboBox(const OptionsType& options);
 
 
 

@@ -37,6 +37,13 @@ namespace VariantTable
 		updateIcon();
 		updateText();
 	}
+	ComboBox::ComboBox(const OptionsType& options)
+		: CellDataBase()
+		, m_options(options)
+	{
+		updateIcon();
+		updateText();
+	}
 
 
 	void ComboBox::setOptions(const QStringList& options)
