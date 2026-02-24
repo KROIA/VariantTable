@@ -73,7 +73,7 @@ namespace VariantTable
 		bool swapRows(unsigned int row1, unsigned int row2);
 		bool moveRow(unsigned int sourceRow, unsigned int destinationRow);
 
-
+        void clear();
       //  bool moveRow(const QModelIndex& sourceParent, int sourceRow,
       //      const QModelIndex& destinationParent, int destinationChild) override;
       //  bool moveColumn(const QModelIndex& sourceParent, int sourceColumn,

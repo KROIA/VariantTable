@@ -472,6 +472,13 @@ namespace VariantTable
 		return true;
     }
 
+    void Model::clear()
+    {
+        beginResetModel();
+		m_data.clear();
+		endResetModel();
+    }
+
     bool Model::setData(const QModelIndex& index, const QVariant& value, int role)
     {
         if (index.isValid() && role == Qt::EditRole) {
