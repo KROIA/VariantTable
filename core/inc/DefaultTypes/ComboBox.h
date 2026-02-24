@@ -2,9 +2,12 @@
 
 #include "VariantTable_base.h"
 #include "CellDataBase.h"
+#include <QVector>
+#include <QPair>
+#include <QMetaType>
+#include <QComboBox>
 
 
-class QComboBox;
 
 namespace VariantTable
 {
@@ -12,6 +15,7 @@ namespace VariantTable
 	{
 		VT_CELL_DATA_OBJ(ComboBox);
 	public:
+		typedef QVector<QPair<QString, QVariant>> OptionsType;
 		ComboBox();
 		ComboBox(const ComboBox& other);
 		ComboBox(const QStringList& options);
@@ -19,7 +23,8 @@ namespace VariantTable
 
 
 		void setOptions(const QStringList& text);
-		const QStringList& getOptions() const;
+		void setOptions(const QVector<QPair<QString, QVariant>> &data);
+		const QVector<QPair<QString, QVariant>>& getOptions() const;
 
 		void setCurrentIndex(int index);
 	    int getCurrentIndex() const;
@@ -37,7 +42,7 @@ namespace VariantTable
 		void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const override;
 	private:
 		void updateText();
-		QStringList m_options;
+		QVector<QPair<QString, QVariant>> m_options; // Text and associated data for each option
 		int m_selectedIndex = -1;
 
 		mutable QComboBox* m_combo = nullptr;
@@ -45,3 +50,7 @@ namespace VariantTable
 		static QString s_comboBoxIcon;
 	};
 }
+Q_DECLARE_METATYPE(VariantTable::ComboBox::OptionsType)
+
+QDataStream& operator<<(QDataStream& out, const VariantTable::ComboBox::OptionsType& t);
+QDataStream& operator>>(QDataStream& in, VariantTable::ComboBox::OptionsType& t);

@@ -12,7 +12,10 @@ namespace VariantTable
 
 	ComboBox::ComboBox()
 		: CellDataBase()
-		, m_options({ "Option 1", "Option 2", "Option 3" })
+		, m_options({ 
+			{"Option 1",QVariant()}, 
+			{"Option 2",QVariant()},
+			{"Option 3",QVariant()} })
 	{
 		updateIcon();
 		updateText();
@@ -25,8 +28,12 @@ namespace VariantTable
 	}
 	ComboBox::ComboBox(const QStringList& options)
 		: CellDataBase()
-		, m_options(options)
+		, m_options()
 	{
+		for(const auto& option : options)
+		{
+			m_options.push_back({ option, QVariant()});
+		}
 		updateIcon();
 		updateText();
 	}
@@ -34,12 +41,24 @@ namespace VariantTable
 
 	void ComboBox::setOptions(const QStringList& options)
 	{
-		m_options = options;
+		m_options.clear();
+		for (const auto& option : options)
+		{
+			m_options.push_back({ option, QVariant() });
+		}
 		m_selectedIndex = -1;
 		updateText();
 		dataChanged();
 	}
-	const QStringList& ComboBox::getOptions() const
+	void ComboBox::setOptions(const QVector<QPair<QString, QVariant>>& data)
+	{
+		m_options = data;
+		m_selectedIndex = -1;
+		updateText();
+		dataChanged();
+
+	}
+	const QVector<QPair<QString, QVariant>>& ComboBox::getOptions() const
 	{
 		return m_options;
 	}
@@ -62,7 +81,7 @@ namespace VariantTable
 
 	void ComboBox::setData(const QVariant& data)
 	{
-		m_options = data.toStringList();
+		m_options = data.value<OptionsType>();
 		dataChanged();
 	}
 	void ComboBox::setData(QWidget* editor)
@@ -77,7 +96,7 @@ namespace VariantTable
 	}
 	QVariant ComboBox::getData() const
 	{
-		return QVariant(m_options);
+		return QVariant::fromValue(m_options);
 	}
 
 	void ComboBox::getData(QWidget* editor)
@@ -87,7 +106,10 @@ namespace VariantTable
 		if (m_combo)
 		{
 			m_combo->clear();
-			m_combo->addItems(m_options);
+			for (const auto& option : m_options)
+			{
+				m_combo->addItem(option.first, option.second);
+			}
 			m_combo->setCurrentIndex(m_selectedIndex);
 		}
 	}
@@ -100,7 +122,10 @@ namespace VariantTable
 		m_combo = new QComboBox(parent);
 
 		// Set options
-		m_combo->addItems(m_options);
+		for(const auto& option : m_options)
+		{
+			m_combo->addItem(option.first, option.second);
+		}
 		m_combo->setCurrentIndex(m_selectedIndex);
 
 		return m_combo;
@@ -112,9 +137,9 @@ namespace VariantTable
 		for (int i = 0; i < m_options.size(); ++i)
 		{
 			if (i == m_selectedIndex)
-				text += "- "+m_options[i] + "\n";
+				text += "- "+m_options[i].first + "\n";
 			else
-				text += "   "+m_options[i] + "\n";
+				text += "   "+m_options[i].first + "\n";
 		}
 		text.chop(1); // Remove the last newline
 		return text;
@@ -161,7 +186,7 @@ namespace VariantTable
 
 		if (m_selectedIndex >= 0 && m_selectedIndex < m_options.size())
 		{
-			QString text = m_options[m_selectedIndex];
+			QString text = m_options[m_selectedIndex].first;
 			QRect textRect = QRect(margin + TL.x(), yOffset + TL.y(), rect.width() - iconRect.width() - 3 * margin, size);
 			painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, text);
 		}
@@ -182,4 +207,24 @@ namespace VariantTable
 		}
 		setEditorPlaceholderText(text);*/
 	}
+}
+
+
+QDataStream& operator<<(QDataStream& out, const VariantTable::ComboBox::OptionsType& t) {
+	for (const auto& option : t)
+	{
+		out << option.first << option.second;
+	}
+	return out;
+}
+
+QDataStream& operator>>(QDataStream& in, VariantTable::ComboBox::OptionsType& t) {
+	QString text;
+	QVariant data;
+	while (!in.atEnd())
+	{
+		in >> text >> data;
+		t.append(qMakePair(text, data));
+	}
+	return in;
 }

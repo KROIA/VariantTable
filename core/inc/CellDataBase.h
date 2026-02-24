@@ -23,7 +23,7 @@ namespace VariantTable
 	typedef std::shared_ptr<CellDataBase> CellDataBasePtr;
 
 	#define VT_CELL_DATA_CLONE_FUNC(Typename) \
-		CellDataBasePtr clone() const override \
+		VariantTable::CellDataBasePtr clone() const override \
 		{ \
 			return std::make_shared<Typename>(*this); \
 		}
@@ -38,7 +38,7 @@ namespace VariantTable
 	typedef CellDataBase* CellDataBasePtr;
 
 	#define VT_CELL_DATA_CLONE_FUNC(Typename) \
-		CellDataBasePtr clone() const override \
+		VariantTable::CellDataBasePtr clone() const override \
 		{ \
 			return new Typename(*this); \
 		}
