@@ -120,7 +120,17 @@ namespace VariantTable
     void Model::onDataChanged()
     {
         emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
-		
+    }
+    void Model::createColumnHeaderIfNeeded()
+    {
+        int currentColumnCount = columnCount();
+        for (int i = 0; i < currentColumnCount; ++i)
+        {
+            if (!m_headers.contains(i))
+            {
+                m_headers[i] = QString("%1").arg(i + 1);
+            }
+		}
     }
     void Model::onDataChanged(const CellDataBase* data)
     {
@@ -298,12 +308,7 @@ namespace VariantTable
         }
         endInsertColumns();
 
-		// Ajust the header data for the new column
-		for (int i = columnCount() - 1; i > col; --i)
-		{
-			m_headers[i] = m_headers[i - 1];
-		}
-		m_headers[col] = QString("%1").arg(col + 1);
+        createColumnHeaderIfNeeded();
         return true;
     }
     bool Model::insertColumn(int col, CellDataTypeID defaultType)
@@ -315,12 +320,7 @@ namespace VariantTable
         }
         endInsertColumns();
 
-        // Ajust the header data for the new column
-        for (int i = columnCount() - 1; i > col; --i)
-        {
-            m_headers[i] = m_headers[i - 1];
-        }
-        m_headers[col] = QString("%1").arg(col + 1);
+        createColumnHeaderIfNeeded();
 		return true;
     }
     bool Model::insertColumn(int col, CellDataBasePtr typeTemplate)
@@ -332,12 +332,7 @@ namespace VariantTable
         }
         endInsertColumns();
 
-        // Ajust the header data for the new column
-        for (int i = columnCount() - 1; i > col; --i)
-        {
-            m_headers[i] = m_headers[i - 1];
-        }
-        m_headers[col] = QString("%1").arg(col + 1);
+        createColumnHeaderIfNeeded();
         return true;
     }
     bool Model::insertColumns(int col, int count, const QModelIndex& parent)
@@ -352,15 +347,7 @@ namespace VariantTable
         }
         endInsertColumns();
 
-		// Ajust the header data for the new columns
-        for (int i = columnCount() - 1; i > col + count - 1; --i)
-        {
-            m_headers[i] = m_headers[i - count];
-		}
-        for (int i = col; i < col + count; ++i)
-        {
-            m_headers[i] = QString("%1").arg(i + 1);
-		}
+        createColumnHeaderIfNeeded();
 		return true;
     }
 
