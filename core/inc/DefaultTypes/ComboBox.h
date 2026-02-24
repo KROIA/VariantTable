@@ -52,5 +52,5 @@ namespace VariantTable
 }
 Q_DECLARE_METATYPE(VariantTable::ComboBox::OptionsType)
 
-QDataStream& operator<<(QDataStream& out, const VariantTable::ComboBox::OptionsType& t);
-QDataStream& operator>>(QDataStream& in, VariantTable::ComboBox::OptionsType& t);
+VARIANT_TABLE_API QDataStream& operator<<(QDataStream& out, const VariantTable::ComboBox::OptionsType& t);
+VARIANT_TABLE_API QDataStream& operator>>(QDataStream& in, VariantTable::ComboBox::OptionsType& t);
