@@ -206,15 +206,15 @@ namespace VariantTable
     }*/
     bool Model::insertRow(int row, const QVector<CellDataBasePtr>& data)
     {
-		if (data.size() < columnCount())
+		/*if (data.size() < columnCount())
 		{
 #ifdef _DEBUG
 			qWarning() << "Data size does not match column count";
 #endif
 			return false;
-		}
+		}*/
 		beginInsertRows(QModelIndex(), row, row);
-        for (int i = 0; i < columnCount(); ++i)
+        for (int i = 0; i < data.size(); ++i)
 		{
 			CellDataBasePtr obj = data[i];
 			obj->setTableData(this);
