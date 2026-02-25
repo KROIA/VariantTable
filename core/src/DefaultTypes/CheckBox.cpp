@@ -115,7 +115,7 @@ namespace VariantTable
 
 	QString CheckBox::getToolTip() const
 	{
-		return (m_value?"[X] ":"[  ] ") + m_text;
+		return (m_value?"[X] ":"[ ] ") + m_text;
 	}
 	void CheckBox::editorWidgetDestroyed() const
 	{

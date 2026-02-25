@@ -119,7 +119,7 @@ namespace VariantTable
 		{
 			QSize iconSize = m_editorPlaceholderData.icon.availableSizes().first();
 			aspectRatio = iconSize.width() / (float)iconSize.height();
-			xPos += size * aspectRatio;
+			xPos += size * aspectRatio * 1.5;
 		}
 		
 		QRect textRect = QRect(xPos + TL.x(), yOffset + TL.y(), rect.width() - size, size);

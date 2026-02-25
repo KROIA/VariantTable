@@ -145,7 +145,7 @@ namespace VariantTable
 		for (int i = 0; i < m_options.size(); ++i)
 		{
 			if (i == m_selectedIndex)
-				text += "- "+m_options[i].first + "\n";
+				text += "-> "+m_options[i].first + "\n";
 			else
 				text += "   "+m_options[i].first + "\n";
 		}
