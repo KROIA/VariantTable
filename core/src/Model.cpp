@@ -17,15 +17,15 @@ namespace VariantTable
     Model::Model(TableView* parent)
         : QAbstractTableModel(parent)
         , m_data(0, QVector<CellData>(0))
-		, m_delegate(new Delegate(this))
-		, m_view(nullptr)
+        , m_delegate(new Delegate(this))
+        , m_view(nullptr)
     {
-        setTableView(parent);    
-		m_models.push_back(this);
+        setTableView(parent);
+        m_models.push_back(this);
     }
     Model::~Model()
     {
-		m_models.removeOne(this);
+        m_models.removeOne(this);
     }
 
 
@@ -52,64 +52,64 @@ namespace VariantTable
         if (!view)
             return;
 
-		m_view = view;
+        m_view = view;
         m_view->setModel(this);
-		m_view->setItemDelegate(m_delegate);
+        m_view->setItemDelegate(m_delegate);
     }
-    int Model::rowCount(const QModelIndex& parent) const 
+    int Model::rowCount(const QModelIndex& parent) const
     {
-		VT_UNUSED(parent);
+        VT_UNUSED(parent);
         return m_data.size();
     }
 
-    int Model::columnCount(const QModelIndex& parent) const 
+    int Model::columnCount(const QModelIndex& parent) const
     {
         VT_UNUSED(parent);
         return m_data.isEmpty() ? 0 : m_data[0].size();
     }
 
-    QVariant Model::data(const QModelIndex& index, int role) const 
+    QVariant Model::data(const QModelIndex& index, int role) const
     {
         if (!index.isValid() || index.row() >= rowCount() || index.column() >= columnCount())
             return QVariant();
 
-		CellDataBasePtr data = m_data[index.row()][index.column()].data;
+        CellDataBasePtr data = m_data[index.row()][index.column()].data;
         switch (role)
         {
-            case Qt::DisplayRole:
-            case Qt::EditRole:
+        case Qt::DisplayRole:
+        case Qt::EditRole:
+        {
+            if (data)
+                return data->getData();
+        }
+        case Qt::SizeHintRole:
+        {
+            if (data)
             {
-                if (data)
-                    return data->getData();
+                QStyleOptionViewItem option;
+                return data->getSizeHint(option);
             }
-            case Qt::SizeHintRole:
-            {
-                if (data)
-                {
-                    QStyleOptionViewItem option;
-                    return data->getSizeHint(option);
-                }
-            }
-            case Qt::ToolTipRole:
-            {
-                if (data)
-			        return data->getToolTip();
-                return QVariant("No cell widget set at this position!");
-            }
-        }      
+        }
+        case Qt::ToolTipRole:
+        {
+            if (data)
+                return data->getToolTip();
+            return QVariant("No cell widget set at this position!");
+        }
+        }
         return QVariant();
     }
 
-    
 
-    Qt::ItemFlags Model::flags(const QModelIndex& index) const 
+
+    Qt::ItemFlags Model::flags(const QModelIndex& index) const
     {
         return QAbstractTableModel::flags(index) | Qt::ItemIsEditable;
     }
 
-   
 
-  
+
+
     void Model::iconThemeChanged()
     {
         for (Model* model : m_models)
@@ -130,38 +130,38 @@ namespace VariantTable
             {
                 m_headers[i] = QString("%1").arg(i + 1);
             }
-		}
+        }
     }
     void Model::onDataChanged(const CellDataBase* data)
     {
-		for (int i = 0; i < rowCount(); ++i)
-		{
-			for (int j = 0; j < columnCount(); ++j)
-			{
+        for (int i = 0; i < rowCount(); ++i)
+        {
+            for (int j = 0; j < columnCount(); ++j)
+            {
 #ifdef VT_USE_SHARED_PTR
-				if (m_data[i][j].data.get() == data)
+                if (m_data[i][j].data.get() == data)
 #else
                 if (m_data[i][j].data == data)
 #endif
-				{
-					emit dataChanged(index(i, j), index(i, j));
-                    if(m_view)
-					    m_view->update(index(i, j));
-				}
-			}
-		}
+                {
+                    emit dataChanged(index(i, j), index(i, j));
+                    if (m_view)
+                        m_view->update(index(i, j));
+                }
+            }
+        }
     }
     void Model::iconThemeChanged_internal()
     {
-		for (int i = 0; i < rowCount(); ++i)
-		{
-			for (int j = 0; j < columnCount(); ++j)
-			{
-				CellDataBasePtr data = m_data[i][j].data;
-                if(data)
-				    data->updateIcon();
-			}
-		}
+        for (int i = 0; i < rowCount(); ++i)
+        {
+            for (int j = 0; j < columnCount(); ++j)
+            {
+                CellDataBasePtr data = m_data[i][j].data;
+                if (data)
+                    data->updateIcon();
+            }
+        }
         onDataChanged();
     }
     bool Model::isIndexSelected(const QModelIndex& index) const
@@ -181,23 +181,23 @@ namespace VariantTable
             rows.append(index.row());
         }
         // shrink list and sort
-		std::sort(rows.begin(), rows.end());
-		rows.erase(std::unique(rows.begin(), rows.end()), rows.end());
+        std::sort(rows.begin(), rows.end());
+        rows.erase(std::unique(rows.begin(), rows.end()), rows.end());
         return rows;
     }
     QVector<unsigned int> Model::getSelectedColumns() const
     {
-		QVector<unsigned int> columns;
-		const QItemSelectionModel* selectionModel = m_view->selectionModel();
-		const QModelIndexList& selectedIndexes = selectionModel->selectedColumns();
-		for (const QModelIndex& index : selectedIndexes)
-		{
-			columns.append(index.column());
-		}
-		// shrink list and sort
-		std::sort(columns.begin(), columns.end());
-		columns.erase(std::unique(columns.begin(), columns.end()), columns.end());
-		return columns;
+        QVector<unsigned int> columns;
+        const QItemSelectionModel* selectionModel = m_view->selectionModel();
+        const QModelIndexList& selectedIndexes = selectionModel->selectedColumns();
+        for (const QModelIndex& index : selectedIndexes)
+        {
+            columns.append(index.column());
+        }
+        // shrink list and sort
+        std::sort(columns.begin(), columns.end());
+        columns.erase(std::unique(columns.begin(), columns.end()), columns.end());
+        return columns;
     }
 
 
@@ -212,35 +212,53 @@ namespace VariantTable
         }
         m_data.insert(row, rowData);
         endInsertRows();
-		return true;
+        return true;
     }*/
     bool Model::insertRow(int row, const QVector<CellDataBasePtr>& data)
     {
-		/*if (data.size() < columnCount())
-		{
+        /*if (data.size() < columnCount())
+        {
 #ifdef _DEBUG
-			qWarning() << "Data size does not match column count";
+            qWarning() << "Data size does not match column count";
 #endif
-			return false;
-		}*/
-		beginInsertRows(QModelIndex(), row, row);
+            return false;
+        }*/
+        if (m_data.size() <= row)
+        {
+            insertRows(m_data.size(), row - m_data.size() + 1);
+        }
+        if (m_data[row].size() <= data.size() - 1)
+        {
+            insertColumns(m_data[row].size(), data.size() - m_data[row].size());
+        }
+        //beginInsertRows(QModelIndex(), row, row);
         for (int i = 0; i < data.size(); ++i)
-		{
-			CellDataBasePtr obj = data[i];
-			obj->setTableData(this);
-			m_data[row].insert(i, CellData{ obj });
-		}
-		endInsertRows();
-		return true;
-	}
+        {
+            CellDataBasePtr obj = data[i];
+            obj->setTableData(this);
+
+            if (obj)
+            {
+                Model* model = obj->getModel();
+                if (model)
+                {
+                    model->remove(obj);
+                }
+                obj->setTableData(this);
+            }
+            m_data[row][i] = CellData{ obj };
+        }
+        //endInsertRows();
+        return true;
+    }
     bool Model::insertRow(int row, CellDataTypeID defaultType)
     {
         beginInsertRows(QModelIndex(), row, row);
         QVector<CellData> rowData;
         for (int i = 0; i < columnCount(); ++i)
         {
-			CellDataBasePtr obj = CellTypeRegistry::create(defaultType);
-			obj->setTableData(this);
+            CellDataBasePtr obj = CellTypeRegistry::create(defaultType);
+            obj->setTableData(this);
             rowData.append(CellData{ obj });
         }
         m_data.insert(row, rowData);
@@ -253,13 +271,13 @@ namespace VariantTable
         QVector<CellData> rowData;
         for (int i = 0; i < columnCount(); ++i)
         {
-			CellDataBasePtr obj = typeTemplate->clone();
-			obj->setTableData(this);
+            CellDataBasePtr obj = typeTemplate->clone();
+            obj->setTableData(this);
             rowData.append(CellData{ obj });
         }
         m_data.insert(row, rowData);
         endInsertRows();
-		return true;
+        return true;
     }
     bool Model::insertRows(int row, int count, const QModelIndex& parent)
     {
@@ -269,8 +287,8 @@ namespace VariantTable
             QVector<CellData> rowData;
             for (int j = 0; j < columnCount(); ++j)
             {
-				CellDataBasePtr obj = CellTypeRegistry::createDefaultType();
-				obj->setTableData(this);
+                CellDataBasePtr obj = CellTypeRegistry::createDefaultType();
+                obj->setTableData(this);
                 rowData.append(CellData{ obj });
             }
             m_data.insert(row + i, rowData);
@@ -282,22 +300,22 @@ namespace VariantTable
 
 
 
-   /* bool Model::insertColumn(int col, const QModelIndex& parent)
-    {
-        beginInsertColumns(parent, col, col);
-        for (int i = 0; i < rowCount(); ++i)
-        {
-            m_data[i].insert(col, CellData{ CellTypeRegistry::createDefaultType() });
-        }
-        endInsertColumns();
-		return true;
-    }*/
+    /* bool Model::insertColumn(int col, const QModelIndex& parent)
+     {
+         beginInsertColumns(parent, col, col);
+         for (int i = 0; i < rowCount(); ++i)
+         {
+             m_data[i].insert(col, CellData{ CellTypeRegistry::createDefaultType() });
+         }
+         endInsertColumns();
+         return true;
+     }*/
     bool Model::insertColumn(int col, const QVector<CellDataBasePtr>& data)
     {
         if (data.size() < rowCount())
         {
 #ifdef _DEBUG
-			qWarning() << "Data size does not match row count";
+            qWarning() << "Data size does not match row count";
 #endif
             return false;
         }
@@ -321,14 +339,14 @@ namespace VariantTable
         endInsertColumns();
 
         createColumnHeaderIfNeeded();
-		return true;
+        return true;
     }
     bool Model::insertColumn(int col, CellDataBasePtr typeTemplate)
     {
         beginInsertColumns(QModelIndex(), col, col);
         for (int i = 0; i < rowCount(); ++i)
         {
-            m_data[i].insert(col, CellData{ typeTemplate->clone()});
+            m_data[i].insert(col, CellData{ typeTemplate->clone() });
         }
         endInsertColumns();
 
@@ -348,92 +366,92 @@ namespace VariantTable
         endInsertColumns();
 
         createColumnHeaderIfNeeded();
-		return true;
+        return true;
     }
 
 
     bool Model::removeRows(int row, int count, const QModelIndex& parent)
     {
-		beginRemoveRows(parent, row, row + count - 1);
-		for (int i = 0; i < count; ++i)
-		{
-			m_data.removeAt(row);
-		}
-		endRemoveRows();
+        beginRemoveRows(parent, row, row + count - 1);
+        for (int i = 0; i < count; ++i)
+        {
+            m_data.removeAt(row);
+        }
+        endRemoveRows();
         return true;
     }
     bool Model::removeColumns(int column, int count, const QModelIndex& parent)
     {
-		beginRemoveColumns(parent, column, column + count - 1);
-		for (int i = 0; i < count; ++i)
-		{
-			for (int j = 0; j < rowCount(); ++j)
-			{
-				m_data[j].removeAt(column);
-			}
-		}
-		endRemoveColumns();
+        beginRemoveColumns(parent, column, column + count - 1);
+        for (int i = 0; i < count; ++i)
+        {
+            for (int j = 0; j < rowCount(); ++j)
+            {
+                m_data[j].removeAt(column);
+            }
+        }
+        endRemoveColumns();
         return true;
     }
 
 
     bool Model::moveRowUp(unsigned int row, unsigned int amount)
     {
-		if (row < amount)
-		{
-			return false;
-		}
-		QVector<CellData> temp = m_data[row];
+        if (row < amount)
+        {
+            return false;
+        }
+        QVector<CellData> temp = m_data[row];
 
-		beginRemoveRows(QModelIndex(), row, row);
-		m_data.removeAt(row);
-		endRemoveRows();
+        beginRemoveRows(QModelIndex(), row, row);
+        m_data.removeAt(row);
+        endRemoveRows();
 
         beginInsertRows(QModelIndex(), row - amount, row - amount);
-		m_data.insert(row - amount, temp);
-		endInsertRows();
-        
-		return true;
+        m_data.insert(row - amount, temp);
+        endInsertRows();
+
+        return true;
     }
     /*bool Model::moveRowsUp(QVector<unsigned int> rows, unsigned int amount)
     {
         if (rows.size() == 0)
             return false;
-		QVector<QVector<CellData>> temp;
+        QVector<QVector<CellData>> temp;
 
-		beginRemoveRows(QModelIndex(), rows[0], rows[rows.size() - 1]);
+        beginRemoveRows(QModelIndex(), rows[0], rows[rows.size() - 1]);
         for (int i = 0; i < rows.size(); ++i)
         {
             temp.append(m_data[rows[i]]);
             m_data.removeAt(rows[i]);
         }
-		endRemoveRows();
+        endRemoveRows();
 
-		beginInsertRows(QModelIndex(), rows[0] - amount, rows[0] - amount);
-		for (int i = 0; i < rows.size(); ++i)
-		{
-			m_data.insert(rows[i] - amount, temp[i]);
-		}
-		endInsertRows();
+        beginInsertRows(QModelIndex(), rows[0] - amount, rows[0] - amount);
+        for (int i = 0; i < rows.size(); ++i)
+        {
+            m_data.insert(rows[i] - amount, temp[i]);
+        }
+        endInsertRows();
 
-		return true;
+        return true;
     }*/
     bool Model::moveRowDown(unsigned int row, unsigned int amount)
     {
-		if (row + amount >= (unsigned)m_data.size())
-		{
-			return false;
-		}
+        if (row + amount >= (unsigned)m_data.size())
+        {
+            return false;
+        }
 
-		QVector<CellData> temp = m_data[row];
+        QVector<CellData> temp = m_data[row];
 
-		beginRemoveRows(QModelIndex(), row, row);
-		m_data.removeAt(row);
-		endRemoveRows();
+        beginRemoveRows(QModelIndex(), row, row);
+        m_data.removeAt(row);
+        endRemoveRows();
 
-		beginInsertRows(QModelIndex(), row + amount, row + amount);
-		m_data.insert(row + amount, temp);
-		endInsertRows();
+        beginInsertRows(QModelIndex(), row + amount, row + amount);
+        m_data.insert(row + amount, temp);
+        endInsertRows();
 
         return true;
     }
@@ -442,78 +460,78 @@ namespace VariantTable
         if (rows.size() == 0)
             return false;
         // Sort rows
-		std::sort(rows.begin(), rows.end());
-		if (rows[rows.size() - 1] + amount >= m_data.size())
-		{
+        std::sort(rows.begin(), rows.end());
+        if (rows[rows.size() - 1] + amount >= m_data.size())
+        {
             return false;
-		}
+        }
 
         QVector<QVector<CellData>> temp = m_data;
 
         QVector<int> rowIndices;
-		for (int i = 0; i < m_data.size(); ++i)
-		{
-			rowIndices.append(i);
-		}
+        for (int i = 0; i < m_data.size(); ++i)
+        {
+            rowIndices.append(i);
+        }
 
-		// remove the row indices that are selected and reinsert them at the new position
-		for (int i = 0; i < rows.size(); ++i)
-		{
-			rowIndices.removeOne(rows[i]);
-		}
-		// Check for out of bounds
-
-
+        // remove the row indices that are selected and reinsert them at the new position
+        for (int i = 0; i < rows.size(); ++i)
+        {
+            rowIndices.removeOne(rows[i]);
+        }
+        // Check for out of bounds
 
 
-		beginRemoveRows(QModelIndex(), rows[0], rows[rows.size() - 1]);
-		m_data.clear();
-		endRemoveRows();
 
-		int insertIndex = rows[0] + amount;
-		if (insertIndex > m_data.size())
-			insertIndex = m_data.size();
 
-		beginInsertRows(QModelIndex(), insertIndex, insertIndex);
+        beginRemoveRows(QModelIndex(), rows[0], rows[rows.size() - 1]);
+        m_data.clear();
+        endRemoveRows();
+
+        int insertIndex = rows[0] + amount;
+        if (insertIndex > m_data.size())
+            insertIndex = m_data.size();
+
+        beginInsertRows(QModelIndex(), insertIndex, insertIndex);
         for (int i = 0; i < rows.size(); ++i)
         {
             m_data.insert(rows[i] + amount - rows.size(), temp[i]);
         }
-		endInsertRows();
-		return true;
+        endInsertRows();
+        return true;
     }*/
 
     bool Model::swapRows(unsigned int row1, unsigned int row2)
     {
-		if (row1 >= (unsigned)m_data.size() || row2 >= (unsigned)m_data.size())
-			return false;
-		QVector<CellData> temp = m_data[row1];
-		beginMoveRows(QModelIndex(), row1, row1, QModelIndex(), row2);
-		m_data[row1] = m_data[row2];
-		m_data[row2] = temp;
-		endMoveRows();
-		return true;
+        if (row1 >= (unsigned)m_data.size() || row2 >= (unsigned)m_data.size())
+            return false;
+        QVector<CellData> temp = m_data[row1];
+        beginMoveRows(QModelIndex(), row1, row1, QModelIndex(), row2);
+        m_data[row1] = m_data[row2];
+        m_data[row2] = temp;
+        endMoveRows();
+        return true;
     }
     bool Model::moveRow(unsigned int sourceRow, unsigned int destinationRow)
     {
-		if (sourceRow >= (unsigned)m_data.size() || destinationRow >= (unsigned)m_data.size())
-			return false;
-		QVector<CellData> temp = m_data[sourceRow];
-		if (sourceRow < destinationRow)
-			destinationRow--;
-		beginMoveRows(QModelIndex(), sourceRow, sourceRow, QModelIndex(), destinationRow);
-		m_data.removeAt(sourceRow);
+        if (sourceRow >= (unsigned)m_data.size() || destinationRow >= (unsigned)m_data.size())
+            return false;
+        QVector<CellData> temp = m_data[sourceRow];
+        if (sourceRow < destinationRow)
+            destinationRow--;
+        beginMoveRows(QModelIndex(), sourceRow, sourceRow, QModelIndex(), destinationRow);
+        m_data.removeAt(sourceRow);
 
-		m_data.insert(destinationRow, temp);
-		endMoveRows();
-		return true;
+        m_data.insert(destinationRow, temp);
+        endMoveRows();
+        return true;
     }
 
     void Model::clear()
     {
         beginResetModel();
-		m_data.clear();
-		endResetModel();
+        m_data.clear();
+        endResetModel();
     }
 
     bool Model::setData(const QModelIndex& index, const QVariant& value, int role)
@@ -532,7 +550,7 @@ namespace VariantTable
     {
         if (m_data.size() <= row)
         {
-			insertRows(m_data.size(), row - m_data.size() + 1);
+            insertRows(m_data.size(), row - m_data.size() + 1);
         }
         if (m_data[row].size() <= col)
         {
@@ -541,17 +559,17 @@ namespace VariantTable
 
         if (m_data[row].size() <= col)
             return;
-		CellDataBasePtr old = m_data[row][col].data;
-        if(old)
-			old->setTableData(nullptr);
+        CellDataBasePtr old = m_data[row][col].data;
+        if (old)
+            old->setTableData(nullptr);
 
         if (data)
         {
-			Model* model = data->getModel();
+            Model* model = data->getModel();
             if (model)
             {
                 model->remove(data);
-			}
+            }
             data->setTableData(this);
         }
         m_data[row][col].data = data;
@@ -567,15 +585,15 @@ namespace VariantTable
 
     void Model::remove(CellDataBasePtr data)
     {
-		for (int row = 0; row < rowCount(); ++row)
-		{
-			for (int col = 0; col < columnCount(); ++col)
-			{
-				if (m_data[row][col].data == data)
-				{
-					setCellData(row, col, nullptr);
-				}
-			}
-		}
+        for (int row = 0; row < rowCount(); ++row)
+        {
+            for (int col = 0; col < columnCount(); ++col)
+            {
+                if (m_data[row][col].data == data)
+                {
+                    setCellData(row, col, nullptr);
+                }
+            }
+        }
     }
 }
