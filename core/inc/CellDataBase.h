@@ -65,8 +65,9 @@ namespace VariantTable
 
 
 
-	class VARIANT_TABLE_API CellDataBase
+	class VARIANT_TABLE_API CellDataBase : public QObject
 	{
+		Q_OBJECT
 		friend class Delegate;
 		friend class Model;
 		public:
@@ -120,6 +121,10 @@ namespace VariantTable
 			virtual void drawEditorPlaceholderColorOverlay(QPainter* painter, const QStyleOptionViewItem& option) const;
 			virtual void drawEditorPlaceholderIcon(QPainter* painter, const QStyleOptionViewItem& option) const;
 			virtual void drawEditorPlaceholderText(QPainter* painter, const QStyleOptionViewItem& option) const;
+
+
+		private slots:
+			void onEditorWidgetDestroyed();
 
 		private:
 			QWidget* createEditorWidget_internal(QWidget* parent) const;

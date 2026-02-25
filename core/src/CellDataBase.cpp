@@ -126,6 +126,11 @@ namespace VariantTable
 		painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, m_editorPlaceholderData.text);
 	}
 
+	void CellDataBase::onEditorWidgetDestroyed()
+	{
+		m_mainEditorWidget = nullptr;
+		editorWidgetDestroyed();
+	}
 
 	QWidget* CellDataBase::createEditorWidget_internal(QWidget* parent) const
 	{
@@ -133,11 +138,7 @@ namespace VariantTable
 		m_mainEditorWidget = editor;
 		applyColor(editor);
 		editor->setEnabled(m_isEditable);
-		QObject::connect(editor, &QObject::destroyed, [this]()
-						 {
-							 m_mainEditorWidget = nullptr;
-							 editorWidgetDestroyed();
-						 });
+		connect(editor, &QObject::destroyed, this, &CellDataBase::onEditorWidgetDestroyed);
 		return editor;
 	}
 
