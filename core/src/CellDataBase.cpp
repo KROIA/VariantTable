@@ -45,12 +45,12 @@ namespace VariantTable
 
 	QSize CellDataBase::getSizeHint(const QStyleOptionViewItem& option) const
 	{
-		/*if (m_mainEditorWidget)
+		if (m_mainEditorWidget)
 		{
 			QSize size = m_mainEditorWidget->sizeHint();
 			return size;
 		}
-		return QSize(option.rect.width(), option.rect.height());*/
+		//return QSize(option.rect.width(), option.rect.height());
 		QFontMetrics fm(option.font);
 		int textWidth = fm.horizontalAdvance(m_editorPlaceholderData.text);
 		int textHeight = fm.height();

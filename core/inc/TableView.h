@@ -1,15 +1,13 @@
 #pragma once
 
 #include "VariantTable_base.h"
-#include "Model.h"
+
 #include <QTableView>
-#include <QHeaderView>
-#include <QTimer>
-#include <QPainter>
 #include "OverlayRect.h"
 
 namespace VariantTable
 {
+	class Model;
     class VARIANT_TABLE_API TableView : public QTableView
     {
         friend class Model;
@@ -48,75 +46,15 @@ namespace VariantTable
 
 		protected:
 		void resizeEvent(QResizeEvent* event);
+		void doRelayout();
 
-		std::vector<Internal::OverlayRect::Rect> getDrawRects()
-		{
-			std::vector<Internal::OverlayRect::Rect> rects;
-			/*if (m_column >= 0)
-			{
-				rects.push_back(getColumnRect(m_column));
-				rects.push_back(getRowRect(m_column));
-			}*/
-			return rects;
-		}
-
-		QRect getColumnRect(unsigned int column)
-		{
-			QRect rect;
-			for (int row = 0; row < model()->rowCount(); ++row)
-			{
-				QRect cellRect = visualRect(model()->index(row, column));
-				if (rect.isNull())
-					rect = cellRect;
-				else
-					rect = rect.united(cellRect);
-			}
-			int height = rect.height() + horizontalHeader()->height() + CELL_PADDING;
-			int width = rect.width() + CELL_PADDING;
-
-			rect.setX(rect.x() + verticalHeader()->width());
-			rect.setY(rect.y());
-			rect.setHeight(height);
-			rect.setWidth(width);
-			return rect;
-		}
-		QRect getRowRect(unsigned int row)
-		{
-		
-			QRect rect;
-			for (int column = 0; column < model()->columnCount(); ++column)
-			{
-				QRect cellRect = visualRect(model()->index(row, column));
-				if (rect.isNull())
-					rect = cellRect;
-				else
-					rect = rect.united(cellRect);
-			}
-			int height = rect.height() + CELL_PADDING;
-			int width = rect.width() + verticalHeader()->width() + CELL_PADDING;
-
-			rect.setX(rect.x());
-			rect.setY(rect.y() + horizontalHeader()->height());
-			rect.setHeight(height);
-			rect.setWidth(width);
-			return rect;
-		}
-		QRect getCellRect(unsigned int row, unsigned int column)
-		{
-			QRect rect = visualRect(model()->index(row, column));
-			int width = rect.width() + CELL_PADDING;
-			int height = rect.height() + CELL_PADDING;
-			rect.setX(rect.x() + verticalHeader()->width());
-			rect.setY(rect.y() + horizontalHeader()->height());
-			rect.setHeight(height);
-			rect.setWidth(width);
-			return rect;
-		}
+		QRect getColumnRect(unsigned int column) const;
+		QRect getRowRect(unsigned int row) const;
+		QRect getCellRect(unsigned int row, unsigned int column) const;
 
 		private slots:
 		
             void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
-
 
         private:
             //void onNewEditorCreated(QWidget* editor, const QModelIndex& index);

@@ -1,14 +1,9 @@
 #include "TableView.h"
-#include <QScrollBar.h>
-#include "OverlayRect.h"
+#include "Model.h"
+#include <QHeaderView>
 
 namespace VariantTable
 {
-    
-
-
-
-
     TableView::TableView(QWidget* parent)
         : QTableView(parent)
         , m_model(nullptr)
@@ -19,8 +14,7 @@ namespace VariantTable
         connect(selectionModel(), &QItemSelectionModel::selectionChanged, this, &TableView::onSelectionChanged);
 
         // set all columns to equal width
-        horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
+        horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
         
         
@@ -125,14 +119,6 @@ namespace VariantTable
 
 		// Set the new selection
 		selectionModel()->select(selection, QItemSelectionModel::Deselect);
-
-        // Recalculate the size of rows and columns
-       // resizeRowsToContents();
-        //resizeColumnsToContents();
-
-        // Update the geometry to reflect the new layout
-        //updateGeometry();
-        //m_model->onDataChanged();
     }
     void TableView::deselectCell(unsigned int row, unsigned int column)
     {
@@ -198,8 +184,66 @@ namespace VariantTable
         viewportRect.setX(0); // Set the X position to 0
         viewportRect.setY(0); // Set the Y position to 0
         m_overlay->setGeometry(viewportRect); // Position the overlay over the viewport
-       // qDebug() << "Resizing overlay to" << viewportRect;
+        doRelayout();
+    }
+    void TableView::doRelayout()
+    {
+        resizeColumnsToContents();
+        resizeRowsToContents();
+    }
 
+
+    QRect TableView::getColumnRect(unsigned int column) const
+    {
+        QRect rect;
+        for (int row = 0; row < model()->rowCount(); ++row)
+        {
+            QRect cellRect = visualRect(model()->index(row, column));
+            if (rect.isNull())
+                rect = cellRect;
+            else
+                rect = rect.united(cellRect);
+        }
+        int height = rect.height() + horizontalHeader()->height() + CELL_PADDING;
+        int width = rect.width() + CELL_PADDING;
+
+        rect.setX(rect.x() + verticalHeader()->width());
+        rect.setY(rect.y());
+        rect.setHeight(height);
+        rect.setWidth(width);
+        return rect;
+    }
+    QRect TableView::getRowRect(unsigned int row) const
+    {
+
+        QRect rect;
+        for (int column = 0; column < model()->columnCount(); ++column)
+        {
+            QRect cellRect = visualRect(model()->index(row, column));
+            if (rect.isNull())
+                rect = cellRect;
+            else
+                rect = rect.united(cellRect);
+        }
+        int height = rect.height() + CELL_PADDING;
+        int width = rect.width() + verticalHeader()->width() + CELL_PADDING;
+
+        rect.setX(rect.x());
+        rect.setY(rect.y() + horizontalHeader()->height());
+        rect.setHeight(height);
+        rect.setWidth(width);
+        return rect;
+    }
+    QRect TableView::getCellRect(unsigned int row, unsigned int column) const
+    {
+        QRect rect = visualRect(model()->index(row, column));
+        int width = rect.width() + CELL_PADDING;
+        int height = rect.height() + CELL_PADDING;
+        rect.setX(rect.x() + verticalHeader()->width());
+        rect.setY(rect.y() + horizontalHeader()->height());
+        rect.setHeight(height);
+        rect.setWidth(width);
+        return rect;
     }
     
     void TableView::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected) 
@@ -212,30 +256,15 @@ namespace VariantTable
                 emit commitData(editor);  // Ensure setModelData is called
             }
             closePersistentEditor(index);
-            setRowHeight(index.row(), verticalHeader()->defaultSectionSize());
-            setColumnWidth(index.column(), horizontalHeader()->defaultSectionSize());
         }
 
         // Open editors for all newly selected cells
-        for (const QModelIndex& index : selected.indexes()) 
-        {
+        for (const QModelIndex& index : selected.indexes())
             openPersistentEditor(index);
-            resizeRowToContents(index.row());
-            resizeColumnToContents(index.column());
-        }
         
+        doRelayout();        
     }
 
-   //void TableView::onNewEditorCreated(QWidget* editor, const QModelIndex& index)
-   //{
-   //    VT_UNUSED(editor);
-   //    if (index.isValid()) 
-   //    {
-   //        // Resize the row and column of the selected cell to fit its contents
-   //        resizeRowToContents(index.row());
-   //        resizeColumnToContents(index.column());
-   //    }
-   //}
     void TableView::focusInEvent(QFocusEvent* event) 
     {
         if (m_firstFocus) 
