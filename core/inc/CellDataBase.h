@@ -90,7 +90,7 @@ namespace VariantTable
 
 			virtual void setEditable(bool editable);
 			virtual bool isEditable() const { return m_isEditable; }
-			virtual QSize getSizeHint(const QStyleOptionViewItem& option);
+			virtual QSize getSizeHint(const QStyleOptionViewItem& option) const;
 		
 			virtual void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const;
 			virtual QString getToolTip() const = 0;
@@ -121,7 +121,7 @@ namespace VariantTable
 			virtual void drawEditorPlaceholderColorOverlay(QPainter* painter, const QStyleOptionViewItem& option) const;
 			virtual void drawEditorPlaceholderIcon(QPainter* painter, const QStyleOptionViewItem& option) const;
 			virtual void drawEditorPlaceholderText(QPainter* painter, const QStyleOptionViewItem& option) const;
-
+			
 
 		private slots:
 			void onEditorWidgetDestroyed();

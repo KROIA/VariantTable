@@ -43,14 +43,27 @@ namespace VariantTable
 			m_mainEditorWidget->setEnabled(editable);
 	}
 
-	QSize CellDataBase::getSizeHint(const QStyleOptionViewItem& option)
+	QSize CellDataBase::getSizeHint(const QStyleOptionViewItem& option) const
 	{
-		if (m_mainEditorWidget)
+		/*if (m_mainEditorWidget)
 		{
 			QSize size = m_mainEditorWidget->sizeHint();
 			return size;
 		}
-		return QSize(option.rect.width(), option.rect.height());
+		return QSize(option.rect.width(), option.rect.height());*/
+		QFontMetrics fm(option.font);
+		int textWidth = fm.horizontalAdvance(m_editorPlaceholderData.text);
+		int textHeight = fm.height();
+
+		int width = textWidth + 10; // Add some padding
+		if (m_editorPlaceholderData.hasIcon)
+		{
+			QSize iconSize = m_editorPlaceholderData.icon.availableSizes().first();
+			float aspectRatio = iconSize.width() / (float)iconSize.height();
+			width += aspectRatio * PlaceholderData::iconHeight + PlaceholderData::iconXPos * 2; // Add space for the icon and padding
+		}
+		int height = std::max(textHeight, (int)PlaceholderData::iconHeight) + 10; // Add some padding
+		return QSize(width, height);
 	}
 
 	void CellDataBase::drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const
