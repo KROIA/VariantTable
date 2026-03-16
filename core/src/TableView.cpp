@@ -48,6 +48,38 @@ namespace VariantTable
         scrollTo(firstIndexInColumn, QAbstractItemView::PositionAtTop);
     }
 
+    bool TableView::isIndexSelected(const QModelIndex& index) const
+    {
+        // Check if the index is selected
+        return selectionModel()->isSelected(index);
+    }
+    QVector<unsigned int> TableView::getSelectedRows() const
+    {
+        QSet<unsigned int> rowSet;
+        const QModelIndexList& selectedIndexes = selectionModel()->selectedRows();
+        for (const QModelIndex& index : selectedIndexes)
+        {
+            rowSet.insert(index.row());
+        }
+        // shrink list and sort
+        QVector<unsigned int> rows = rowSet.values().toVector();
+        std::sort(rows.begin(), rows.end());
+        return rows;
+    }
+    QVector<unsigned int> TableView::getSelectedColumns() const
+    {
+        QSet<unsigned int> columnSet;
+        const QModelIndexList& selectedIndexes = selectionModel()->selectedColumns();
+        for (const QModelIndex& index : selectedIndexes)
+        {
+            columnSet.insert(index.column());
+        }
+        // shrink list and sort
+        QVector<unsigned int> columns = columnSet.values().toVector();
+        std::sort(columns.begin(), columns.end());
+        return columns;
+    }
+
     void TableView::selectRow(unsigned int row)
     {
         QModelIndex topLeft = m_model->index(row, 0); // First column in the row
@@ -65,6 +97,19 @@ namespace VariantTable
 		// Set the new selection
 		selectionModel()->select(currentSelection, QItemSelectionModel::Select);
     }
+    void TableView::selectRows(const QVector<unsigned int>& rows)
+    {
+        QItemSelection currentSelection = selectionModel()->selection();
+
+        for (unsigned int row : rows)
+        {
+            QModelIndex topLeft = m_model->index(row, 0); // First column in the row
+            QModelIndex bottomRight = m_model->index(row, m_model->columnCount() - 1); // Last column in the row
+            QItemSelection selection(topLeft, bottomRight);
+            currentSelection.merge(selection, QItemSelectionModel::Select);
+        }
+        selectionModel()->select(currentSelection, QItemSelectionModel::Select);
+    }
     void TableView::selectColumn(unsigned int column)
     {
         QModelIndex topLeft = m_model->index(0, column); // First row in the column
@@ -81,6 +126,18 @@ namespace VariantTable
 
 		// Set the new selection
 		selectionModel()->select(currentSelection, QItemSelectionModel::Select);
+    }
+    void TableView::selectColumns(const QVector<unsigned int>& columns)
+    {
+        QItemSelection currentSelection = selectionModel()->selection();
+        for (unsigned int column : columns)
+        {
+            QModelIndex topLeft = m_model->index(0, column); // First row in the column
+            QModelIndex bottomRight = m_model->index(m_model->rowCount() - 1, column); // Last row in the column
+            QItemSelection selection(topLeft, bottomRight);
+            currentSelection.merge(selection, QItemSelectionModel::Select);
+        }
+        selectionModel()->select(currentSelection, QItemSelectionModel::Select);
     }
     void TableView::selectCell(unsigned int row, unsigned int column)
     {
@@ -109,6 +166,16 @@ namespace VariantTable
 		// Set the new selection
 		selectionModel()->select(selection, QItemSelectionModel::Deselect);
     }
+    void TableView::deselectRows(const QVector<unsigned int>& rows)
+    {
+        for (unsigned int row : rows)
+        {
+            QModelIndex topLeft = m_model->index(row, 0); // First column in the row
+            QModelIndex bottomRight = m_model->index(row, m_model->columnCount() - 1); // Last column in the row
+            QItemSelection selection(topLeft, bottomRight);
+            selectionModel()->select(selection, QItemSelectionModel::Deselect);
+        }
+    }
     void TableView::deselectColumn(unsigned int column)
     {
         QModelIndex topLeft = m_model->index(0, column); // First row in the column
@@ -119,6 +186,16 @@ namespace VariantTable
 
 		// Set the new selection
 		selectionModel()->select(selection, QItemSelectionModel::Deselect);
+    }
+    void TableView::deselectColumns(const QVector<unsigned int>& columns)
+    {
+        for (unsigned int column : columns)
+        {
+            QModelIndex topLeft = m_model->index(0, column); // First row in the column
+            QModelIndex bottomRight = m_model->index(m_model->rowCount() - 1, column); // Last row in the column
+            QItemSelection selection(topLeft, bottomRight);
+            selectionModel()->select(selection, QItemSelectionModel::Deselect);
+        }
     }
     void TableView::deselectCell(unsigned int row, unsigned int column)
     {

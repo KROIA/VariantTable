@@ -24,12 +24,24 @@ namespace VariantTable
 			void scrollToRow(unsigned int row);
 			void scrollToColumn(unsigned int column);
 
+			bool isIndexSelected(const QModelIndex& index) const;
+			QVector<unsigned int> getSelectedRows() const;
+			QVector<unsigned int> getSelectedColumns() const;
+
 			void selectRow(unsigned int row);
+			void selectRows(const QVector<unsigned int>& rows);
+
 			void selectColumn(unsigned int column);
+			void selectColumns(const QVector<unsigned int>& columns);
+
 			void selectCell(unsigned int row, unsigned int column);
 
 			void deselectRow(unsigned int row);
+			void deselectRows(const QVector<unsigned int>& rows);
+
 			void deselectColumn(unsigned int column);
+			void deselectColumns(const QVector<unsigned int>& columns);
+
 			void deselectCell(unsigned int row, unsigned int column);
 
 			void highlightRow(unsigned int row);

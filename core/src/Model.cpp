@@ -167,7 +167,7 @@ namespace VariantTable
         }
         onDataChanged();
     }
-    bool Model::isIndexSelected(const QModelIndex& index) const
+    /*bool Model::isIndexSelected(const QModelIndex& index) const
     {
         // Get the selection model from the view
         const QItemSelectionModel* selectionModel = m_view->selectionModel();
@@ -176,33 +176,48 @@ namespace VariantTable
     }
     QVector<unsigned int> Model::getSelectedRows() const
     {
-        QSet<unsigned int> rowSet;
-        const QItemSelectionModel* selectionModel = m_view->selectionModel();
-        const QModelIndexList& selectedIndexes = selectionModel->selectedRows();
-        for (const QModelIndex& index : selectedIndexes)
-        {
-            rowSet.insert(index.row());
-        }
-        // shrink list and sort
-		QVector<unsigned int> rows = rowSet.values().toVector();
-        std::sort(rows.begin(), rows.end());
-        return rows;
+		return m_view->getSelectedRows();
     }
     QVector<unsigned int> Model::getSelectedColumns() const
     {
-        QSet<unsigned int> columnSet;
-        const QItemSelectionModel* selectionModel = m_view->selectionModel();
-        const QModelIndexList& selectedIndexes = selectionModel->selectedColumns();
-        for (const QModelIndex& index : selectedIndexes)
-        {
-            columnSet.insert(index.column());
-        }
-        // shrink list and sort
-		QVector<unsigned int> columns = columnSet.values().toVector();
-        std::sort(columns.begin(), columns.end());
-        return columns;
+		return m_view->getSelectedColumns();
+    }
+    void Model::selectRow(unsigned int row)
+    {
+		m_view->selectRow(row);
+    }
+    void Model::selectColumn(unsigned int column)
+    {
+		m_view->selectColumn(column);
     }
 
+    void Model::selectRows(const QVector<unsigned int>& rows)
+    {
+		m_view->selectRows(rows);   
+    }
+    void Model::selectColumns(const QVector<unsigned int>& columns)
+    {
+		m_view->selectColumns(columns);
+    }
+
+    void Model::deselectRow(unsigned int row)
+    {
+		m_view->deselectRow(row);   
+    }
+    void Model::deselectColumn(unsigned int column)
+    {
+		m_view->deselectColumn(column);
+    }
+
+    void Model::deselectRows(const QVector<unsigned int>& rows)
+    {
+		m_view->deselectRows(rows);
+    }
+    void Model::deselectColumns(const QVector<unsigned int>& columns)
+    {
+		m_view->deselectColumns(columns);
+    }
+    */
 
 
     /*bool Model::insertRow(int row, const QModelIndex& parent)

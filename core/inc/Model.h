@@ -39,9 +39,21 @@ namespace VariantTable
 
 		
 
-		    bool isIndexSelected(const QModelIndex& index) const;
+		    /*bool isIndexSelected(const QModelIndex& index) const;
             QVector<unsigned int> getSelectedRows() const;
 		    QVector<unsigned int> getSelectedColumns() const;
+
+			void selectRow(unsigned int row);
+			void selectColumn(unsigned int column);
+
+			void selectRows(const QVector<unsigned int>& rows);
+			void selectColumns(const QVector<unsigned int>& columns);
+
+			void deselectRow(unsigned int row);
+			void deselectColumn(unsigned int column);
+
+			void deselectRows(const QVector<unsigned int>& rows);
+			void deselectColumns(const QVector<unsigned int>& columns);*/
 
 		    // Table operations
          //   bool insertRow(int row, const QModelIndex& parent = QModelIndex()) override;
