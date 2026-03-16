@@ -94,12 +94,14 @@ int main(int argc, char* argv[])
 
 	QObject::connect(upButton, &QPushButton::clicked, [tableView]() {
 		VariantTable::Model* model = tableView->getModel();
-		model->moveRowUp(4, 1);
+		auto selectedRows = tableView->getSelectedRows();
+		model->moveRowsUp(selectedRows, 1);
 		});
 
 	QObject::connect(downButton, &QPushButton::clicked, [tableView]() {
 		VariantTable::Model* model = tableView->getModel();
-		model->moveRowDown(4, 1);
+		auto selectedRows = tableView->getSelectedRows();
+		model->moveRowsDown(selectedRows, 1);
 		});
 	{
 		QPushButton* selectionButton = new QPushButton("Select Column");

@@ -133,6 +133,18 @@ namespace VariantTable
             struct CellData
             {
                 CellDataBasePtr data = nullptr;
+
+				CellData() = default;
+                CellData(const CellDataBasePtr& dataPtr)
+                    : data(dataPtr)
+                {
+				}
+                CellData(const CellData& other) = default;
+				CellData(CellData&& other) noexcept = default;
+
+				CellData& operator=(const CellData& other) = default;
+				CellData& operator=(CellData&& other) noexcept = default;
+
             };
             QVector<QVector<CellData>> m_data;  // 2D array of data values
             QHash<int, QString> m_headers;

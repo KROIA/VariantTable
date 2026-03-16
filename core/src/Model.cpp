@@ -484,15 +484,12 @@ namespace VariantTable
         for (int i = 1; i < rows.size(); ++i)
         {
             unsigned int row = rows[i];
-            if (row == lastRow + 1)
-            {
-                lastRow = row;
-            }
-            else
+            if (row != lastRow + 1)
             {
                 groups.append({ groupStart, lastRow - groupStart + 1 });
                 groupStart = row;
             }
+            lastRow = row;
         }
         if (groups.empty())
         {
@@ -503,6 +500,14 @@ namespace VariantTable
             else
             {
                 groups.append({ groupStart, lastRow - groupStart + 1 });
+            }
+        }
+        else
+        {
+            const std::pair<unsigned int, unsigned int>& back = groups.back();
+            if (back.first + back.second - 1 < groupStart)
+            {
+                groups.append({ groupStart , lastRow - groupStart + 1 });
             }
         }
 
@@ -523,34 +528,29 @@ namespace VariantTable
     bool Model::moveRowsUp(unsigned int row, unsigned int rowCount, unsigned int amount)
     {
         if (row < amount)
-        {
-            // clip amount to the maximum possible value
             amount = row;
-        }
-        if (row + rowCount > (unsigned)m_data.size())
-        {
-            rowCount = m_data.size() - row;
+
+        if (amount == 0)
+            return false;
+
+        beginMoveRows(QModelIndex(),
+            row,
+            row + rowCount - 1,
+            QModelIndex(),
+            row - amount);
+
+        QVector<QVector<CellData>> block = m_data.mid(row, rowCount);
+
+        // Remove the rows from original position
+        m_data.erase(m_data.begin() + row,
+            m_data.begin() + row + rowCount);
+
+        // Insert rows at the new position
+        for (int i = 0; i < block.size(); ++i) {
+            m_data.insert(row - amount + i, block[i]);
         }
 
-        if (amount == 0 || rowCount == 0)
-            return false; // Nothing to move
-
-
-        QVector<QVector<CellData>> temp;
-        temp.reserve(rowCount);
-        beginRemoveRows(QModelIndex(), row, row + rowCount - 1);
-        for (unsigned int i = 0; i < rowCount; ++i)
-        {
-            temp.append(m_data[row]);
-            m_data.removeAt(row);
-        }
-        endRemoveRows();
-        beginInsertRows(QModelIndex(), row - amount, row - amount);
-        for (unsigned int i = 0; i < rowCount; ++i)
-        {
-            m_data.insert(row - amount + i, temp[i]);
-        }
-        endInsertRows();
+        endMoveRows();
 
         return true;
     }
@@ -589,15 +589,12 @@ namespace VariantTable
         for (int i = 1; i < rows.size(); ++i)
         {
             unsigned int row = rows[i];
-            if (row == lastRow + 1)
-            {
-                lastRow = row;
-            }
-            else
+            if (row != lastRow + 1)
             {
                 groups.append({ groupStart, lastRow - groupStart + 1 });
                 groupStart = row;
             }
+            lastRow = row;
         }
         if (groups.empty())
         {
@@ -608,6 +605,14 @@ namespace VariantTable
             else
             {
                 groups.append({ groupStart, lastRow - groupStart + 1 });
+            }
+        }
+        else
+        {
+            const std::pair<unsigned int, unsigned int>& back = groups.back();
+            if (back.first + back.second-1 < groupStart)
+            {
+                groups.append({ groupStart , lastRow - groupStart + 1 });
             }
         }
 
@@ -626,32 +631,39 @@ namespace VariantTable
 
     bool Model::moveRowsDown(unsigned int row, unsigned int rowCount, unsigned int amount)
     {
-        if (row + rowCount + amount > (unsigned)m_data.size())
-        {
-            // clip amount to the maximum possible value
+        // Clip the amount if it would go past the end
+        if (row + rowCount + amount > (unsigned) m_data.size()) {
             if (row + rowCount >= (unsigned)m_data.size())
-            {
                 return false; // Nothing to move
-            }
-            amount = m_data.size() - (row + rowCount);
+            amount = (unsigned)m_data.size() - (row + rowCount);
         }
-        QVector<QVector<CellData>> temp;
 
-        beginRemoveRows(QModelIndex(), row, row + rowCount - 1);
-        for (unsigned int i = 0; i < rowCount; ++i)
-        {
-            temp.append(m_data[row]);
-            m_data.removeAt(row);
+        if (amount == 0)
+            return false;
+
+        // Tell Qt we're about to move rows
+        beginMoveRows(QModelIndex(),
+            row,
+            row + rowCount - 1,
+            QModelIndex(),
+            row + rowCount + amount);
+
+        // Copy the block of rows being moved
+        QVector<QVector<CellData>> block = m_data.mid(row, rowCount);
+
+        // Remove the rows from the original position
+        m_data.erase(m_data.begin() + row,
+            m_data.begin() + row + rowCount);
+
+        // Insert the block at the new position
+        for (int i = 0; i < block.size(); ++i) {
+            m_data.insert(row + amount + i, block[i]);
         }
-        endRemoveRows();
-        beginInsertRows(QModelIndex(), row + amount, row + amount);
-        for (unsigned int i = 0; i < rowCount; ++i)
-        {
-            m_data.insert(row + amount + i, temp[i]);
-        }
-        endInsertRows();
+
+        // Notify Qt that the move is complete
+        endMoveRows();
+
         return true;
-
     }
 
     bool Model::swapRows(unsigned int row1, unsigned int row2)
