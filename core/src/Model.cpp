@@ -61,7 +61,8 @@ namespace VariantTable
     }
     int Model::rowCount(const QModelIndex& parent) const
     {
-        VT_UNUSED(parent);
+        if (parent.isValid())
+            return 0;           // correct for flat model
         return m_data.size();
     }
 
@@ -398,21 +399,21 @@ namespace VariantTable
         endRemoveRows();
         return true;
     }
-    bool Model::removeRows(const QVector<unsigned int>& rows, const QModelIndex& parent)
+    bool Model::removeRows(const QVector<unsigned int>& rows, const QModelIndex&)
     {
         if (rows.isEmpty())
             return false;
 
         // Sort rows ascending for grouping contiguous blocks
         QVector<unsigned int> sortedRows = rows;
-        std::sort(sortedRows.begin(), sortedRows.end());
+        std::sort(sortedRows.begin(), sortedRows.end(), std::greater<unsigned int>());
 
         int blockStart = sortedRows[0];
         int blockCount = 1;
 
         for (int i = 1; i < sortedRows.size(); ++i)
         {
-            if (sortedRows[i] == sortedRows[i - 1] + 1)
+            if (sortedRows[i] == sortedRows[i - 1] - 1)
             {
                 // same contiguous block
                 blockCount++;
@@ -420,9 +421,9 @@ namespace VariantTable
             else
             {
                 // remove the previous block
-                beginRemoveRows(parent, blockStart, blockStart + blockCount - 1);
+                beginRemoveRows(QModelIndex(), blockStart - blockCount + 1, blockStart);
                 for (int j = 0; j < blockCount; ++j)
-                    m_data.removeAt(blockStart);
+                    m_data.removeAt(blockStart - blockCount + 1);
                 endRemoveRows();
 
                 // start new block
@@ -432,9 +433,11 @@ namespace VariantTable
         }
 
         // remove the last block
-        beginRemoveRows(parent, blockStart, blockStart + blockCount - 1);
+        int first = blockStart - blockCount + 1;
+        int last = blockStart;
+        beginRemoveRows(QModelIndex(), first, last);
         for (int j = 0; j < blockCount; ++j)
-            m_data.removeAt(blockStart);
+            m_data.removeAt(first);
         endRemoveRows();
 
         return true;
@@ -635,7 +638,7 @@ namespace VariantTable
         else
         {
             const std::pair<unsigned int, unsigned int>& back = groups.back();
-            if (back.first + back.second-1 < groupStart)
+            if (back.first + back.second - 1 < groupStart)
             {
                 groups.append({ groupStart , lastRow - groupStart + 1 });
             }
@@ -657,7 +660,7 @@ namespace VariantTable
     bool Model::moveRowsDown(unsigned int row, unsigned int rowCount, unsigned int amount)
     {
         // Clip the amount if it would go past the end
-        if (row + rowCount + amount > (unsigned) m_data.size()) {
+        if (row + rowCount + amount > (unsigned)m_data.size()) {
             if (row + rowCount >= (unsigned)m_data.size())
                 return false; // Nothing to move
             amount = (unsigned)m_data.size() - (row + rowCount);
