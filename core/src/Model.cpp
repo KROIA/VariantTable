@@ -717,6 +717,32 @@ namespace VariantTable
             return nullptr;
         return m_data[row][col].data;
     }
+    QVector<CellDataBasePtr> Model::getRowData(int row) const
+    {
+        if (m_data.size() <= row)
+            return {};
+        QVector<CellDataBasePtr> rowData;
+        for (int col = 0; col < m_data[row].size(); ++col)
+        {
+            rowData.append(m_data[row][col].data);
+        }
+		return rowData;
+    }
+    QVector<CellDataBasePtr> Model::getColumnData(int column) const
+    {
+        QVector<CellDataBasePtr> columnData;
+        for (int row = 0; row < m_data.size(); ++row)
+        {
+            if (m_data[row].size() > column)
+            {
+                columnData.append(m_data[row][column].data);
+            }
+            else
+            {
+                columnData.append(nullptr);
+            }
+		}
+    }
 
     void Model::remove(CellDataBasePtr data)
     {
