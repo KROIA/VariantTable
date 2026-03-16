@@ -32,10 +32,10 @@ namespace VariantTable
     QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
     {
         if (role == Qt::DisplayRole) {
-            if(orientation == Qt::Horizontal)
+            if (orientation == Qt::Horizontal)
                 return m_headers.value(section);
-            if(orientation == Qt::Vertical)
-				return QString("%1").arg(section + 1);
+            if (orientation == Qt::Vertical)
+                return QString("%1").arg(section + 1);
         }
         return QVariant();
     }
@@ -176,46 +176,46 @@ namespace VariantTable
     }
     QVector<unsigned int> Model::getSelectedRows() const
     {
-		return m_view->getSelectedRows();
+        return m_view->getSelectedRows();
     }
     QVector<unsigned int> Model::getSelectedColumns() const
     {
-		return m_view->getSelectedColumns();
+        return m_view->getSelectedColumns();
     }
     void Model::selectRow(unsigned int row)
     {
-		m_view->selectRow(row);
+        m_view->selectRow(row);
     }
     void Model::selectColumn(unsigned int column)
     {
-		m_view->selectColumn(column);
+        m_view->selectColumn(column);
     }
 
     void Model::selectRows(const QVector<unsigned int>& rows)
     {
-		m_view->selectRows(rows);   
+        m_view->selectRows(rows);
     }
     void Model::selectColumns(const QVector<unsigned int>& columns)
     {
-		m_view->selectColumns(columns);
+        m_view->selectColumns(columns);
     }
 
     void Model::deselectRow(unsigned int row)
     {
-		m_view->deselectRow(row);   
+        m_view->deselectRow(row);
     }
     void Model::deselectColumn(unsigned int column)
     {
-		m_view->deselectColumn(column);
+        m_view->deselectColumn(column);
     }
 
     void Model::deselectRows(const QVector<unsigned int>& rows)
     {
-		m_view->deselectRows(rows);
+        m_view->deselectRows(rows);
     }
     void Model::deselectColumns(const QVector<unsigned int>& columns)
     {
-		m_view->deselectColumns(columns);
+        m_view->deselectColumns(columns);
     }
     */
 
@@ -400,7 +400,7 @@ namespace VariantTable
     }
     bool Model::removeRows(const QVector<unsigned int>& rows, const QModelIndex& parent)
     {
-		// Sort rows in descending order to avoid index shifting issues
+        // Sort rows in descending order to avoid index shifting issues
         QVector<unsigned int> sortedRows = rows;
         std::sort(sortedRows.begin(), sortedRows.end(), std::greater<unsigned int>());
         for (unsigned int row : sortedRows)
@@ -412,7 +412,7 @@ namespace VariantTable
                 endRemoveRows();
             }
         }
-		return true;
+        return true;
     }
 
     bool Model::removeColumns(int column, int count, const QModelIndex& parent)
@@ -431,7 +431,7 @@ namespace VariantTable
 
     bool Model::removeColumns(const QVector<unsigned int>& columns, const QModelIndex& parent)
     {
-		// Sort columns in descending order to avoid index shifting issues
+        // Sort columns in descending order to avoid index shifting issues
         QVector<unsigned int> sortedColumns = columns;
         std::sort(sortedColumns.begin(), sortedColumns.end(), std::greater<unsigned int>());
         for (unsigned int column : sortedColumns)
@@ -445,8 +445,8 @@ namespace VariantTable
                 }
                 endRemoveColumns();
             }
-		}
-		return true;
+        }
+        return true;
     }
 
 
@@ -472,33 +472,33 @@ namespace VariantTable
     {
         if (rows.size() == 0)
             return false;
-        
-		// Sort rows
-		std::sort(rows.begin(), rows.end());
 
-		// Find groups that can be moved together
-		QVector<std::pair<unsigned int, unsigned int>> groups;
-		QVector<unsigned int> currentGroup;
-		unsigned int lastRow = rows[0];
-		unsigned int groupStart = lastRow;
+        // Sort rows
+        std::sort(rows.begin(), rows.end());
+
+        // Find groups that can be moved together
+        QVector<std::pair<unsigned int, unsigned int>> groups;
+        QVector<unsigned int> currentGroup;
+        unsigned int lastRow = rows[0];
+        unsigned int groupStart = lastRow;
         for (int i = 1; i < rows.size(); ++i)
         {
-			unsigned int row = rows[i];
+            unsigned int row = rows[i];
             if (row == lastRow + 1)
             {
-				lastRow = row;
+                lastRow = row;
             }
             else
             {
-				groups.append({ groupStart, lastRow-groupStart+1 });
-				groupStart = row;
+                groups.append({ groupStart, lastRow - groupStart + 1 });
+                groupStart = row;
             }
         }
         if (groups.empty())
         {
             if (rows.size() == 1)
             {
-				groups.append({ rows[0], 1 });
+                groups.append({ rows[0], 1 });
             }
             else
             {
@@ -506,16 +506,16 @@ namespace VariantTable
             }
         }
 
-		// Move groups
-		for (int i = 0; i < groups.size(); ++i)
-		{
-			unsigned int groupRow = groups[i].first;
-			unsigned int groupCount = groups[i].second;
-			if (!moveRowsUp(groupRow, groupCount, amount))
-			{
-				return false;
-			}
-		}
+        // Move groups
+        for (int i = 0; i < groups.size(); ++i)
+        {
+            unsigned int groupRow = groups[i].first;
+            unsigned int groupCount = groups[i].second;
+            if (!moveRowsUp(groupRow, groupCount, amount))
+            {
+                return false;
+            }
+        }
 
 
         return true;
@@ -524,25 +524,25 @@ namespace VariantTable
     {
         if (row < amount)
         {
-			// clip amount to the maximum possible value
-			amount = row;
+            // clip amount to the maximum possible value
+            amount = row;
         }
-        if(row + rowCount > (unsigned)m_data.size())
+        if (row + rowCount > (unsigned)m_data.size())
         {
-			rowCount = m_data.size() - row;
-		}
+            rowCount = m_data.size() - row;
+        }
 
-        if(amount == 0 || rowCount == 0)
-			return false; // Nothing to move
+        if (amount == 0 || rowCount == 0)
+            return false; // Nothing to move
 
 
         QVector<QVector<CellData>> temp;
-		temp.reserve(rowCount);
+        temp.reserve(rowCount);
         beginRemoveRows(QModelIndex(), row, row + rowCount - 1);
         for (unsigned int i = 0; i < rowCount; ++i)
         {
-            temp.append(m_data[row + i]);
-            m_data.removeAt(row + i);
+            temp.append(m_data[row]);
+            m_data.removeAt(row);
         }
         endRemoveRows();
         beginInsertRows(QModelIndex(), row - amount, row - amount);
@@ -550,9 +550,9 @@ namespace VariantTable
         {
             m_data.insert(row - amount + i, temp[i]);
         }
-		endInsertRows();
+        endInsertRows();
 
-		return true;
+        return true;
     }
     bool Model::moveRowDown(unsigned int row, unsigned int amount)
     {
@@ -576,25 +576,25 @@ namespace VariantTable
     bool Model::moveRowsDown(QVector<unsigned int> rows, unsigned int amount)
     {
         if (rows.size() == 0)
-			return false;
+            return false;
 
-		// Sort rows
-		std::sort(rows.begin(), rows.end());
+        // Sort rows
+        std::sort(rows.begin(), rows.end());
 
-		// Find groups that can be moved together
-		QVector<std::pair<unsigned int, unsigned int>> groups;
-		QVector<unsigned int> currentGroup;
-		unsigned int lastRow = rows[0];
+        // Find groups that can be moved together
+        QVector<std::pair<unsigned int, unsigned int>> groups;
+        QVector<unsigned int> currentGroup;
+        unsigned int lastRow = rows[0];
         unsigned int groupStart = lastRow;
         for (int i = 1; i < rows.size(); ++i)
-		{
+        {
             unsigned int row = rows[i];
             if (row == lastRow + 1)
-			{
+            {
                 lastRow = row;
             }
-			else
-                {
+            else
+            {
                 groups.append({ groupStart, lastRow - groupStart + 1 });
                 groupStart = row;
             }
@@ -611,7 +611,7 @@ namespace VariantTable
             }
         }
 
-		// Move groups
+        // Move groups
         for (int i = groups.size() - 1; i >= 0; --i)
         {
             unsigned int groupRow = groups[i].first;
@@ -621,7 +621,7 @@ namespace VariantTable
                 return false;
             }
         }
-		return true;
+        return true;
     }
 
     bool Model::moveRowsDown(unsigned int row, unsigned int rowCount, unsigned int amount)
@@ -635,13 +635,13 @@ namespace VariantTable
             }
             amount = m_data.size() - (row + rowCount);
         }
-		QVector<QVector<CellData>> temp;
+        QVector<QVector<CellData>> temp;
 
         beginRemoveRows(QModelIndex(), row, row + rowCount - 1);
         for (unsigned int i = 0; i < rowCount; ++i)
         {
-            temp.append(m_data[row + i]);
-            m_data.removeAt(row + i);
+            temp.append(m_data[row]);
+            m_data.removeAt(row);
         }
         endRemoveRows();
         beginInsertRows(QModelIndex(), row + amount, row + amount);
@@ -650,7 +650,7 @@ namespace VariantTable
             m_data.insert(row + amount + i, temp[i]);
         }
         endInsertRows();
-		return true;
+        return true;
 
     }
 
@@ -744,7 +744,7 @@ namespace VariantTable
         {
             rowData.append(m_data[row][col].data);
         }
-		return rowData;
+        return rowData;
     }
     QVector<CellDataBasePtr> Model::getColumnData(int column) const
     {
@@ -759,8 +759,8 @@ namespace VariantTable
             {
                 columnData.append(nullptr);
             }
-		}
-		return columnData;
+        }
+        return columnData;
     }
 
     void Model::remove(CellDataBasePtr data)
