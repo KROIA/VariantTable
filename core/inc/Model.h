@@ -100,6 +100,9 @@ namespace VariantTable
 
             void setCellData(int row, int col, CellDataBasePtr data);
             CellDataBasePtr getCellData(int row, int col) const;
+			QVector<CellDataBasePtr> getRowData(int row) const;
+			QVector<CellDataBasePtr> getColumnData(int column) const;
+
 
             void remove(CellDataBasePtr data);
 

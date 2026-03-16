@@ -173,30 +173,30 @@ namespace VariantTable
     }
     QVector<unsigned int> Model::getSelectedRows() const
     {
-        QVector<unsigned int> rows;
+        QSet<unsigned int> rowSet;
         const QItemSelectionModel* selectionModel = m_view->selectionModel();
         const QModelIndexList& selectedIndexes = selectionModel->selectedRows();
         for (const QModelIndex& index : selectedIndexes)
         {
-            rows.append(index.row());
+            rowSet.insert(index.row());
         }
         // shrink list and sort
+		QVector<unsigned int> rows = rowSet.values().toVector();
         std::sort(rows.begin(), rows.end());
-        rows.erase(std::unique(rows.begin(), rows.end()), rows.end());
         return rows;
     }
     QVector<unsigned int> Model::getSelectedColumns() const
     {
-        QVector<unsigned int> columns;
+        QSet<unsigned int> columnSet;
         const QItemSelectionModel* selectionModel = m_view->selectionModel();
         const QModelIndexList& selectedIndexes = selectionModel->selectedColumns();
         for (const QModelIndex& index : selectedIndexes)
         {
-            columns.append(index.column());
+            columnSet.insert(index.column());
         }
         // shrink list and sort
+		QVector<unsigned int> columns = columnSet.values().toVector();
         std::sort(columns.begin(), columns.end());
-        columns.erase(std::unique(columns.begin(), columns.end()), columns.end());
         return columns;
     }
 
