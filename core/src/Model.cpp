@@ -742,6 +742,7 @@ namespace VariantTable
                 columnData.append(nullptr);
             }
 		}
+		return columnData;
     }
 
     void Model::remove(CellDataBasePtr data)
