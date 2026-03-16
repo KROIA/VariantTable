@@ -47,10 +47,13 @@ namespace VariantTable
 	{
 		if (m_mainEditorWidget)
 		{
-			QSize size = m_mainEditorWidget->sizeHint();
-			return size;
+			if (m_mainEditorWidget->isVisible())
+			{
+				QSize size = m_mainEditorWidget->sizeHint();
+				return size;
+			}
 		}
-		//return QSize(option.rect.width(), option.rect.height());
+
 		QFontMetrics fm(option.font);
 		int textWidth = fm.horizontalAdvance(m_editorPlaceholderData.text);
 		int textHeight = fm.height();
