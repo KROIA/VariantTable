@@ -450,29 +450,92 @@ namespace VariantTable
 
         return true;
     }
-    /*bool Model::moveRowsUp(QVector<unsigned int> rows, unsigned int amount)
+    bool Model::moveRowsUp(QVector<unsigned int> rows, unsigned int amount)
     {
         if (rows.size() == 0)
             return false;
-        QVector<QVector<CellData>> temp;
+        
+		// Sort rows
+		std::sort(rows.begin(), rows.end());
 
-        beginRemoveRows(QModelIndex(), rows[0], rows[rows.size() - 1]);
-        for (int i = 0; i < rows.size(); ++i)
+		// Find groups that can be moved together
+		QVector<std::pair<unsigned int, unsigned int>> groups;
+		QVector<unsigned int> currentGroup;
+		unsigned int lastRow = rows[0];
+		unsigned int groupStart = lastRow;
+        for (int i = 1; i < rows.size(); ++i)
         {
-            temp.append(m_data[rows[i]]);
-            m_data.removeAt(rows[i]);
+			unsigned int row = rows[i];
+            if (row == lastRow + 1)
+            {
+				lastRow = row;
+            }
+            else
+            {
+				groups.append({ groupStart, lastRow-groupStart+1 });
+				groupStart = row;
+            }
         }
-        endRemoveRows();
+        if (groups.empty())
+        {
+            if (rows.size() == 1)
+            {
+				groups.append({ rows[0], 1 });
+            }
+            else
+            {
+                groups.append({ groupStart, lastRow - groupStart + 1 });
+            }
+        }
 
-        beginInsertRows(QModelIndex(), rows[0] - amount, rows[0] - amount);
-        for (int i = 0; i < rows.size(); ++i)
-        {
-            m_data.insert(rows[i] - amount, temp[i]);
-        }
-        endInsertRows();
+		// Move groups
+		for (int i = 0; i < groups.size(); ++i)
+		{
+			unsigned int groupRow = groups[i].first;
+			unsigned int groupCount = groups[i].second;
+			if (!moveRowsUp(groupRow, groupCount, amount))
+			{
+				return false;
+			}
+		}
+
 
         return true;
-    }*/
+    }
+    bool Model::moveRowsUp(unsigned int row, unsigned int rowCount, unsigned int amount)
+    {
+        if (row < amount)
+        {
+			// clip amount to the maximum possible value
+			amount = row;
+        }
+        if(row + rowCount > (unsigned)m_data.size())
+        {
+			rowCount = m_data.size() - row;
+		}
+
+        if(amount == 0 || rowCount == 0)
+			return false; // Nothing to move
+
+
+        QVector<QVector<CellData>> temp;
+		temp.reserve(rowCount);
+        beginRemoveRows(QModelIndex(), row, row + rowCount - 1);
+        for (unsigned int i = 0; i < rowCount; ++i)
+        {
+            temp.append(m_data[row + i]);
+            m_data.removeAt(row + i);
+        }
+        endRemoveRows();
+        beginInsertRows(QModelIndex(), row - amount, row - amount);
+        for (unsigned int i = 0; i < rowCount; ++i)
+        {
+            m_data.insert(row - amount + i, temp[i]);
+        }
+		endInsertRows();
+
+		return true;
+    }
     bool Model::moveRowDown(unsigned int row, unsigned int amount)
     {
         if (row + amount >= (unsigned)m_data.size())
@@ -492,51 +555,86 @@ namespace VariantTable
 
         return true;
     }
-    /*bool Model::moveRowsDown(QVector<unsigned int> rows, unsigned int amount)
+    bool Model::moveRowsDown(QVector<unsigned int> rows, unsigned int amount)
     {
         if (rows.size() == 0)
-            return false;
-        // Sort rows
-        std::sort(rows.begin(), rows.end());
-        if (rows[rows.size() - 1] + amount >= m_data.size())
+			return false;
+
+		// Sort rows
+		std::sort(rows.begin(), rows.end());
+
+		// Find groups that can be moved together
+		QVector<std::pair<unsigned int, unsigned int>> groups;
+		QVector<unsigned int> currentGroup;
+		unsigned int lastRow = rows[0];
+        unsigned int groupStart = lastRow;
+        for (int i = 1; i < rows.size(); ++i)
+		{
+            unsigned int row = rows[i];
+            if (row == lastRow + 1)
+			{
+                lastRow = row;
+            }
+			else
+                {
+                groups.append({ groupStart, lastRow - groupStart + 1 });
+                groupStart = row;
+            }
+        }
+        if (groups.empty())
         {
-            return false;
+            if (rows.size() == 1)
+            {
+                groups.append({ rows[0], 1 });
+            }
+            else
+            {
+                groups.append({ groupStart, lastRow - groupStart + 1 });
+            }
         }
 
-        QVector<QVector<CellData>> temp = m_data;
-
-        QVector<int> rowIndices;
-        for (int i = 0; i < m_data.size(); ++i)
+		// Move groups
+        for (int i = groups.size() - 1; i >= 0; --i)
         {
-            rowIndices.append(i);
+            unsigned int groupRow = groups[i].first;
+            unsigned int groupCount = groups[i].second;
+            if (!moveRowsDown(groupRow, groupCount, amount))
+            {
+                return false;
+            }
         }
+		return true;
+    }
 
-        // remove the row indices that are selected and reinsert them at the new position
-        for (int i = 0; i < rows.size(); ++i)
+    bool Model::moveRowsDown(unsigned int row, unsigned int rowCount, unsigned int amount)
+    {
+        if (row + rowCount + amount > (unsigned)m_data.size())
         {
-            rowIndices.removeOne(rows[i]);
+            // clip amount to the maximum possible value
+            if (row + rowCount >= (unsigned)m_data.size())
+            {
+                return false; // Nothing to move
+            }
+            amount = m_data.size() - (row + rowCount);
         }
-        // Check for out of bounds
+		QVector<QVector<CellData>> temp;
 
-
-
-
-        beginRemoveRows(QModelIndex(), rows[0], rows[rows.size() - 1]);
-        m_data.clear();
+        beginRemoveRows(QModelIndex(), row, row + rowCount - 1);
+        for (unsigned int i = 0; i < rowCount; ++i)
+        {
+            temp.append(m_data[row + i]);
+            m_data.removeAt(row + i);
+        }
         endRemoveRows();
-
-        int insertIndex = rows[0] + amount;
-        if (insertIndex > m_data.size())
-            insertIndex = m_data.size();
-
-        beginInsertRows(QModelIndex(), insertIndex, insertIndex);
-        for (int i = 0; i < rows.size(); ++i)
+        beginInsertRows(QModelIndex(), row + amount, row + amount);
+        for (unsigned int i = 0; i < rowCount; ++i)
         {
-            m_data.insert(rows[i] + amount - rows.size(), temp[i]);
+            m_data.insert(row + amount + i, temp[i]);
         }
         endInsertRows();
-        return true;
-    }*/
+		return true;
+
+    }
 
     bool Model::swapRows(unsigned int row1, unsigned int row2)
     {

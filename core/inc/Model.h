@@ -70,10 +70,22 @@ namespace VariantTable
 
 
 		    bool moveRowUp(unsigned int row, unsigned int amount = 1);
-		    //bool moveRowsUp(QVector<unsigned int> rows, unsigned int amount = 1);
+		    bool moveRowsUp(QVector<unsigned int> rows, unsigned int amount = 1);
+
+            /**
+            * @brief 
+			* Moves the specified row range up by the specified amount. 
+            * 
+            * @param row The starting row index of the range to move.
+			* @param rowCount The number of rows in the range to move. (Range is [row, row + rowCount))
+			* @param amount The number of positions to move the rows up. Default is 1. 
+            */
+		    bool moveRowsUp(unsigned int row, unsigned int rowCount, unsigned int amount = 1);
 
 		    bool moveRowDown(unsigned int row, unsigned int amount = 1);
-		    //bool moveRowsDown(QVector<unsigned int> rows, unsigned int amount = 1);
+		    bool moveRowsDown(QVector<unsigned int> rows, unsigned int amount = 1);
+
+			bool moveRowsDown(unsigned int row, unsigned int rowCount, unsigned int amount = 1);
 
 		    bool swapRows(unsigned int row1, unsigned int row2);
 		    bool moveRow(unsigned int sourceRow, unsigned int destinationRow);
