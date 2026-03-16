@@ -61,10 +61,12 @@ namespace VariantTable
         
            // bool removeRow(int row, const QModelIndex& parent = QModelIndex()) override;
             bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
+			bool removeRows(const QVector<unsigned int>& rows, const QModelIndex& parent = QModelIndex());
 
 
            // bool removeColumn(int column, const QModelIndex& parent = QModelIndex()) override;
             bool removeColumns(int column, int count, const QModelIndex& parent = QModelIndex()) override;
+			bool removeColumns(const QVector<unsigned int>& columns, const QModelIndex& parent = QModelIndex());
 
 
 		    bool moveRowUp(unsigned int row, unsigned int amount = 1);

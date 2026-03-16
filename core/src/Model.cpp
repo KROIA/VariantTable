@@ -380,6 +380,23 @@ namespace VariantTable
         endRemoveRows();
         return true;
     }
+    bool Model::removeRows(const QVector<unsigned int>& rows, const QModelIndex& parent)
+    {
+		// Sort rows in descending order to avoid index shifting issues
+        QVector<unsigned int> sortedRows = rows;
+        std::sort(sortedRows.begin(), sortedRows.end(), std::greater<unsigned int>());
+        for (unsigned int row : sortedRows)
+        {
+            if (row < (unsigned)m_data.size())
+            {
+                beginRemoveRows(parent, row, row);
+                m_data.removeAt(row);
+                endRemoveRows();
+            }
+        }
+		return true;
+    }
+
     bool Model::removeColumns(int column, int count, const QModelIndex& parent)
     {
         beginRemoveColumns(parent, column, column + count - 1);
@@ -392,6 +409,26 @@ namespace VariantTable
         }
         endRemoveColumns();
         return true;
+    }
+
+    bool Model::removeColumns(const QVector<unsigned int>& columns, const QModelIndex& parent)
+    {
+		// Sort columns in descending order to avoid index shifting issues
+        QVector<unsigned int> sortedColumns = columns;
+        std::sort(sortedColumns.begin(), sortedColumns.end(), std::greater<unsigned int>());
+        for (unsigned int column : sortedColumns)
+        {
+            if (column < (unsigned)columnCount())
+            {
+                beginRemoveColumns(parent, column, column);
+                for (int j = 0; j < rowCount(); ++j)
+                {
+                    m_data[j].removeAt(column);
+                }
+                endRemoveColumns();
+            }
+		}
+		return true;
     }
 
 
