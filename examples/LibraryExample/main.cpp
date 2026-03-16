@@ -88,8 +88,10 @@ int main(int argc, char* argv[])
 	QVBoxLayout* layout = new QVBoxLayout;
 	QPushButton* upButton = new QPushButton("Up");
 	QPushButton* downButton = new QPushButton("Down");
+	QPushButton* removeButton = new QPushButton("RemoveRow");
 	layout->addWidget(upButton);
 	layout->addWidget(downButton);
+	layout->addWidget(removeButton);
 	widget->setLayout(layout);
 
 	QObject::connect(upButton, &QPushButton::clicked, [tableView]() {
@@ -102,6 +104,11 @@ int main(int argc, char* argv[])
 		VariantTable::Model* model = tableView->getModel();
 		auto selectedRows = tableView->getSelectedRows();
 		model->moveRowsDown(selectedRows, 1);
+		});
+	QObject::connect(removeButton, &QPushButton::clicked, [tableView]() {
+		VariantTable::Model* model = tableView->getModel();
+		auto selectedRows = tableView->getSelectedRows();
+		model->removeRows(selectedRows);
 		});
 	{
 		QPushButton* selectionButton = new QPushButton("Select Column");

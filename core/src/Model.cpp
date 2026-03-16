@@ -400,18 +400,43 @@ namespace VariantTable
     }
     bool Model::removeRows(const QVector<unsigned int>& rows, const QModelIndex& parent)
     {
-        // Sort rows in descending order to avoid index shifting issues
+        if (rows.isEmpty())
+            return false;
+
+        // Sort rows ascending for grouping contiguous blocks
         QVector<unsigned int> sortedRows = rows;
-        std::sort(sortedRows.begin(), sortedRows.end(), std::greater<unsigned int>());
-        for (unsigned int row : sortedRows)
+        std::sort(sortedRows.begin(), sortedRows.end());
+
+        int blockStart = sortedRows[0];
+        int blockCount = 1;
+
+        for (int i = 1; i < sortedRows.size(); ++i)
         {
-            if (row < (unsigned)m_data.size())
+            if (sortedRows[i] == sortedRows[i - 1] + 1)
             {
-                beginRemoveRows(parent, row, row);
-                m_data.removeAt(row);
+                // same contiguous block
+                blockCount++;
+            }
+            else
+            {
+                // remove the previous block
+                beginRemoveRows(parent, blockStart, blockStart + blockCount - 1);
+                for (int j = 0; j < blockCount; ++j)
+                    m_data.removeAt(blockStart);
                 endRemoveRows();
+
+                // start new block
+                blockStart = sortedRows[i];
+                blockCount = 1;
             }
         }
+
+        // remove the last block
+        beginRemoveRows(parent, blockStart, blockStart + blockCount - 1);
+        for (int j = 0; j < blockCount; ++j)
+            m_data.removeAt(blockStart);
+        endRemoveRows();
+
         return true;
     }
 
