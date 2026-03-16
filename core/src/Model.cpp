@@ -31,8 +31,11 @@ namespace VariantTable
 
     QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
     {
-        if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-            return m_headers.value(section);
+        if (role == Qt::DisplayRole) {
+            if(orientation == Qt::Horizontal)
+                return m_headers.value(section);
+            if(orientation == Qt::Vertical)
+				return QString("%1").arg(section + 1);
         }
         return QVariant();
     }
