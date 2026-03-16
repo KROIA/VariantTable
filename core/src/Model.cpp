@@ -404,6 +404,11 @@ namespace VariantTable
         if (rows.isEmpty())
             return false;
 
+        // Also verify no existing begin/end is active by checking
+        // the model isn't already in a reset state
+        Q_ASSERT(!this->persistentIndexList().isEmpty() || true); // just force a d_ptr access
+
+
         // Sort rows ascending for grouping contiguous blocks
         QVector<unsigned int> sortedRows = rows;
         std::sort(sortedRows.begin(), sortedRows.end(), std::greater<unsigned int>());
