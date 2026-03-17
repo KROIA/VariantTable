@@ -254,10 +254,9 @@ namespace VariantTable
         for (int i = 0; i < data.size(); ++i)
         {
             CellDataBasePtr obj = data[i];
-            obj->setTableData(this);
-
             if (obj)
             {
+                //obj->setTableData(this);
                 Model* model = obj->getModel();
                 if (model)
                 {
