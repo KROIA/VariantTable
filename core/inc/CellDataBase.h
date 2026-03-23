@@ -70,6 +70,7 @@ namespace VariantTable
 		Q_OBJECT
 			friend class Delegate;
 		friend class Model;
+		friend class IgnoreSignalsContext;
 	public:
 		typedef QVector<QPair<QString, QVariant>> OptionsType; // Combination of text and associated data for options, used by some cell types
 
@@ -102,9 +103,9 @@ namespace VariantTable
 		class VARIANT_TABLE_API IgnoreSignalsContext
 		{
 		public:
-			IgnoreSignalsContext(bool& lock)
-				: ownes(!lock)
-				, lock(lock)
+			IgnoreSignalsContext(const CellDataBase *parent)
+				: ownes(!parent->m_ignoreSignals)
+				, lock(parent->m_ignoreSignals)
 			{
 				if (ownes)
 					lock = true;

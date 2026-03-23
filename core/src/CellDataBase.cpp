@@ -89,7 +89,7 @@ namespace VariantTable
 	{
 		if (m_model)
 		{
-			IgnoreSignalsContext lock(m_ignoreSignals);
+			IgnoreSignalsContext lock(this);
 			m_model->onDataChanged(this);
 		}
 	}
