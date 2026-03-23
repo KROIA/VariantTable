@@ -22,6 +22,7 @@ namespace VariantTable
 	CheckBoxList::CheckBoxList(const CheckBoxList& other)
 		: CellDataBase(other)
 		, m_options(other.m_options)
+		, m_selectedIndexes(other.m_selectedIndexes)
 	{
 
 	}
