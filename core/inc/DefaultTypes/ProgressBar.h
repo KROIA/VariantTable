@@ -37,10 +37,10 @@ namespace VariantTable
 		QWidget* createEditorWidget(QWidget* parent) const override;
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() const override;
-		void updateIcon() override;
 		void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const override;
+		void updateEditorPlaceholderText() const;
 	private:
-		void updateText();
+		
 		void drawLoadingBar(QPainter* painter, const QRect& rect, int percentage,
 							const QPixmap& bar) const;
 		int m_min = 0;

@@ -27,7 +27,7 @@ namespace VariantTable
 		, m_dateTime(dateTime)
 	{
 		updateIcon();
-		updateText();
+		updateEditorPlaceholderText();
 	}
 
 	void DateTimeEdit::setFormat(const QString& format)
@@ -45,7 +45,7 @@ namespace VariantTable
 		m_dateTime.setDate(date);
 		if (m_editor)
 			m_editor->setDate(date);
-		updateText();
+		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	QDate DateTimeEdit::getDate() const
@@ -59,7 +59,7 @@ namespace VariantTable
 		m_dateTime.setTime(time);
 		if (m_editor)
 			m_editor->setTime(time);
-		updateText();
+		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	QTime DateTimeEdit::getTime() const
@@ -73,7 +73,7 @@ namespace VariantTable
 		m_dateTime = dateTime;
 		if (m_editor)
 			m_editor->setDateTime(dateTime);
-		updateText();
+		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	QDateTime DateTimeEdit::getDateTime() const
@@ -87,7 +87,7 @@ namespace VariantTable
 	void DateTimeEdit::setData(const QVariant& data)
 	{
 		m_dateTime = data.toDateTime();
-		updateText();
+		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	void DateTimeEdit::setData(QWidget* editor)
@@ -96,7 +96,7 @@ namespace VariantTable
 		if (m_editor)
 		{
 			m_dateTime = m_editor->dateTime();
-			updateText();
+			updateEditorPlaceholderText();
 		}
 	}
 	QVariant DateTimeEdit::getData() const
@@ -133,11 +133,18 @@ namespace VariantTable
 	{
 		m_editor = nullptr;
 	}
-	void DateTimeEdit::updateIcon()
+	void DateTimeEdit::updateIcon() const
 	{
 		setEditorPlaceholderIcon(IconManager::getIcon(s_dateIcon));
 	}
-	void DateTimeEdit::updateText()
+	void DateTimeEdit::onDateTimeChanged(const QDateTime& newDateTime)
+	{
+		if (doIgnoreSignals())
+			return;
+		m_dateTime = newDateTime;
+		dataChanged();
+	}
+	void DateTimeEdit::updateEditorPlaceholderText() const
 	{
 		setEditorPlaceholderText(m_dateTime.toString(s_format));
 	}

@@ -31,7 +31,7 @@ namespace VariantTable
 		QWidget* createEditorWidget(QWidget* parent) const override;
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() const override;
-		void updateIcon() override;
+		void updateIcon() const override;
 
 		signals:
 		void clicked();

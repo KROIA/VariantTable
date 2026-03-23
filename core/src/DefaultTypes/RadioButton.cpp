@@ -29,7 +29,7 @@ namespace VariantTable
 		, m_options(options)
 	{
 		updateIcon();
-		updateText();
+		updateEditorPlaceholderText();
 	}
 
 
@@ -37,7 +37,7 @@ namespace VariantTable
 	{
 		m_options = options;
 		m_selectedIndex = -1;
-		updateText();
+		updateEditorPlaceholderText();
 	}
 	const QStringList& RadioButton::getOptions() const
 	{
@@ -47,7 +47,7 @@ namespace VariantTable
 	void RadioButton::setSelectedIndex(int index)
 	{
 		m_selectedIndex = index;
-		updateText();
+		updateEditorPlaceholderText();
 		if (m_editorWidget)
 		{
 			if (index >= 0 && index < m_editorButtons.size())
@@ -101,7 +101,7 @@ namespace VariantTable
 				}
 			}
 		}
-		updateText();
+		updateEditorPlaceholderText();
 	}
 	QVariant RadioButton::getData() const
 	{
@@ -147,6 +147,7 @@ namespace VariantTable
 			QRadioButton* button = new QRadioButton(option, m_editorWidget);
 			layout->addWidget(button);
 			m_editorButtons.push_back(button);
+			connect(button, &QRadioButton::toggled, this, &RadioButton::onSelectionChanged);
 		}
 
 		// Set data
@@ -186,15 +187,21 @@ namespace VariantTable
 		m_editorWidget = nullptr;
 		m_editorButtons.clear();
 	}
-	void RadioButton::updateIcon()
+	void RadioButton::updateIcon() const
 	{
 		setEditorPlaceholderIcon(IconManager::getIcon(s_radioIcon));
 	}
-	void RadioButton::updateText()
+	void RadioButton::updateEditorPlaceholderText() const
 	{
 		QString text = "Nothing selected";
 		if (m_selectedIndex >= 0 && m_selectedIndex < m_options.size())
 			text = m_options[m_selectedIndex];
 		setEditorPlaceholderText(text);
+	}
+	void RadioButton::onSelectionChanged()
+	{
+		if (doIgnoreSignals())
+			return;
+		dataChanged();
 	}
 }

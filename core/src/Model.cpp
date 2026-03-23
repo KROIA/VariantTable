@@ -138,6 +138,7 @@ namespace VariantTable
     }
     void Model::onDataChanged(const CellDataBase* data)
     {
+        
         for (int i = 0; i < rowCount(); ++i)
         {
             for (int j = 0; j < columnCount(); ++j)

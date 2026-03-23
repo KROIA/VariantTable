@@ -88,7 +88,10 @@ namespace VariantTable
 	void CellDataBase::dataChanged() const
 	{
 		if (m_model)
+		{
+			IgnoreSignalsContext lock(m_ignoreSignals);
 			m_model->onDataChanged(this);
+		}
 	}
 
 
@@ -145,6 +148,8 @@ namespace VariantTable
 	void CellDataBase::onEditorWidgetDestroyed()
 	{
 		m_mainEditorWidget = nullptr;
+		updateIcon();
+		updateEditorPlaceholderText();
 		editorWidgetDestroyed();
 	}
 

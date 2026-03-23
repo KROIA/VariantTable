@@ -84,6 +84,7 @@ namespace VariantTable
 		m_editor = new QLineEdit(parent);
 		m_editor->setValidator(new QRegExpValidator(m_validatorRegExp, m_editor));
 		m_editor->setText(m_text);
+		connect(m_editor, &QLineEdit::textChanged, this, &LineEdit::onTextChanged);
 
 		return m_editor;
 	}
@@ -142,9 +143,12 @@ namespace VariantTable
 		QRect textRect = QRect(margin + TL.x(), yOffset + TL.y(), rect.width() - iconRect.width() - 3 * margin, size);
 		painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, m_text);
 	}
-	void LineEdit::updateIcon()
+	void LineEdit::onTextChanged(const QString& newText)
 	{
-		//setEditorPlaceholderIcon(IconManager::getIcon(s_lineEditIcon));
+		if (doIgnoreSignals())
+			return;
+		VT_UNUSED(newText);
+		dataChanged();
 	}
 	void LineEdit::editorWidgetDestroyed() const
 	{

@@ -18,7 +18,7 @@ namespace VariantTable
 			{"Option 3",QVariant()} })
 	{
 		updateIcon();
-		updateText();
+		updateEditorPlaceholderText();
 	}
 	ComboBox::ComboBox(const ComboBox& other)
 		: CellDataBase(other)
@@ -35,14 +35,14 @@ namespace VariantTable
 			m_options.push_back({ option, QVariant()});
 		}
 		updateIcon();
-		updateText();
+		updateEditorPlaceholderText();
 	}
 	ComboBox::ComboBox(const OptionsType& options)
 		: CellDataBase()
 		, m_options(options)
 	{
 		updateIcon();
-		updateText();
+		updateEditorPlaceholderText();
 	}
 
 
@@ -54,14 +54,14 @@ namespace VariantTable
 			m_options.push_back({ option, QVariant() });
 		}
 		m_selectedIndex = -1;
-		updateText();
+		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	void ComboBox::setOptions(const QVector<QPair<QString, QVariant>>& data)
 	{
 		m_options = data;
 		m_selectedIndex = -1;
-		updateText();
+		updateEditorPlaceholderText();
 		dataChanged();
 
 	}
@@ -89,7 +89,7 @@ namespace VariantTable
 	void ComboBox::setData(const QVariant& data)
 	{
 		m_options = data.value<OptionsType>();
-		updateText();
+		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	void ComboBox::setData(QWidget* editor)
@@ -99,7 +99,7 @@ namespace VariantTable
 		if (m_combo)
 		{
 			m_selectedIndex = m_combo->currentIndex();		
-			updateText();
+			updateEditorPlaceholderText();
 		}
 	}
 	QVariant ComboBox::getData() const
@@ -135,6 +135,7 @@ namespace VariantTable
 			m_combo->addItem(option.first, option.second);
 		}
 		m_combo->setCurrentIndex(m_selectedIndex);
+		connect(m_combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ComboBox::onIndexChanged);
 
 		return m_combo;
 	}
@@ -152,7 +153,7 @@ namespace VariantTable
 		text.chop(1); // Remove the last newline
 		return text;
 	}
-	void ComboBox::updateIcon()
+	void ComboBox::updateIcon() const
 	{
 		//setEditorPlaceholderIcon(IconManager::getIcon(s_comboBoxIcon));
 	}
@@ -201,19 +202,17 @@ namespace VariantTable
 
 		
 	}
+	void ComboBox::onIndexChanged(int index)
+	{
+		if (doIgnoreSignals())
+			return;
+		m_selectedIndex = index;
+		dataChanged();
+	}
 
 	void ComboBox::editorWidgetDestroyed() const
 	{
 		m_combo = nullptr;
-	}
-	void ComboBox::updateText()
-	{
-		/*QString text;
-		if (m_selectedIndex >= 0 && m_selectedIndex < m_options.size())
-		{
-			text = m_options[m_selectedIndex];
-		}
-		setEditorPlaceholderText(text);*/
 	}
 }
 

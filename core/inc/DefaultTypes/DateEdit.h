@@ -33,13 +33,18 @@ namespace VariantTable
 		QWidget* createEditorWidget(QWidget* parent) const override;
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() const override;
-		void updateIcon() override;
+		void updateIcon() const override;
+		void updateEditorPlaceholderText() const override;
+
+	private slots:
+		void onDateChanged(const QDate& newDate);
 		private:
-		void updateText();
 		QDate m_date;
 		mutable QDateEdit* m_editor = nullptr;
 
 		static QString s_format;
 		static QString s_dateIcon;
+
+		
 	};
 }

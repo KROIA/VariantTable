@@ -39,10 +39,12 @@ namespace VariantTable
 		QWidget* createEditorWidget(QWidget* parent) const override;
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() const override;
-		void updateIcon() override;
+		void updateIcon() const override;
 		void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const override;
+
+	private slots:
+		void onIndexChanged(int index);
 	private:
-		void updateText();
 		QVector<QPair<QString, QVariant>> m_options; // Text and associated data for each option
 		int m_selectedIndex = -1;
 

@@ -35,9 +35,13 @@ namespace VariantTable
 		QWidget* createEditorWidget(QWidget* parent) const override;
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() const override;
-		void updateIcon() override;
+		void updateIcon() const override;
+		void updateEditorPlaceholderText() const override;
+
+	private slots:
+		void onTimeChanged(const QTime& newTime);
 		private:
-		void updateText();
+		
 		QTime m_time;
 		mutable QTimeEdit* m_editor = nullptr;
 		

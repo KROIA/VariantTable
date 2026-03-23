@@ -68,60 +68,86 @@ namespace VariantTable
 	class VARIANT_TABLE_API CellDataBase : public QObject
 	{
 		Q_OBJECT
-		friend class Delegate;
+			friend class Delegate;
 		friend class Model;
+	public:
+		typedef QVector<QPair<QString, QVariant>> OptionsType; // Combination of text and associated data for options, used by some cell types
+
+		CellDataBase();
+		CellDataBase(const CellDataBase& other);
+		virtual ~CellDataBase();
+
+		virtual CellDataBasePtr clone() const = 0;
+
+		virtual void setData(const QVariant& data) = 0;
+		virtual void setData(QWidget* editor) = 0;
+		virtual QVariant getData() const = 0;
+		virtual void getData(QWidget* editor) = 0;
+
+		virtual void setColor(const QColor& color);
+		virtual const QColor& getColor() const { return m_color; }
+
+
+		virtual void setEditable(bool editable);
+		virtual bool isEditable() const { return m_isEditable; }
+		virtual QSize getSizeHint(const QStyleOptionViewItem& option) const;
+
+		virtual void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const;
+		virtual QString getToolTip() const = 0;
+		virtual void updateIcon() const {};
+		virtual void updateEditorPlaceholderText() const {}
+
+	protected:
+
+		class VARIANT_TABLE_API IgnoreSignalsContext
+		{
 		public:
-			typedef QVector<QPair<QString, QVariant>> OptionsType; // Combination of text and associated data for options, used by some cell types
-
-			CellDataBase();
-			CellDataBase(const CellDataBase &other);
-			virtual ~CellDataBase();
-
-			virtual CellDataBasePtr clone() const = 0;
-
-			virtual void setData(const QVariant& data) = 0;
-			virtual void setData(QWidget* editor) = 0;
-			virtual QVariant getData() const = 0;
-			virtual void getData(QWidget* editor) = 0;
-
-			virtual void setColor(const QColor& color);
-			virtual const QColor &getColor() const { return m_color; }
-
-
-			virtual void setEditable(bool editable);
-			virtual bool isEditable() const { return m_isEditable; }
-			virtual QSize getSizeHint(const QStyleOptionViewItem& option) const;
-		
-			virtual void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const;
-			virtual QString getToolTip() const = 0;
-			virtual void updateIcon() = 0;
-
-		protected:
-
-			void setEditorPlaceholderText(const QString& text) { m_editorPlaceholderData.text = text; }
-			const QString& getEditorPlaceholderText() const {
-				return m_editorPlaceholderData.text;
+			IgnoreSignalsContext(bool& lock)
+				: ownes(!lock)
+				, lock(lock)
+			{
+				if (ownes)
+					lock = true;
 			}
-			void setEditorPlaceholderIcon(const QIcon& icon) { 
-				m_editorPlaceholderData.icon = icon;
-				m_editorPlaceholderData.hasIcon = icon.availableSizes().size() > 0;
+			~IgnoreSignalsContext()
+			{
+				if (ownes)
+					lock = false;
 			}
-			const QIcon& getEditorPlaceholderIcon() const {
-				return m_editorPlaceholderData.icon;
-			}
-			float getPlaceholderIconXPos() const { return PlaceholderData::iconXPos; }
-			float getPlaceholderIconHeight() const { return PlaceholderData::iconHeight; }
-		
-			virtual QWidget* createEditorWidget(QWidget* parent) const = 0;
-			virtual void editorWidgetDestroyed() const = 0;
 
-			void applyColor(QWidget* editor) const;
-			void dataChanged() const;
+		private:
+			bool ownes;
+			bool& lock;
+		};
 
-			virtual void drawEditorPlaceholderColorOverlay(QPainter* painter, const QStyleOptionViewItem& option) const;
-			virtual void drawEditorPlaceholderIcon(QPainter* painter, const QStyleOptionViewItem& option) const;
-			virtual void drawEditorPlaceholderText(QPainter* painter, const QStyleOptionViewItem& option) const;
-			
+		void setEditorPlaceholderText(const QString& text) const { m_editorPlaceholderData.text = text; }
+		const QString& getEditorPlaceholderText() const {
+			return m_editorPlaceholderData.text;
+		}
+		void setEditorPlaceholderIcon(const QIcon& icon) const {
+			m_editorPlaceholderData.icon = icon;
+			m_editorPlaceholderData.hasIcon = icon.availableSizes().size() > 0;
+		}
+		const QIcon& getEditorPlaceholderIcon() const {
+			return m_editorPlaceholderData.icon;
+		}
+		float getPlaceholderIconXPos() const { return PlaceholderData::iconXPos; }
+		float getPlaceholderIconHeight() const { return PlaceholderData::iconHeight; }
+
+		virtual QWidget* createEditorWidget(QWidget* parent) const = 0;
+		virtual void editorWidgetDestroyed() const = 0;
+
+		void applyColor(QWidget* editor) const;
+		void dataChanged() const;
+
+		virtual void drawEditorPlaceholderColorOverlay(QPainter* painter, const QStyleOptionViewItem& option) const;
+		virtual void drawEditorPlaceholderIcon(QPainter* painter, const QStyleOptionViewItem& option) const;
+		virtual void drawEditorPlaceholderText(QPainter* painter, const QStyleOptionViewItem& option) const;
+
+		bool doIgnoreSignals() const
+		{
+			return m_ignoreSignals;
+		}
 
 		private slots:
 			void onEditorWidgetDestroyed();
@@ -134,6 +160,7 @@ namespace VariantTable
 			
 			QColor m_color = QColor(255,255,255);
 			bool m_isEditable = true;
+			mutable bool m_ignoreSignals = false;
 			mutable QWidget* m_mainEditorWidget = nullptr;
 
 			struct PlaceholderData
@@ -145,7 +172,7 @@ namespace VariantTable
 				static float iconXPos;
 				static float iconHeight;
 			};
-			PlaceholderData m_editorPlaceholderData;
+			mutable PlaceholderData m_editorPlaceholderData;
 
 			mutable Model* m_model = nullptr;
 	};

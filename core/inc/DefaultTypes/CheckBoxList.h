@@ -39,9 +39,13 @@ namespace VariantTable
 		QWidget* createEditorWidget(QWidget* parent) const override;
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() const override;
-		void updateIcon() override;
+		void updateIcon() const override;
+		void updateEditorPlaceholderText() const;
+
+	private slots:
+		void onStateChanged(int state);
 	private:
-		void updateText();
+		
 		QVector<QPair<QString, QVariant>> m_options;
 		QVector<int> m_selectedIndexes;
 

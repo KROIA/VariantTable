@@ -29,7 +29,7 @@ namespace VariantTable
 		, m_text(text)
 	{
 		updateIcon();
-		updateText();
+		updateEditorPlaceholderText();
 	}
 
 
@@ -39,7 +39,7 @@ namespace VariantTable
 		if (m_editor)
 			m_editor->setText(text);
 		
-		updateText();
+		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	QString TextEdit::getText() const
@@ -55,7 +55,7 @@ namespace VariantTable
 		m_text = data.toString();
 		if (m_editor)
 			m_editor->setText(m_text);
-		updateText();
+		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	void TextEdit::setData(QWidget* editor)
@@ -64,7 +64,7 @@ namespace VariantTable
 		if (m_editor)
 		{
 			m_text = m_editor->toPlainText();
-			updateText();
+			updateEditorPlaceholderText();
 		}
 	}
 	QVariant TextEdit::getData() const
@@ -88,6 +88,7 @@ namespace VariantTable
 
 		m_editor = new QTextEdit(parent);
 		m_editor->setText(m_text);
+		connect(m_editor, &QTextEdit::textChanged, this, &TextEdit::onTextChanged);
 
 		return m_editor;
 	}
@@ -100,12 +101,24 @@ namespace VariantTable
 	{
 		m_editor = nullptr;
 	}
-	void TextEdit::updateIcon()
+	void TextEdit::updateIcon() const
 	{
 		setEditorPlaceholderIcon(IconManager::getIcon(s_textEditIcon));
 	}
-	void TextEdit::updateText()
+	void TextEdit::updateEditorPlaceholderText() const
 	{
 		setEditorPlaceholderText(m_text.split("\n").first());
+	}
+
+	void TextEdit::onTextChanged()
+	{
+		if (doIgnoreSignals())
+			return;
+		if (m_editor)
+		{
+			m_text = m_editor->toPlainText();
+			dataChanged();
+		}
+		updateEditorPlaceholderText();
 	}
 }

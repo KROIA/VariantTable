@@ -29,7 +29,7 @@ namespace VariantTable
 		, m_time(time)
 	{
 		updateIcon();
-		updateText();
+		updateEditorPlaceholderText();
 	}
 
 	void TimeEdit::setFormat(const QString& format)
@@ -47,7 +47,7 @@ namespace VariantTable
 		m_time = time;
 		if (m_editor)
 			m_editor->setTime(m_time);
-		updateText();
+		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	QTime TimeEdit::getTime() const
@@ -61,7 +61,7 @@ namespace VariantTable
 	void TimeEdit::setData(const QVariant& data)
 	{
 		m_time = data.toTime();
-		updateText();
+		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	void TimeEdit::setData(QWidget* editor)
@@ -70,7 +70,7 @@ namespace VariantTable
 		if (m_editor)
 		{
 			m_time = m_editor->time();
-			updateText();
+			updateEditorPlaceholderText();
 		}
 	}
 	QVariant TimeEdit::getData() const
@@ -95,6 +95,7 @@ namespace VariantTable
 		m_editor = new QTimeEdit(parent);
 		m_editor->setDisplayFormat(s_format);
 		m_editor->setTime(m_time);
+		connect(m_editor, &QTimeEdit::timeChanged, this, &TimeEdit::onTimeChanged);
 
 		return m_editor;
 	}
@@ -107,12 +108,21 @@ namespace VariantTable
 	{
 		m_editor = nullptr;
 	}
-	void TimeEdit::updateIcon()
+	void TimeEdit::updateIcon() const
 	{
 		setEditorPlaceholderIcon(IconManager::getIcon(s_timeIcon));
 	}
-	void TimeEdit::updateText()
+	void TimeEdit::updateEditorPlaceholderText() const
 	{
 		setEditorPlaceholderText(m_time.toString(s_format));
+	}
+
+	void TimeEdit::onTimeChanged(const QTime& newTime)
+	{
+		if (doIgnoreSignals())
+			return;
+		m_time = newTime;
+		updateEditorPlaceholderText();
+		dataChanged();
 	}
 }

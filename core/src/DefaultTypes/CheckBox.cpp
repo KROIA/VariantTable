@@ -108,6 +108,7 @@ namespace VariantTable
 		m_editor = new QCheckBox(editor);
 		m_editor->setText(m_text);
 		m_editor->setChecked(m_value);
+		connect(m_editor, &QCheckBox::stateChanged, this, &CheckBox::onStateChanged);
 		layout->addWidget(m_editor);
 
 		return editor;
@@ -121,11 +122,18 @@ namespace VariantTable
 	{
 		m_editor = nullptr;
 	}
-	void CheckBox::updateIcon()
+	void CheckBox::updateIcon() const
 	{
 		if (m_value)
 			setEditorPlaceholderIcon(IconManager::getIcon(s_checkedIcon));
 		else
 			setEditorPlaceholderIcon(IconManager::getIcon(s_uncheckedIcon));
+	}
+	void CheckBox::onStateChanged(int state)
+	{
+		if (doIgnoreSignals())
+			return;
+		m_value = (state == Qt::Checked);
+		dataChanged();
 	}
 }

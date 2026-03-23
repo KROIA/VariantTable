@@ -17,7 +17,7 @@ namespace VariantTable
 			{"Option 3",QVariant()} })
 	{
 		updateIcon();
-		updateText();
+		updateEditorPlaceholderText();
 	}
 	CheckBoxList::CheckBoxList(const CheckBoxList& other)
 		: CellDataBase(other)
@@ -35,14 +35,14 @@ namespace VariantTable
 			m_options.push_back({ option, QVariant() });
 		}
 		updateIcon();
-		updateText();
+		updateEditorPlaceholderText();
 	}
 	CheckBoxList::CheckBoxList(const OptionsType& options)
 		: CellDataBase()
 		, m_options(options)
 	{
 		updateIcon();
-		updateText();
+		updateEditorPlaceholderText();
 	}
 
 	void CheckBoxList::setOptions(const QStringList& options)
@@ -53,14 +53,14 @@ namespace VariantTable
 			m_options.push_back({ option, QVariant() });
 		}
 		m_selectedIndexes.clear();
-		updateText();
+		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	void CheckBoxList::setOptions(const QVector<QPair<QString, QVariant>>& data)
 	{
 		m_options = data;
 		m_selectedIndexes.clear();
-		updateText();
+		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	const QVector<QPair<QString, QVariant>>& CheckBoxList::getOptions() const
@@ -77,7 +77,7 @@ namespace VariantTable
 				m_checkBoxes[i]->setChecked(m_selectedIndexes.contains(i));
 			}
 		}
-		updateText();
+		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	QVector<int> CheckBoxList::getCheckedIndexes() const
@@ -102,7 +102,7 @@ namespace VariantTable
 	void CheckBoxList::setData(const QVariant& data)
 	{
 		m_options = data.value<OptionsType>();
-		updateText();
+		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	void CheckBoxList::setData(QWidget* editor)
@@ -121,7 +121,7 @@ namespace VariantTable
 				}
 			}
 		}
-		updateText();
+		updateEditorPlaceholderText();
 	}
 	QVariant CheckBoxList::getData() const
 	{
@@ -169,6 +169,7 @@ namespace VariantTable
 		for (const auto& option : m_options)
 		{
 			QCheckBox* button = new QCheckBox(option.first, m_editorWidget);
+			connect(button, &QCheckBox::stateChanged, this, &CheckBoxList::onStateChanged);
 			layout->addWidget(button);
 			m_checkBoxes.push_back(button);
 		}
@@ -207,11 +208,26 @@ namespace VariantTable
 		m_editorWidget = nullptr;
 		m_checkBoxes.clear();
 	}
-	void CheckBoxList::updateIcon()
+	void CheckBoxList::updateIcon() const
 	{
 		setEditorPlaceholderIcon(IconManager::getIcon(s_checkedIcon));
 	}
-	void CheckBoxList::updateText()
+	void CheckBoxList::onStateChanged(int state)
+	{
+		VT_UNUSED(state);
+		if (doIgnoreSignals())
+			return;
+		m_selectedIndexes.clear();
+		for (int i = 0; i < m_checkBoxes.size(); ++i)
+		{
+			if (m_checkBoxes[i]->isChecked())
+			{
+				m_selectedIndexes.push_back(i);
+			}
+		}
+		dataChanged();
+	}
+	void CheckBoxList::updateEditorPlaceholderText() const
 	{
 		QString text;
 		for (int i : m_selectedIndexes)

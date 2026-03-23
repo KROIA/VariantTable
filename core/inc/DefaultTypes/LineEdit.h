@@ -33,7 +33,9 @@ namespace VariantTable
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() const override;
 		void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const override;
-		void updateIcon() override;
+
+	private slots:
+		void onTextChanged(const QString& newText);
 	private:
 		QString m_text;
 		QRegExp m_validatorRegExp;

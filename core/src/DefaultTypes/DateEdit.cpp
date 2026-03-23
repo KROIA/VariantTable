@@ -27,7 +27,7 @@ namespace VariantTable
 		, m_date(date)
 	{
 		updateIcon();
-		updateText();
+		updateEditorPlaceholderText();
 	}
 
 	void DateEdit::setFormat(const QString& format)
@@ -45,7 +45,7 @@ namespace VariantTable
 		m_date = date;
 		if (m_editor)
 			m_editor->setDate(m_date);
-		updateText();
+		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	QDate DateEdit::getDate() const
@@ -59,7 +59,7 @@ namespace VariantTable
 	void DateEdit::setData(const QVariant& data)
 	{
 		m_date = data.toDate();
-		updateText();
+		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	void DateEdit::setData(QWidget* editor)
@@ -93,6 +93,7 @@ namespace VariantTable
 		m_editor = new QDateEdit(parent);
 		m_editor->setDisplayFormat(s_format);
 		m_editor->setDate(m_date);
+		connect(m_editor, &QDateEdit::dateChanged, this, &DateEdit::onDateChanged);
 
 		return m_editor;
 	}
@@ -105,12 +106,19 @@ namespace VariantTable
 	{
 		m_editor = nullptr;
 	}
-	void DateEdit::updateIcon()
+	void DateEdit::updateIcon() const
 	{
 		setEditorPlaceholderIcon(IconManager::getIcon(s_dateIcon));
 	}
-	void DateEdit::updateText()
+	void DateEdit::updateEditorPlaceholderText() const
 	{
 		setEditorPlaceholderText(m_date.toString(s_format));
+	}
+	void DateEdit::onDateChanged(const QDate& newDate)
+	{
+		if (doIgnoreSignals())
+			return;
+		m_date = newDate;
+		dataChanged();
 	}
 }

@@ -14,7 +14,7 @@ namespace VariantTable
 		: CellDataBase()
 	{
 		updateIcon();
-		updateText();
+		updateEditorPlaceholderText();
 	}
 	ProgressBar::ProgressBar(const ProgressBar& other)
 		: CellDataBase(other)
@@ -31,7 +31,7 @@ namespace VariantTable
 		, m_progress(value)
 	{
 		updateIcon();
-		updateText();
+		updateEditorPlaceholderText();
 	}
 
 	void ProgressBar::setMinimum(int min)
@@ -41,7 +41,7 @@ namespace VariantTable
 		if (m_bar)
 			m_bar->setMinimum(min);
 		m_min = min; 
-		updateText();
+		updateEditorPlaceholderText();
 	}
 
 	void ProgressBar::setMaximum(int max)
@@ -51,7 +51,7 @@ namespace VariantTable
 		if (m_bar)
 			m_bar->setMaximum(max);
 		m_max = max;
-		updateText();
+		updateEditorPlaceholderText();
 	}
 
 	void ProgressBar::setValue(int progress)
@@ -61,7 +61,7 @@ namespace VariantTable
 			m_bar->setValue(progress);
 		}
 		m_progress = progress;
-		updateText();
+		updateEditorPlaceholderText();
 	}
 	int ProgressBar::getValue() const
 	{
@@ -82,7 +82,7 @@ namespace VariantTable
 	void ProgressBar::setData(const QVariant& data)
 	{
 		m_progress = data.toInt();
-		updateText();
+		updateEditorPlaceholderText();
 	}
 	void ProgressBar::setData(QWidget* editor)
 	{
@@ -90,7 +90,7 @@ namespace VariantTable
 		if (m_bar)
 		{
 			m_progress = m_bar->value();
-			updateText();
+			updateEditorPlaceholderText();
 		}
 	}
 	QVariant ProgressBar::getData() const
@@ -133,10 +133,6 @@ namespace VariantTable
 		}		
 		return QString::number(percentage) + "%";
 	}
-	void ProgressBar::updateIcon()
-	{
-		//setEditorPlaceholderIcon(IconManager::getIcon(s_ProgressBarIconLeftSection));
-	}
 	void ProgressBar::editorWidgetDestroyed() const
 	{
 		m_bar = nullptr;
@@ -150,7 +146,7 @@ namespace VariantTable
 
 		drawLoadingBar(painter, rect, m_progress, bar);
 	}
-	void ProgressBar::updateText()
+	void ProgressBar::updateEditorPlaceholderText() const
 	{
 		setEditorPlaceholderText(getToolTip());
 		dataChanged();

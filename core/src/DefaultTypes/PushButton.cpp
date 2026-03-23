@@ -98,7 +98,7 @@ namespace VariantTable
 		m_editor = nullptr;
 	}
 
-	void PushButton::updateIcon()
+	void PushButton::updateIcon() const
 	{
 		setEditorPlaceholderIcon(IconManager::getIcon(s_pushButtonIcon));
 	}
