@@ -103,6 +103,7 @@ namespace VariantTable
 		VT_UNUSED(editor);
 		if (m_bar)
 		{
+			IgnoreSignalsContext context(this);
 			m_bar->setValue(m_progress);
 		}
 	}
@@ -112,6 +113,7 @@ namespace VariantTable
 		if (m_bar)
 			return m_bar;
 
+		IgnoreSignalsContext context(this);
 		m_bar = new QProgressBar(parent);
 
 

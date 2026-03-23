@@ -112,6 +112,7 @@ namespace VariantTable
 		VT_UNUSED(editor);
 		if (m_editorWidget)
 		{
+			IgnoreSignalsContext context(this);
 			int maxIndex = std::min(m_editorButtons.size(), m_options.size());
 			if (m_editorButtons.size() != m_options.size())
 			{
@@ -134,6 +135,7 @@ namespace VariantTable
 		if (m_editorWidget)
 			return m_editorWidget;
 
+		IgnoreSignalsContext context(this);
 		m_editorWidget = new QWidget(parent);
 
 		// Add Layout

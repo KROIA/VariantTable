@@ -90,6 +90,7 @@ namespace VariantTable
 		//QCheckBox* checkBox = qobject_cast<QCheckBox*>(editor);
 		if (m_editor)
 		{
+			IgnoreSignalsContext context(this);
 			m_editor->setText(m_text);
 			m_editor->setChecked(m_value);
 			//checkBox->setMinimumSize(QSize(250, 100));
@@ -100,6 +101,7 @@ namespace VariantTable
 	{
 		if (m_editor)
 			return m_editor->parentWidget();
+		IgnoreSignalsContext context(this);
 		QWidget* editor = new QWidget(parent);
 		// Add Layout
 		QVBoxLayout* layout = new QVBoxLayout(editor);

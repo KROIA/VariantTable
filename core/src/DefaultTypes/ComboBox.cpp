@@ -113,6 +113,7 @@ namespace VariantTable
 		//QComboBox* ComboBox = qobject_cast<QComboBox*>(editor);
 		if (m_combo)
 		{
+			IgnoreSignalsContext context(this);
 			m_combo->clear();
 			for (const auto& option : m_options)
 			{
@@ -127,6 +128,7 @@ namespace VariantTable
 		if (m_combo)
 			return m_combo;
 		
+		IgnoreSignalsContext context(this);
 		m_combo = new QComboBox(parent);
 
 		// Set options

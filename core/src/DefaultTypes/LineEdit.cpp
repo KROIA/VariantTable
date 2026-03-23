@@ -72,6 +72,7 @@ namespace VariantTable
 		VT_UNUSED(editor);
 		if (m_editor)
 		{
+			IgnoreSignalsContext context(this);
 			m_editor->setText(m_text);
 		}
 	}
@@ -81,6 +82,7 @@ namespace VariantTable
 		if (m_editor)
 			return m_editor;
 
+		IgnoreSignalsContext context(this);
 		m_editor = new QLineEdit(parent);
 		m_editor->setValidator(new QRegExpValidator(m_validatorRegExp, m_editor));
 		m_editor->setText(m_text);

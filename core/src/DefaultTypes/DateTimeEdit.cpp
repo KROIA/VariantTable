@@ -108,6 +108,7 @@ namespace VariantTable
 		VT_UNUSED(editor);
 		if (m_editor)
 		{
+			IgnoreSignalsContext context(this);
 			m_editor->setDateTime(m_dateTime);
 		}
 	}
@@ -117,7 +118,7 @@ namespace VariantTable
 	{
 		if (m_editor)
 			return m_editor;
-
+		IgnoreSignalsContext context(this);
 		m_editor = new QDateTimeEdit(parent);
 		m_editor->setDisplayFormat(s_format);
 		m_editor->setDateTime(m_dateTime);

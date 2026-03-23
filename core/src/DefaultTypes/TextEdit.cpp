@@ -76,6 +76,7 @@ namespace VariantTable
 		VT_UNUSED(editor);
 		if (m_editor)
 		{
+			IgnoreSignalsContext context(this);
 			m_editor->setText(m_text);
 		}
 	}
@@ -86,6 +87,7 @@ namespace VariantTable
 		if (m_editor)
 			return m_editor;
 
+		IgnoreSignalsContext context(this);
 		m_editor = new QTextEdit(parent);
 		m_editor->setText(m_text);
 		connect(m_editor, &QTextEdit::textChanged, this, &TextEdit::onTextChanged);
