@@ -167,9 +167,10 @@ namespace VariantTable
 		return widget;
 	}
 #else
-	QWidget* LibraryInfo::createInfoWidget(QWidget* parent)
+	QWidget* LibraryInfo::createInfoWidget(QWidget* parent, bool disableHyperlink)
 	{
 		VT_UNUSED(parent);
+		VT_UNUSED(disableHyperlink);
 		return nullptr;
 	}
 #endif
