@@ -1,6 +1,7 @@
 #include "TableView.h"
 #include "Model.h"
 #include <QHeaderView>
+#include <QKeyEvent>
 
 namespace VariantTable
 {
@@ -15,6 +16,8 @@ namespace VariantTable
 
         // set all columns to equal width
         horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+		//setFocusPolicy(Qt::StrongFocus);
 
         
         
@@ -250,6 +253,57 @@ namespace VariantTable
 		rect->mode = mode;
 		rect->width = lineWidth;
         m_overlay->add(rect);
+    }
+
+    void TableView::keyPressEvent(QKeyEvent* event)
+    {
+		bool modifierControl = event->modifiers() == Qt::ControlModifier;
+
+        if (modifierControl)
+        {
+            // Get selected indexes
+            QModelIndexList selectedIndexes = selectionModel()->selectedIndexes();
+
+            switch (event->key())
+            {
+                case  Qt::Key_C:
+                {
+                    // Get first index
+                    if (selectedIndexes.isEmpty() || !m_enableCellCopy)
+                        break;
+                    QModelIndex firstIndex = selectedIndexes.first();
+
+                    // Get cell data of the index
+                    CellDataBasePtr cellData = m_model->getCellData(firstIndex.row(), firstIndex.column());
+                    if (cellData)
+                    {
+                        cellData->copyAction(); // Use the cell's copy action to handle copying to clipboard
+                        event->accept(); // Mark the event as handled
+						highlightCell(firstIndex.row(), firstIndex.column(), 2, m_copyCellIndicatorColor, 5, Internal::OverlayRect::Mode::fadeOut);
+                        return;
+                    }
+                    break;
+                }
+                case  Qt::Key_V:
+                {
+                    if (selectedIndexes.isEmpty() || !m_enableCellPaste)
+                        break;
+					// For each selected cell, paste the clipboard data
+                    for (const QModelIndex& index : selectedIndexes)
+                    {
+                        CellDataBasePtr cellData = m_model->getCellData(index.row(), index.column());
+                        if (cellData)
+                        {
+                            if(cellData->pasteAction()) // Use the cell's paste action to handle pasting from clipboard
+							    highlightCell(index.row(), index.column(), 2, m_pasteCellIndicatorColor, 5, Internal::OverlayRect::Mode::fadeOut);
+                        }
+					}
+                    return;
+                }
+            }
+        }
+
+        QTableView::keyPressEvent(event); // Call base class for other key events
     }
 
 

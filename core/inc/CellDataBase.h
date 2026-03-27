@@ -1,6 +1,7 @@
 #pragma once
 
 #include "VariantTable_base.h"
+#include "ClipboardData.h"
 #include <QObject>
 #include <QVariant>
 #include <QSize>
@@ -80,7 +81,7 @@ namespace VariantTable
 
 		virtual CellDataBasePtr clone() const = 0;
 
-		virtual void setData(const QVariant& data) = 0;
+		virtual bool setData(const QVariant& data) = 0;
 		virtual void setData(QWidget* editor) = 0;
 		virtual QVariant getData() const = 0;
 		virtual void getData(QWidget* editor) = 0;
@@ -97,6 +98,12 @@ namespace VariantTable
 		virtual QString getToolTip() const = 0;
 		virtual void updateIcon() const {};
 		virtual void updateEditorPlaceholderText() const {}
+
+		//bool eventFilter(QObject* obj, QEvent* event) override;
+
+		void copyAction() const;
+		bool pasteAction();
+		
 
 	protected:
 
@@ -135,8 +142,8 @@ namespace VariantTable
 		float getPlaceholderIconXPos() const { return PlaceholderData::iconXPos; }
 		float getPlaceholderIconHeight() const { return PlaceholderData::iconHeight; }
 
-		virtual QWidget* createEditorWidget(QWidget* parent) const = 0;
-		virtual void editorWidgetDestroyed() const = 0;
+		virtual QWidget* createEditorWidget(QWidget* parent) = 0;
+		virtual void editorWidgetDestroyed() = 0;
 
 		void applyColor(QWidget* editor) const;
 		void dataChanged() const;
@@ -144,6 +151,13 @@ namespace VariantTable
 		virtual void drawEditorPlaceholderColorOverlay(QPainter* painter, const QStyleOptionViewItem& option) const;
 		virtual void drawEditorPlaceholderIcon(QPainter* painter, const QStyleOptionViewItem& option) const;
 		virtual void drawEditorPlaceholderText(QPainter* painter, const QStyleOptionViewItem& option) const;
+
+		virtual std::shared_ptr<ClipboardData> createClipboadData() const;
+
+		virtual bool onPaste(std::shared_ptr<ClipboardData> pasteData);
+		virtual void onCopy() const;
+		static std::shared_ptr<ClipboardData> getClipboardData() { return s_clipboardData; }
+		static void setClipboardData(std::shared_ptr<ClipboardData> data) { s_clipboardData = data; }
 
 		bool doIgnoreSignals() const
 		{
@@ -154,8 +168,12 @@ namespace VariantTable
 			void onEditorWidgetDestroyed();
 
 		private:
-			QWidget* createEditorWidget_internal(QWidget* parent) const;
-			void setTableData(Model* model) const { m_model = model; }
+			QWidget* createEditorWidget_internal(QWidget* parent);
+			void setTableData(Model* model) const 
+			{ 
+				if(m_model != model)
+					m_model = model; 
+			}
 			Model* getModel() const { return m_model; }
 
 			
@@ -176,6 +194,9 @@ namespace VariantTable
 			mutable PlaceholderData m_editorPlaceholderData;
 
 			mutable Model* m_model = nullptr;
+
+
+			static std::shared_ptr<ClipboardData> s_clipboardData;
 	};
 
 	template<typename T>

@@ -1,4 +1,5 @@
 #include "DefaultTypes/TextEdit.h"
+#include "ClipboardData/QVariantClipboardData.h"
 #include "IconManager.h"
 
 #include <QTextEdit>
@@ -50,13 +51,18 @@ namespace VariantTable
 	}
 
 
-	void TextEdit::setData(const QVariant& data)
+	bool TextEdit::setData(const QVariant& data)
 	{
-		m_text = data.toString();
-		if (m_editor)
-			m_editor->setText(m_text);
-		updateEditorPlaceholderText();
-		dataChanged();
+		if (data.isValid() && data.type() == QVariant::String)
+		{
+			m_text = data.toString();
+			if (m_editor)
+				m_editor->setText(m_text);
+			updateEditorPlaceholderText();
+			dataChanged();
+			return true;
+		}
+		return false;
 	}
 	void TextEdit::setData(QWidget* editor)
 	{
@@ -82,7 +88,7 @@ namespace VariantTable
 	}
 
 
-	QWidget* TextEdit::createEditorWidget(QWidget* parent) const
+	QWidget* TextEdit::createEditorWidget(QWidget* parent)
 	{
 		if (m_editor)
 			return m_editor;
@@ -99,7 +105,7 @@ namespace VariantTable
 	{
 		return m_text;
 	}
-	void TextEdit::editorWidgetDestroyed() const
+	void TextEdit::editorWidgetDestroyed()
 	{
 		m_editor = nullptr;
 	}
@@ -110,6 +116,25 @@ namespace VariantTable
 	void TextEdit::updateEditorPlaceholderText() const
 	{
 		setEditorPlaceholderText(m_text.split("\n").first());
+	}
+
+	std::shared_ptr<ClipboardData> TextEdit::createClipboadData() const
+	{
+		std::shared_ptr<QVariantClipboardData> data = std::make_shared<QVariantClipboardData>();
+		if(hasCopyPolicy(CopyPastePolicy::Text))
+			data->setData(QVariant(m_text));
+		return data;
+	}
+	bool TextEdit::onPaste(std::shared_ptr<ClipboardData> pasteData)
+	{
+		auto variantData = std::dynamic_pointer_cast<QVariantClipboardData>(pasteData);
+		if (!variantData)
+			return false;
+
+		if (hasPastePolicy(CopyPastePolicy::Text))
+			return setData(variantData->getData());
+
+		return true;
 	}
 
 	void TextEdit::onTextChanged()

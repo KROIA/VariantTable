@@ -1,4 +1,5 @@
 #include "DefaultTypes/ProgressBar.h"
+#include "ClipboardData/QVariantClipboardData.h"
 #include "IconManager.h"
 
 #include <QProgressBar>
@@ -79,10 +80,15 @@ namespace VariantTable
 		m_orientation = orientation;
 	}
 
-	void ProgressBar::setData(const QVariant& data)
+	bool ProgressBar::setData(const QVariant& data)
 	{
-		m_progress = data.toInt();
-		updateEditorPlaceholderText();
+		if (data.isValid() && data.canConvert<int>())
+		{
+			m_progress = data.toInt();
+			updateEditorPlaceholderText();
+			return true;
+		}
+		return false;		
 	}
 	void ProgressBar::setData(QWidget* editor)
 	{
@@ -108,7 +114,7 @@ namespace VariantTable
 		}
 	}
 
-	QWidget* ProgressBar::createEditorWidget(QWidget* parent) const
+	QWidget* ProgressBar::createEditorWidget(QWidget* parent)
 	{
 		if (m_bar)
 			return m_bar;
@@ -135,7 +141,7 @@ namespace VariantTable
 		}		
 		return QString::number(percentage) + "%";
 	}
-	void ProgressBar::editorWidgetDestroyed() const
+	void ProgressBar::editorWidgetDestroyed()
 	{
 		m_bar = nullptr;
 	}
@@ -152,6 +158,28 @@ namespace VariantTable
 	{
 		setEditorPlaceholderText(getToolTip());
 		dataChanged();
+	}
+
+	std::shared_ptr<ClipboardData> ProgressBar::createClipboadData() const
+	{
+		std::shared_ptr<QVariantClipboardData> data = std::make_shared<QVariantClipboardData>();
+		if (hasCopyPolicy(CopyPastePolicy::ProgressValue))
+		{
+			data->setData(getData());
+		}
+		return data;
+	}
+	bool ProgressBar::onPaste(std::shared_ptr<ClipboardData> pasteData)
+	{
+		std::shared_ptr<QVariantClipboardData> variantData = std::dynamic_pointer_cast<QVariantClipboardData>(pasteData);
+		if (variantData)
+		{
+			if(hasPastePolicy(CopyPastePolicy::ProgressValue))
+			{
+				return setData(variantData->getData());
+			}
+		}
+		return false;
 	}
 
 	void ProgressBar::drawLoadingBar(QPainter* painter, const QRect& rect, int percentage,

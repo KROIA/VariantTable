@@ -1,13 +1,18 @@
 #include "CellDataBase.h"
 #include "Model.h"
+#include "ClipboardData/QVariantClipboardData.h"
 
 #include <QSize>
 #include <QPainter>
+#include <QEvent>
+#include <QKeyEvent>
 
 namespace VariantTable
 {
 	float CellDataBase::PlaceholderData::iconXPos = 5;
 	float CellDataBase::PlaceholderData::iconHeight = 20;
+
+	std::shared_ptr<ClipboardData> CellDataBase::s_clipboardData = nullptr;
 
 	CellDataBase::CellDataBase()
 	{
@@ -77,6 +82,44 @@ namespace VariantTable
 		drawEditorPlaceholderText(painter, option);
 	}
 
+	/*bool CellDataBase::eventFilter(QObject* obj, QEvent* event)
+	{
+		if (event->type() == QEvent::KeyPress) 
+		{
+			QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+			if (keyEvent->key() == Qt::Key_V && keyEvent->modifiers() & Qt::ControlModifier)
+			{
+				// Handle paste action here
+				std::shared_ptr<ClipboardData> data = getClipboardData();
+				if (data)
+				{
+					onPaste(data);
+					return true; // Event handled
+				}
+			}
+			else if (keyEvent->key() == Qt::Key_C && keyEvent->modifiers() & Qt::ControlModifier)
+			{
+				// Handle copy action here
+				onCopy();
+				return true; // Event handled
+			}
+		}
+		return QObject::eventFilter(obj, event); // Pass unhandled events to base class
+	}*/
+	void CellDataBase::copyAction() const
+	{
+		onCopy();
+	}
+	bool CellDataBase::pasteAction()
+	{
+		std::shared_ptr<ClipboardData> data = getClipboardData();
+		if (data)
+		{
+			return onPaste(data);
+		}
+		return false;
+	}
+
 
 	void CellDataBase::applyColor(QWidget* editor) const
 	{
@@ -144,6 +187,24 @@ namespace VariantTable
 		QRect textRect = QRect(xPos + TL.x(), yOffset + TL.y(), rect.width() - size, size);
 		painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, m_editorPlaceholderData.text);
 	}
+	std::shared_ptr<ClipboardData> CellDataBase::createClipboadData() const
+	{
+		std::shared_ptr<QVariantClipboardData> data = std::make_shared<QVariantClipboardData>(getData());
+		return data;
+	}
+	bool CellDataBase::onPaste(std::shared_ptr<ClipboardData> pasteData)
+	{
+		std::shared_ptr<QVariantClipboardData> variantData = std::dynamic_pointer_cast<QVariantClipboardData>(pasteData);
+		if (variantData)
+		{
+			return setData(variantData->getData());
+		}
+		return false;
+	}
+	void CellDataBase::onCopy() const
+	{
+		setClipboardData(createClipboadData());
+	}
 
 	void CellDataBase::onEditorWidgetDestroyed()
 	{
@@ -153,10 +214,11 @@ namespace VariantTable
 		editorWidgetDestroyed();
 	}
 
-	QWidget* CellDataBase::createEditorWidget_internal(QWidget* parent) const
+	QWidget* CellDataBase::createEditorWidget_internal(QWidget* parent)
 	{
 		QWidget* editor = createEditorWidget(parent);
 		m_mainEditorWidget = editor;
+		//m_mainEditorWidget->installEventFilter(this);
 		applyColor(editor);
 		editor->setEnabled(m_isEditable);
 		connect(editor, &QObject::destroyed, this, &CellDataBase::onEditorWidgetDestroyed);

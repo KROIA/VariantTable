@@ -306,8 +306,8 @@ namespace VariantTable
             QVector<CellData> rowData;
             for (int j = 0; j < columnCount(); ++j)
             {
-                CellDataBasePtr obj = CellTypeRegistry::createDefaultType();
-                obj->setTableData(this);
+                CellDataBasePtr obj = nullptr; // CellTypeRegistry::createDefaultType();
+                //obj->setTableData(this);
                 rowData.append(CellData{ obj });
             }
             m_data.insert(row + i, rowData);
@@ -379,7 +379,7 @@ namespace VariantTable
         {
             for (int j = 0; j < rowCount(); ++j)
             {
-                m_data[j].insert(col + i, CellData{ CellTypeRegistry::createDefaultType() });
+                m_data[j].insert(col + i, CellData{ nullptr/*CellTypeRegistry::createDefaultType()*/});
             }
         }
         endInsertColumns();

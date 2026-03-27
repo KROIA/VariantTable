@@ -1,4 +1,5 @@
 #include "DefaultTypes/DateEdit.h"
+#include "ClipboardData/DateTimeClipboardData.h"
 #include "IconManager.h"
 
 #include <QDateEdit>
@@ -56,11 +57,16 @@ namespace VariantTable
 	}
 
 
-	void DateEdit::setData(const QVariant& data)
+	bool DateEdit::setData(const QVariant& data)
 	{
-		m_date = data.toDate();
-		updateEditorPlaceholderText();
-		dataChanged();
+		if (data.isValid() && data.canConvert<QDate>())
+		{
+			m_date = data.toDate();
+			updateEditorPlaceholderText();
+			dataChanged();
+			return true;
+		}
+		return false;
 	}
 	void DateEdit::setData(QWidget* editor)
 	{
@@ -86,7 +92,7 @@ namespace VariantTable
 
 
 
-	QWidget* DateEdit::createEditorWidget(QWidget* parent) const
+	QWidget* DateEdit::createEditorWidget(QWidget* parent)
 	{
 		if (m_editor)
 			return m_editor;
@@ -104,7 +110,7 @@ namespace VariantTable
 	{
 		return m_date.toString(s_format);
 	}
-	void DateEdit::editorWidgetDestroyed() const
+	void DateEdit::editorWidgetDestroyed()
 	{
 		m_editor = nullptr;
 	}
@@ -116,6 +122,34 @@ namespace VariantTable
 	{
 		setEditorPlaceholderText(m_date.toString(s_format));
 	}
+
+	std::shared_ptr<ClipboardData> DateEdit::createClipboadData() const
+	{
+		std::shared_ptr<DateTimeClipboardData> data = std::make_shared<DateTimeClipboardData>();
+		if (hasCopyPolicy(CopyPastePolicy::Date))
+			data->setDate(getDate());
+		//if (hasCopyPolicy(CopyPastePolicy::Time))
+		//	data->setTime(getTime());
+		return data;
+	}
+	bool DateEdit::onPaste(std::shared_ptr<ClipboardData> pasteData)
+	{
+		std::shared_ptr<DateTimeClipboardData> variantData = std::dynamic_pointer_cast<DateTimeClipboardData>(pasteData);
+		if (variantData)
+		{
+			if (hasPastePolicy(CopyPastePolicy::Date) && variantData->hasDate())
+			{
+				setDate(variantData->getDate());
+			}
+			//if (hasPastePolicy(CopyPastePolicy::Time) && variantData->hasTime())
+			//{
+			//	setTime(variantData->getTime());
+			//}
+			return true;
+		}
+		return false;
+	}
+
 	void DateEdit::onDateChanged(const QDate& newDate)
 	{
 		if (doIgnoreSignals())

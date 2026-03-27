@@ -1,10 +1,12 @@
 #include "DefaultTypes/RadioButton.h"
+#include "ClipboardData/ComboBoxClipboardData.h"
 #include "IconManager.h"
 
 #include <QRadioButton>
 #include <QApplication>
 #include <QPainter>
 #include <QVBoxLayout>
+#include <QButtonGroup>
 
 namespace VariantTable
 {
@@ -81,10 +83,15 @@ namespace VariantTable
 
 
 
-	void RadioButton::setData(const QVariant& data)
+	bool RadioButton::setData(const QVariant& data)
 	{
+		if (!data.canConvert<QStringList>())
+		{
+			return false;
+		}
 		m_options = data.toStringList();
 		dataChanged();
+		return true;
 	}
 	void RadioButton::setData(QWidget* editor)
 	{
@@ -130,7 +137,7 @@ namespace VariantTable
 	}
 
 
-	QWidget* RadioButton::createEditorWidget(QWidget* parent) const
+	QWidget* RadioButton::createEditorWidget(QWidget* parent)
 	{
 		if (m_editorWidget)
 			return m_editorWidget;
@@ -142,6 +149,9 @@ namespace VariantTable
 		QVBoxLayout* layout = new QVBoxLayout(m_editorWidget);
 		layout->setContentsMargins(5, 5, 5, 5);
 		m_editorWidget->setLayout(layout);
+
+		QButtonGroup* group = new QButtonGroup(this);
+		group->setExclusive(true);
 
 		// Add Radio Buttons
 		for (const QString& option : m_options)
@@ -161,11 +171,10 @@ namespace VariantTable
 		for (int i = 0; i < maxIndex; ++i)
 		{
 			m_editorButtons[i]->setText(m_options[i]);
-			if (i == m_selectedIndex)
-				m_editorButtons[i]->setChecked(true);
-			else
-				m_editorButtons[i]->setChecked(false);
+			group->addButton(m_editorButtons[i], i);
 		}
+		if (m_selectedIndex > 0 && m_selectedIndex < m_editorButtons.size())
+			group->button(m_selectedIndex)->setChecked(true);
 
 	
 		return m_editorWidget;
@@ -184,7 +193,7 @@ namespace VariantTable
 		text.chop(1); // Remove the last newline
 		return text;
 	}
-	void RadioButton::editorWidgetDestroyed() const
+	void RadioButton::editorWidgetDestroyed()
 	{
 		m_editorWidget = nullptr;
 		m_editorButtons.clear();
@@ -200,10 +209,41 @@ namespace VariantTable
 			text = m_options[m_selectedIndex];
 		setEditorPlaceholderText(text);
 	}
+
+	std::shared_ptr<ClipboardData> RadioButton::createClipboadData() const
+	{
+		std::shared_ptr<ComboBoxClipboardData> data = std::make_shared<ComboBoxClipboardData>();
+		if (hasCopyPolicy(CopyPastePolicy::Text))
+		{
+			QStringList textList;
+			for (const auto& option : m_options)
+			{
+				textList.push_back(option);
+			}
+			data->setText(textList);
+		}
+		if (hasCopyPolicy(CopyPastePolicy::SelectedIndex))
+			data->setSelectedIndex(m_selectedIndex);
+		return data;
+	}
+	bool RadioButton::onPaste(std::shared_ptr<ClipboardData> pasteData)
+	{
+		auto comboBoxData = std::dynamic_pointer_cast<ComboBoxClipboardData>(pasteData);
+		if (comboBoxData)
+		{
+			if (comboBoxData->hasText() && hasPastePolicy(CopyPastePolicy::Text))
+				setOptions(comboBoxData->getText());
+			if (comboBoxData->hasSelectedIndex() && hasPastePolicy(CopyPastePolicy::SelectedIndex))
+				setSelectedIndex(comboBoxData->getSelectedIndex());
+			return true;
+		}
+		return false;
+	}
 	void RadioButton::onSelectionChanged()
 	{
 		if (doIgnoreSignals())
 			return;
+		m_selectedIndex = getSelectedIndex();
 		dataChanged();
 	}
 }

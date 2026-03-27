@@ -1,4 +1,5 @@
 #include "DefaultTypes/ComboBox.h"
+#include "ClipboardData/ComboBoxClipboardData.h"
 #include "IconManager.h"
 
 #include <QComboBox>
@@ -86,11 +87,16 @@ namespace VariantTable
 	}
 
 
-	void ComboBox::setData(const QVariant& data)
+	bool ComboBox::setData(const QVariant& data)
 	{
-		m_options = data.value<OptionsType>();
-		updateEditorPlaceholderText();
-		dataChanged();
+		if (data.isValid() && data.canConvert<OptionsType>())
+		{
+			m_options = data.value<OptionsType>();
+			updateEditorPlaceholderText();
+			dataChanged();
+			return true;
+		}
+		return false;
 	}
 	void ComboBox::setData(QWidget* editor)
 	{
@@ -123,7 +129,7 @@ namespace VariantTable
 		}
 	}
 
-	QWidget* ComboBox::createEditorWidget(QWidget* parent) const
+	QWidget* ComboBox::createEditorWidget(QWidget* parent)
 	{
 		if (m_combo)
 			return m_combo;
@@ -204,6 +210,37 @@ namespace VariantTable
 
 		
 	}
+
+	std::shared_ptr<ClipboardData> ComboBox::createClipboadData() const
+	{
+		std::shared_ptr<ComboBoxClipboardData> data = std::make_shared<ComboBoxClipboardData>();
+		if (hasCopyPolicy(CopyPastePolicy::Text))
+		{
+			QStringList textList;
+			for (const auto& option : m_options)
+			{
+				textList.push_back(option.first);
+			}
+			data->setText(textList);
+		}
+		if (hasCopyPolicy(CopyPastePolicy::SelectedIndex))
+			data->setSelectedIndex(m_selectedIndex);
+		return data;
+	}
+	bool ComboBox::onPaste(std::shared_ptr<ClipboardData> pasteData)
+	{
+		auto comboBoxData = std::dynamic_pointer_cast<ComboBoxClipboardData>(pasteData);
+		if (comboBoxData)
+		{
+			if (comboBoxData->hasText() && hasPastePolicy(CopyPastePolicy::Text))
+				setOptions(comboBoxData->getText());
+			if (comboBoxData->hasSelectedIndex() && hasPastePolicy(CopyPastePolicy::SelectedIndex))
+				setCurrentIndex(comboBoxData->getSelectedIndex());
+			return true;
+		}
+		return false;
+	}
+
 	void ComboBox::onIndexChanged(int index)
 	{
 		if (doIgnoreSignals())
@@ -212,7 +249,7 @@ namespace VariantTable
 		dataChanged();
 	}
 
-	void ComboBox::editorWidgetDestroyed() const
+	void ComboBox::editorWidgetDestroyed()
 	{
 		m_combo = nullptr;
 	}

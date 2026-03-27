@@ -54,8 +54,19 @@ namespace VariantTable
 			void highlightCell(unsigned int row, unsigned int column, unsigned int lineWidth,
 							   const QColor& lineColor, float speed, Internal::OverlayRect::Mode mode);
 
-	
+			void setEnableCellCopy(bool enable) { m_enableCellCopy = enable; }
+			bool isCellCopyEnabled() const { return m_enableCellCopy; }
+			void setCopyCellIndicatorColor(const QColor& color) { m_copyCellIndicatorColor = color; }
+			const QColor& getCopyCellIndicatorColor() const { return m_copyCellIndicatorColor; }
 
+			void setEnableCellPaste(bool enable) { m_enableCellPaste = enable; }
+			bool isCellPasteEnabled() const { return m_enableCellPaste; }
+			void setPasteCellIndicatorColor(const QColor& color) { m_pasteCellIndicatorColor = color; }
+			const QColor& getPasteCellIndicatorColor() const { return m_pasteCellIndicatorColor; }
+			
+	
+			// Key events
+			void keyPressEvent(QKeyEvent* event) override;
 		protected:
 		void resizeEvent(QResizeEvent* event);
 		void doRelayout();
@@ -76,9 +87,10 @@ namespace VariantTable
             bool m_firstFocus; // Flag to track the first focus event
 
             
-           // int m_column;    // Selected column index
-           // int m_row;    // Selected row index
-
+			bool m_enableCellCopy = true;
+			bool m_enableCellPaste = true;
+			QColor m_copyCellIndicatorColor = QColor(3, 252, 78);
+			QColor m_pasteCellIndicatorColor = QColor(3, 128, 40);
 			Internal::OverlayRect* m_overlay;
     };
 }

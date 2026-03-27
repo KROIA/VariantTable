@@ -1,4 +1,5 @@
 #include "DefaultTypes/LineEdit.h"
+#include "ClipboardData/QVariantClipboardData.h"
 #include "IconManager.h"
 
 #include <QLineEdit>
@@ -48,11 +49,16 @@ namespace VariantTable
 	}
 
 
-	void LineEdit::setData(const QVariant& data)
+	bool LineEdit::setData(const QVariant& data)
 	{
-		m_text = data.toString();
-		setEditorPlaceholderText(m_text);
-		dataChanged();
+		if(data.isValid() && data.type() == QVariant::String)
+		{
+			m_text = data.toString();
+			setEditorPlaceholderText(m_text);
+			dataChanged();
+			return true;
+		}
+		return false;
 	}
 	void LineEdit::setData(QWidget* editor)
 	{
@@ -77,7 +83,7 @@ namespace VariantTable
 		}
 	}
 
-	QWidget* LineEdit::createEditorWidget(QWidget* parent) const
+	QWidget* LineEdit::createEditorWidget(QWidget* parent)
 	{
 		if (m_editor)
 			return m_editor;
@@ -145,6 +151,26 @@ namespace VariantTable
 		QRect textRect = QRect(margin + TL.x(), yOffset + TL.y(), rect.width() - iconRect.width() - 3 * margin, size);
 		painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, m_text);
 	}
+
+	std::shared_ptr<ClipboardData> LineEdit::createClipboadData() const
+	{
+		std::shared_ptr<QVariantClipboardData> data = std::make_shared<QVariantClipboardData>();
+		if (hasCopyPolicy(CopyPastePolicy::Text))
+			data->setData(QVariant(m_text));
+		return data;
+	}
+	bool LineEdit::onPaste(std::shared_ptr<ClipboardData> pasteData)
+	{
+		auto variantData = std::dynamic_pointer_cast<QVariantClipboardData>(pasteData);
+		if (!variantData)
+			return false;
+
+		if (hasPastePolicy(CopyPastePolicy::Text))
+			return setData(variantData->getData());
+
+		return true;
+	}
+
 	void LineEdit::onTextChanged(const QString& newText)
 	{
 		if (doIgnoreSignals())
@@ -152,7 +178,7 @@ namespace VariantTable
 		VT_UNUSED(newText);
 		dataChanged();
 	}
-	void LineEdit::editorWidgetDestroyed() const
+	void LineEdit::editorWidgetDestroyed()
 	{
 		m_editor = nullptr;
 	}

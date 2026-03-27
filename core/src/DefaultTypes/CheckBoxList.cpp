@@ -1,4 +1,5 @@
 #include "DefaultTypes/CheckBoxList.h"
+#include "ClipboardData/CheckBoxListClipboardData.h"
 #include "IconManager.h"
 #include <QCheckBox>
 #include <QApplication>
@@ -69,6 +70,7 @@ namespace VariantTable
 	}
 	void CheckBoxList::setCheckedIndexes(const QVector<int>& indexes)
 	{
+		IgnoreSignalsContext context(this);
 		m_selectedIndexes = indexes;
 		if (m_editorWidget)
 		{
@@ -99,11 +101,17 @@ namespace VariantTable
 	}
 
 
-	void CheckBoxList::setData(const QVariant& data)
+	bool CheckBoxList::setData(const QVariant& data)
 	{
-		m_options = data.value<OptionsType>();
-		updateEditorPlaceholderText();
-		dataChanged();
+		if(data.isValid() && data.canConvert<OptionsType>())
+		{
+			m_options = data.value<OptionsType>();
+			m_selectedIndexes.clear();
+			updateEditorPlaceholderText();
+			dataChanged();
+			return true;
+		}
+		return false;
 	}
 	void CheckBoxList::setData(QWidget* editor)
 	{
@@ -125,7 +133,9 @@ namespace VariantTable
 	}
 	QVariant CheckBoxList::getData() const
 	{
-		return QVariant::fromValue(m_options);
+		QVariant v = QVariant::fromValue(m_options);
+		QVector<QPair<QString, QVariant>> tmp = v.value<OptionsType>();
+		return v;
 	}
 	void CheckBoxList::getData(QWidget* editor)
 	{
@@ -134,7 +144,8 @@ namespace VariantTable
 		if (m_editorWidget)
 		{
 			IgnoreSignalsContext context(this);
-			int maxIndex = std::min(m_checkBoxes.size(), m_options.size());
+			buildEditorWidget();
+			/*int maxIndex = std::min(m_checkBoxes.size(), m_options.size());
 			if (m_checkBoxes.size() != m_options.size())
 			{
 				qWarning("CheckBoxList::getData: The number of options and checkboxes do not match");
@@ -148,24 +159,39 @@ namespace VariantTable
 			{
 				if (i >= 0 && i < m_checkBoxes.size())
 					m_checkBoxes[i]->setChecked(true);
-			}
+			}*/
 		}
 	}
 
 
 
-	QWidget* CheckBoxList::createEditorWidget(QWidget* parent) const
+	QWidget* CheckBoxList::createEditorWidget(QWidget* parent)
 	{
 		if (m_editorWidget)
 			return m_editorWidget;
 		IgnoreSignalsContext context(this);
 
 		m_editorWidget = new QWidget(parent);
-
+		buildEditorWidget();
+		
+		return m_editorWidget;
+	}
+	void CheckBoxList::buildEditorWidget()
+	{
+		IgnoreSignalsContext context(this);
+		for(auto checkbox : m_checkBoxes)
+		{
+			checkbox->deleteLater();
+		}
+		m_checkBoxes.clear();
 		// Add Layout
-		QVBoxLayout* layout = new QVBoxLayout(m_editorWidget);
-		layout->setContentsMargins(5, 5, 5, 5);
-		m_editorWidget->setLayout(layout);
+		QLayout* layout = m_editorWidget->layout();
+		if (!layout)
+		{
+			layout = new QVBoxLayout(m_editorWidget);
+			layout->setContentsMargins(5, 5, 5, 5);
+			m_editorWidget->setLayout(layout);
+		}
 
 		// Add Radio Buttons
 		for (const auto& option : m_options)
@@ -192,7 +218,6 @@ namespace VariantTable
 			if (i >= 0 && i < m_checkBoxes.size())
 				m_checkBoxes[i]->setChecked(true);
 		}
-		return m_editorWidget;
 	}
 	
 	QString CheckBoxList::getToolTip() const
@@ -205,7 +230,7 @@ namespace VariantTable
 		text.chop(1); // Remove the last newline
 		return text;
 	}
-	void CheckBoxList::editorWidgetDestroyed() const
+	void CheckBoxList::editorWidgetDestroyed()
 	{
 		m_editorWidget = nullptr;
 		m_checkBoxes.clear();
@@ -213,6 +238,58 @@ namespace VariantTable
 	void CheckBoxList::updateIcon() const
 	{
 		setEditorPlaceholderIcon(IconManager::getIcon(s_checkedIcon));
+	}
+	std::shared_ptr<ClipboardData> CheckBoxList::createClipboadData() const
+	{ 
+		std::shared_ptr< CheckBoxListClipboardData> data = std::make_shared<CheckBoxListClipboardData>();
+		if (hasCopyPolicy(CopyPastePolicy::Text))
+		{
+			QVector<QString> text;
+			for (const auto& option : m_options)
+			{
+				text.push_back(option.first);
+			}
+			data->setText(text);
+		}
+		if (hasCopyPolicy(CopyPastePolicy::CheckBoxState))
+		{
+			QVector<bool> checked;
+			for (int i = 0; i < m_options.size(); ++i)
+			{
+				checked.push_back(m_selectedIndexes.contains(i));
+			}
+			data->setCheckedState(checked);
+		}
+		return data;
+	}
+	bool CheckBoxList::onPaste(std::shared_ptr<ClipboardData> pasteData)
+	{
+		auto checkBoxData = std::dynamic_pointer_cast<CheckBoxListClipboardData>(pasteData);
+		if (checkBoxData)
+		{
+			if (checkBoxData->hasText() && hasPastePolicy(CopyPastePolicy::Text))
+			{
+				QVector<QPair<QString, QVariant>> options;
+				for (const auto& text : checkBoxData->getText())
+				{
+					options.push_back({ text, QVariant() });
+				}
+				setOptions(options);
+			}
+			if (checkBoxData->hasCheckedState() && hasPastePolicy(CopyPastePolicy::CheckBoxState))
+			{
+				QVector<int> selectedIndexes;
+				const auto& checkedState = checkBoxData->getCheckedState();
+				for (int i = 0; i < checkedState.size(); ++i)
+				{
+					if (checkedState[i])
+						selectedIndexes.push_back(i);
+				}
+				setCheckedIndexes(selectedIndexes);
+			}
+			return true;
+		}
+		return false;
 	}
 	void CheckBoxList::onStateChanged(int state)
 	{

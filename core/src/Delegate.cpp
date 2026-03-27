@@ -1,5 +1,6 @@
 ﻿#include "Delegate.h"
 #include "Model.h"
+#include "TableView.h"
 #include <QApplication>
 #include <QPainter>
 
@@ -80,15 +81,21 @@ namespace VariantTable
 
     void Delegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
     {
-        // Check if this index is the active editor index
-        //if (m_model->isIndexSelected(index)) {
-        //    // Skip drawing the cell's data if the editor is active
-        //    return;
-        //}
+        
 
         const Model* model = qobject_cast<const Model*>(index.model());
         if (!model)
             return;
+
+        // Check if this index is the active editor index
+		TableView* tableView = qobject_cast<TableView*>(model->parent());
+        if (tableView)
+        {
+            if(tableView->isIndexSelected(index))
+            {
+                return;
+			}
+        }
 
         CellDataBasePtr cellData = model->getCellData(index.row(), index.column());
         if (!cellData)

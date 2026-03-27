@@ -45,19 +45,32 @@ int main(int argc, char* argv[])
 			
 			});
 
-	tableView->getModel()->setCellData(0, 0, VariantTable::CheckBox::create("Test", true));
+	tableView->getModel()->setCellData(0, 0, VariantTable::CheckBox::create("OtherCheckBox", true));
+	tableView->getModel()->setCellData(0, 1, VariantTable::CheckBox::create("CheckBox", false));
 	tableView->getModel()->setCellData(1, 0, VariantTable::RadioButton::create(QStringList{ "RadioA" ,"RadioB" }));
+	tableView->getModel()->setCellData(1, 1, VariantTable::RadioButton::create(QStringList{ "A" ,"B" }));
 	tableView->getModel()->setCellData(2, 0, VariantTable::CheckBoxList::create(QStringList{ "Box1" ,"Box2", "Box3"}));
+	tableView->getModel()->setCellData(2, 1, VariantTable::CheckBoxList::create(QStringList{ "B1" ,"B2", "B3" }));
+	tableView->getModel()->setCellData(2, 2, VariantTable::CheckBoxList::create(QStringList{ "A1" ,"A2", "A3" }));
+	tableView->getModel()->setCellData(2, 3, VariantTable::CheckBoxList::create(QStringList{ "C1" ,"C2", "C3", "C4"}));
+	tableView->getModel()->setCellData(2, 4, VariantTable::CheckBoxList::create(QStringList{ "C1" ,"C2"}));
 	tableView->getModel()->setCellData(3, 0, VariantTable::ComboBox::create(QStringList{ "Option1" ,"Option2", "Option3"}));
+	tableView->getModel()->setCellData(3, 1, VariantTable::ComboBox::create(QStringList{ "A" ,"B", "C"}));
 	tableView->getModel()->setCellData(4, 0, VariantTable::LineEdit::create("Hello World"));
-	tableView->getModel()->setCellData(0, 1, VariantTable::TextEdit::create("Hello\nWorld"));
-	tableView->getModel()->setCellData(0, 2, VariantTable::TimeEdit::create(QTime::currentTime()));
-	tableView->getModel()->setCellData(0, 3, VariantTable::DateEdit::create(QDate::currentDate()));
-	tableView->getModel()->setCellData(0, 4, VariantTable::DateTimeEdit::create(QDateTime::currentDateTimeUtc()));
-	tableView->getModel()->setCellData(6, 0, progressBar);
+	tableView->getModel()->setCellData(4, 1, VariantTable::LineEdit::create("Text"));
 	tableView->getModel()->setCellData(5, 0, button);
 	tableView->getModel()->setCellData(5, 5, boolCell);
 	tableView->getModel()->setCellData(5, 6, boolCell);
+	tableView->getModel()->setCellData(6, 0, progressBar);
+	tableView->getModel()->setCellData(6, 1, VariantTable::ProgressBar::create(0, 100, 0));
+	tableView->getModel()->setCellData(7, 0, VariantTable::TextEdit::create("Hello\nWorld"));
+	tableView->getModel()->setCellData(7, 1, VariantTable::TextEdit::create("He"));
+	tableView->getModel()->setCellData(8, 0, VariantTable::TimeEdit::create(QTime::currentTime()));
+	tableView->getModel()->setCellData(8, 1, VariantTable::TimeEdit::create(QTime()));
+	tableView->getModel()->setCellData(9, 0, VariantTable::DateEdit::create(QDate::currentDate()));
+	tableView->getModel()->setCellData(9, 1, VariantTable::DateEdit::create(QDate()));
+	tableView->getModel()->setCellData(10, 0, VariantTable::DateTimeEdit::create(QDateTime::currentDateTimeUtc()));
+	tableView->getModel()->setCellData(10, 1, VariantTable::DateTimeEdit::create(QDateTime()));
 
 	bool ret1 = tableView->getModel()->setHeaderData(0, Qt::Horizontal, "Column 1", Qt::DisplayRole);
 	tableView->getModel()->setHeaderData(2, Qt::Horizontal, "Column 3");

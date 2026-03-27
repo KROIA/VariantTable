@@ -1,4 +1,5 @@
 #include "DefaultTypes/CheckBox.h"
+#include "ClipboardData/CheckBoxClipboardData.h"
 #include "IconManager.h"
 
 #include <QCheckBox>
@@ -62,10 +63,15 @@ namespace VariantTable
 		return m_value;
 	}
 
-	void CheckBox::setData(const QVariant& data) 	
+	bool CheckBox::setData(const QVariant& data)
 	{
-		m_value = data.toBool();
-		dataChanged();
+		if (data.isValid() && data.canConvert<bool>())
+		{
+			m_value = data.toBool();
+			dataChanged();
+			return true;
+		}
+		return false;
 	}
 	void CheckBox::setData(QWidget* editor) 
 	{
@@ -97,7 +103,7 @@ namespace VariantTable
 		}
 	}
 
-	QWidget* CheckBox::createEditorWidget(QWidget* parent) const
+	QWidget* CheckBox::createEditorWidget(QWidget* parent)
 	{
 		if (m_editor)
 			return m_editor->parentWidget();
@@ -120,7 +126,7 @@ namespace VariantTable
 	{
 		return (m_value?"[X] ":"[ ] ") + m_text;
 	}
-	void CheckBox::editorWidgetDestroyed() const
+	void CheckBox::editorWidgetDestroyed()
 	{
 		m_editor = nullptr;
 	}
@@ -130,6 +136,28 @@ namespace VariantTable
 			setEditorPlaceholderIcon(IconManager::getIcon(s_checkedIcon));
 		else
 			setEditorPlaceholderIcon(IconManager::getIcon(s_uncheckedIcon));
+	}
+	std::shared_ptr<ClipboardData> CheckBox::createClipboadData() const
+	{
+		std::shared_ptr< CheckBoxClipboardData> data = std::make_shared<CheckBoxClipboardData>();
+		if(hasCopyPolicy(CopyPastePolicy::Text))
+			data->setText(m_text);
+		if (hasCopyPolicy(CopyPastePolicy::CheckBoxState))
+			data->setCheckedState(m_value);
+		return data;
+	}
+	bool CheckBox::onPaste(std::shared_ptr<ClipboardData> pasteData)
+	{
+		auto checkBoxData = std::dynamic_pointer_cast<CheckBoxClipboardData>(pasteData);
+		if (checkBoxData)
+		{
+			if (checkBoxData->hasText() && hasPastePolicy(CopyPastePolicy::Text))
+				setText(checkBoxData->getText());
+			if (checkBoxData->hasCheckedState() && hasPastePolicy(CopyPastePolicy::CheckBoxState))
+				setChecked(checkBoxData->getCheckedState());
+			return true;
+		}
+		return false;
 	}
 	void CheckBox::onStateChanged(int state)
 	{
