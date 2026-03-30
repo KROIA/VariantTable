@@ -4,6 +4,7 @@
 
 #include <QTableView>
 #include "OverlayRect.h"
+#include "CopyPasteDelegate.h"
 
 namespace VariantTable
 {
@@ -67,6 +68,16 @@ namespace VariantTable
 	
 			// Key events
 			void keyPressEvent(QKeyEvent* event) override;
+
+
+			void setCopyPasteDelegate(std::shared_ptr<CopyPasteDelegate> delegate) { m_copyPasteDelegate = delegate; }
+			template<typename DelegateType, typename... Args>
+			void setCopyPasteDelegate(Args&&... args)
+			{
+				m_copyPasteDelegate = std::make_shared<DelegateType>(std::forward<Args>(args)...);
+			}
+			std::shared_ptr<CopyPasteDelegate> getCopyPasteDelegate() const { return m_copyPasteDelegate; }
+
 		protected:
 		void resizeEvent(QResizeEvent* event);
 		void doRelayout();
@@ -85,6 +96,8 @@ namespace VariantTable
 
             Model* m_model;
             bool m_firstFocus; // Flag to track the first focus event
+
+			std::shared_ptr<CopyPasteDelegate> m_copyPasteDelegate = nullptr;
 
             
 			bool m_enableCellCopy = true;

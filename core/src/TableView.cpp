@@ -277,10 +277,22 @@ namespace VariantTable
                     CellDataBasePtr cellData = m_model->getCellData(firstIndex.row(), firstIndex.column());
                     if (cellData)
                     {
-                        cellData->copyAction(); // Use the cell's copy action to handle copying to clipboard
-                        event->accept(); // Mark the event as handled
-						highlightCell(firstIndex.row(), firstIndex.column(), 2, m_copyCellIndicatorColor, 5, Internal::OverlayRect::Mode::fadeOut);
-                        return;
+                        if (m_copyPasteDelegate)
+                        {
+                            if(m_copyPasteDelegate->copyCell(cellData, firstIndex))
+                            {
+                                highlightCell(firstIndex.row(), firstIndex.column(), 2, m_copyCellIndicatorColor, 5, Internal::OverlayRect::Mode::fadeOut);
+                                event->accept(); // Mark the event as handled
+                                return;
+							}
+                        }
+                        else
+                        {
+                            cellData->copyAction(); // Use the cell's copy action to handle copying to clipboard
+                            event->accept(); // Mark the event as handled
+                            highlightCell(firstIndex.row(), firstIndex.column(), 2, m_copyCellIndicatorColor, 5, Internal::OverlayRect::Mode::fadeOut);
+                            return;
+                        }
                     }
                     break;
                 }
@@ -294,8 +306,23 @@ namespace VariantTable
                         CellDataBasePtr cellData = m_model->getCellData(index.row(), index.column());
                         if (cellData)
                         {
-                            if(cellData->pasteAction()) // Use the cell's paste action to handle pasting from clipboard
-							    highlightCell(index.row(), index.column(), 2, m_pasteCellIndicatorColor, 5, Internal::OverlayRect::Mode::fadeOut);
+                            if (m_copyPasteDelegate)
+                            {
+                                if(m_copyPasteDelegate->pasteCell(cellData, index))
+                                {
+                                    highlightCell(index.row(), index.column(), 2, m_pasteCellIndicatorColor, 5, Internal::OverlayRect::Mode::fadeOut);
+                                    event->accept(); // Mark the event as handled
+                                    return;
+								}
+                            }
+                            else
+                            {
+                                if (cellData->pasteAction()) // Use the cell's paste action to handle pasting from clipboard
+                                {
+                                    highlightCell(index.row(), index.column(), 2, m_pasteCellIndicatorColor, 5, Internal::OverlayRect::Mode::fadeOut);
+									event->accept(); // Mark the event as handled
+                                }
+                            }
                         }
 					}
                     return;
