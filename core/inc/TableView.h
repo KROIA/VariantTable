@@ -104,6 +104,8 @@ namespace VariantTable
 				bool pasteCell(CellDataBasePtr cellData, const QModelIndex& index) override
 				{
 					VT_UNUSED(index);
+					if(!m_clipboardData)
+						return false;
 					return cellData->pasteAction(m_clipboardData);
 				}
 			private:
