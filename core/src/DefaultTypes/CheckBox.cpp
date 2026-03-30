@@ -137,7 +137,7 @@ namespace VariantTable
 		else
 			setEditorPlaceholderIcon(IconManager::getIcon(s_uncheckedIcon));
 	}
-	std::shared_ptr<ClipboardData> CheckBox::createClipboadData() const
+	std::shared_ptr<ClipboardData> CheckBox::copyAction() const
 	{
 		std::shared_ptr< CheckBoxClipboardData> data = std::make_shared<CheckBoxClipboardData>();
 		if(hasCopyPolicy(CopyPastePolicy::Text))
@@ -146,7 +146,7 @@ namespace VariantTable
 			data->setCheckedState(m_value);
 		return data;
 	}
-	bool CheckBox::onPaste(std::shared_ptr<ClipboardData> pasteData)
+	bool CheckBox::pasteAction(std::shared_ptr<ClipboardData> pasteData)
 	{
 		auto checkBoxData = std::dynamic_pointer_cast<CheckBoxClipboardData>(pasteData);
 		if (checkBoxData)

@@ -37,6 +37,8 @@ namespace VariantTable
 
         setStyleSheet("QTableView::item { padding: "+QString::number(CELL_PADDING)+"px; }");
 
+
+        setCopyPasteDelegate<DefaultCopyPasteDelegate>();
     }
 
 
@@ -286,13 +288,13 @@ namespace VariantTable
                                 return;
 							}
                         }
-                        else
+                        /*else
                         {
                             cellData->copyAction(); // Use the cell's copy action to handle copying to clipboard
                             event->accept(); // Mark the event as handled
                             highlightCell(firstIndex.row(), firstIndex.column(), 2, m_copyCellIndicatorColor, 5, Internal::OverlayRect::Mode::fadeOut);
                             return;
-                        }
+                        }*/
                     }
                     break;
                 }
@@ -315,14 +317,14 @@ namespace VariantTable
                                     return;
 								}
                             }
-                            else
+                            /*else
                             {
                                 if (cellData->pasteAction()) // Use the cell's paste action to handle pasting from clipboard
                                 {
                                     highlightCell(index.row(), index.column(), 2, m_pasteCellIndicatorColor, 5, Internal::OverlayRect::Mode::fadeOut);
 									event->accept(); // Mark the event as handled
                                 }
-                            }
+                            }*/
                         }
 					}
                     return;

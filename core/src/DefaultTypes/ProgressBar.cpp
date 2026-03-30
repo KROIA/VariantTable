@@ -160,7 +160,7 @@ namespace VariantTable
 		dataChanged();
 	}
 
-	std::shared_ptr<ClipboardData> ProgressBar::createClipboadData() const
+	std::shared_ptr<ClipboardData> ProgressBar::copyAction() const
 	{
 		std::shared_ptr<QVariantClipboardData> data = std::make_shared<QVariantClipboardData>();
 		if (hasCopyPolicy(CopyPastePolicy::ProgressValue))
@@ -169,7 +169,7 @@ namespace VariantTable
 		}
 		return data;
 	}
-	bool ProgressBar::onPaste(std::shared_ptr<ClipboardData> pasteData)
+	bool ProgressBar::pasteAction(std::shared_ptr<ClipboardData> pasteData)
 	{
 		std::shared_ptr<QVariantClipboardData> variantData = std::dynamic_pointer_cast<QVariantClipboardData>(pasteData);
 		if (variantData)

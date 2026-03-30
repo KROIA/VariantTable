@@ -134,7 +134,7 @@ namespace VariantTable
 		dataChanged();
 	}
 
-	std::shared_ptr<ClipboardData> TimeEdit::createClipboadData() const
+	std::shared_ptr<ClipboardData> TimeEdit::copyAction() const
 	{
 		std::shared_ptr<DateTimeClipboardData> data = std::make_shared<DateTimeClipboardData>();
 		//if (hasCopyPolicy(CopyPastePolicy::Date))
@@ -143,7 +143,7 @@ namespace VariantTable
 			data->setTime(getTime());
 		return data;
 	}
-	bool TimeEdit::onPaste(std::shared_ptr<ClipboardData> pasteData)
+	bool TimeEdit::pasteAction(std::shared_ptr<ClipboardData> pasteData)
 	{
 		std::shared_ptr<DateTimeClipboardData> variantData = std::dynamic_pointer_cast<DateTimeClipboardData>(pasteData);
 		if (variantData)

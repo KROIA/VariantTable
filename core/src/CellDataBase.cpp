@@ -12,7 +12,7 @@ namespace VariantTable
 	float CellDataBase::PlaceholderData::iconXPos = 5;
 	float CellDataBase::PlaceholderData::iconHeight = 20;
 
-	std::shared_ptr<ClipboardData> CellDataBase::s_clipboardData = nullptr;
+	//std::shared_ptr<ClipboardData> CellDataBase::s_clipboardData = nullptr;
 
 	CellDataBase::CellDataBase()
 	{
@@ -106,16 +106,16 @@ namespace VariantTable
 		}
 		return QObject::eventFilter(obj, event); // Pass unhandled events to base class
 	}*/
-	void CellDataBase::copyAction() const
+	std::shared_ptr<ClipboardData> CellDataBase::copyAction() const
 	{
-		onCopy();
+		return std::make_shared<QVariantClipboardData>(getData());
 	}
-	bool CellDataBase::pasteAction()
+	bool CellDataBase::pasteAction(std::shared_ptr<ClipboardData> data)
 	{
-		std::shared_ptr<ClipboardData> data = getClipboardData();
-		if (data)
+		std::shared_ptr<QVariantClipboardData> variantData = std::dynamic_pointer_cast<QVariantClipboardData>(data);
+		if (variantData)
 		{
-			return onPaste(data);
+			return setData(variantData->getData());
 		}
 		return false;
 	}
@@ -186,24 +186,6 @@ namespace VariantTable
 		
 		QRect textRect = QRect(xPos + TL.x(), yOffset + TL.y(), rect.width() - size, size);
 		painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, m_editorPlaceholderData.text);
-	}
-	std::shared_ptr<ClipboardData> CellDataBase::createClipboadData() const
-	{
-		std::shared_ptr<QVariantClipboardData> data = std::make_shared<QVariantClipboardData>(getData());
-		return data;
-	}
-	bool CellDataBase::onPaste(std::shared_ptr<ClipboardData> pasteData)
-	{
-		std::shared_ptr<QVariantClipboardData> variantData = std::dynamic_pointer_cast<QVariantClipboardData>(pasteData);
-		if (variantData)
-		{
-			return setData(variantData->getData());
-		}
-		return false;
-	}
-	void CellDataBase::onCopy() const
-	{
-		setClipboardData(createClipboadData());
 	}
 
 	void CellDataBase::onEditorWidgetDestroyed()

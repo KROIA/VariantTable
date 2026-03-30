@@ -17,16 +17,7 @@ namespace VariantTable
 		CopyPasteDelegate& operator=(const CopyPasteDelegate& other) = default;
 		CopyPasteDelegate& operator=(CopyPasteDelegate&& other) noexcept = default;
 
-		virtual bool copyCell(CellDataBasePtr cellData, const QModelIndex& index) const
-		{
-			VT_UNUSED(index);
-			cellData->copyAction();
-			return true;
-		}
-		virtual bool pasteCell(CellDataBasePtr cellData, const QModelIndex& index) const
-		{
-			VT_UNUSED(index);
-			return cellData->pasteAction();
-		}
+		virtual bool copyCell(CellDataBasePtr cellData, const QModelIndex& index) = 0;
+		virtual bool pasteCell(CellDataBasePtr cellData, const QModelIndex& index) = 0;
 	};
 }

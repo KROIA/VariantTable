@@ -211,7 +211,7 @@ namespace VariantTable
 		
 	}
 
-	std::shared_ptr<ClipboardData> ComboBox::createClipboadData() const
+	std::shared_ptr<ClipboardData> ComboBox::copyAction() const
 	{
 		std::shared_ptr<ComboBoxClipboardData> data = std::make_shared<ComboBoxClipboardData>();
 		if (hasCopyPolicy(CopyPastePolicy::Text))
@@ -227,7 +227,7 @@ namespace VariantTable
 			data->setSelectedIndex(m_selectedIndex);
 		return data;
 	}
-	bool ComboBox::onPaste(std::shared_ptr<ClipboardData> pasteData)
+	bool ComboBox::pasteAction(std::shared_ptr<ClipboardData> pasteData)
 	{
 		auto comboBoxData = std::dynamic_pointer_cast<ComboBoxClipboardData>(pasteData);
 		if (comboBoxData)

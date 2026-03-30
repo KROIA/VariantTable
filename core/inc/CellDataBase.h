@@ -101,8 +101,8 @@ namespace VariantTable
 
 		//bool eventFilter(QObject* obj, QEvent* event) override;
 
-		void copyAction() const;
-		bool pasteAction();
+		virtual std::shared_ptr<ClipboardData> copyAction() const;
+		virtual bool pasteAction(std::shared_ptr<ClipboardData> data);
 		
 
 	protected:
@@ -152,12 +152,12 @@ namespace VariantTable
 		virtual void drawEditorPlaceholderIcon(QPainter* painter, const QStyleOptionViewItem& option) const;
 		virtual void drawEditorPlaceholderText(QPainter* painter, const QStyleOptionViewItem& option) const;
 
-		virtual std::shared_ptr<ClipboardData> createClipboadData() const;
+		//virtual std::shared_ptr<ClipboardData> createClipboadData() const;
 
-		virtual bool onPaste(std::shared_ptr<ClipboardData> pasteData);
-		virtual void onCopy() const;
-		static std::shared_ptr<ClipboardData> getClipboardData() { return s_clipboardData; }
-		static void setClipboardData(std::shared_ptr<ClipboardData> data) { s_clipboardData = data; }
+		//virtual bool onPaste(std::shared_ptr<ClipboardData> pasteData);
+		//virtual std::shared_ptr<ClipboardData> onCopy() const;
+		//static std::shared_ptr<ClipboardData> getClipboardData() { return s_clipboardData; }
+		//static void setClipboardData(std::shared_ptr<ClipboardData> data) { s_clipboardData = data; }
 
 		bool doIgnoreSignals() const
 		{
@@ -196,7 +196,7 @@ namespace VariantTable
 			mutable Model* m_model = nullptr;
 
 
-			static std::shared_ptr<ClipboardData> s_clipboardData;
+			//static std::shared_ptr<ClipboardData> s_clipboardData;
 	};
 
 	template<typename T>

@@ -152,14 +152,14 @@ namespace VariantTable
 		painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, m_text);
 	}
 
-	std::shared_ptr<ClipboardData> LineEdit::createClipboadData() const
+	std::shared_ptr<ClipboardData> LineEdit::copyAction() const
 	{
 		std::shared_ptr<QVariantClipboardData> data = std::make_shared<QVariantClipboardData>();
 		if (hasCopyPolicy(CopyPastePolicy::Text))
 			data->setData(QVariant(m_text));
 		return data;
 	}
-	bool LineEdit::onPaste(std::shared_ptr<ClipboardData> pasteData)
+	bool LineEdit::pasteAction(std::shared_ptr<ClipboardData> pasteData)
 	{
 		auto variantData = std::dynamic_pointer_cast<QVariantClipboardData>(pasteData);
 		if (!variantData)

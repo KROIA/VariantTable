@@ -111,7 +111,7 @@ namespace VariantTable
 		setEditorPlaceholderIcon(IconManager::getIcon(s_pushButtonIcon));
 	}
 
-	std::shared_ptr<ClipboardData> PushButton::createClipboadData() const
+	std::shared_ptr<ClipboardData> PushButton::copyAction() const
 	{
 		std::shared_ptr<QVariantClipboardData> data = std::make_shared<QVariantClipboardData>();
 		if(hasCopyPolicy(CopyPastePolicy::Text))
@@ -120,7 +120,7 @@ namespace VariantTable
 		}
 		return data;
 	}
-	bool PushButton::onPaste(std::shared_ptr<ClipboardData> pasteData)
+	bool PushButton::pasteAction(std::shared_ptr<ClipboardData> pasteData)
 	{
 		std::shared_ptr<QVariantClipboardData> variantData = std::dynamic_pointer_cast<QVariantClipboardData>(pasteData);
 		if (variantData)

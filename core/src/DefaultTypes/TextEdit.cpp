@@ -118,14 +118,14 @@ namespace VariantTable
 		setEditorPlaceholderText(m_text.split("\n").first());
 	}
 
-	std::shared_ptr<ClipboardData> TextEdit::createClipboadData() const
+	std::shared_ptr<ClipboardData> TextEdit::copyAction() const
 	{
 		std::shared_ptr<QVariantClipboardData> data = std::make_shared<QVariantClipboardData>();
 		if(hasCopyPolicy(CopyPastePolicy::Text))
 			data->setData(QVariant(m_text));
 		return data;
 	}
-	bool TextEdit::onPaste(std::shared_ptr<ClipboardData> pasteData)
+	bool TextEdit::pasteAction(std::shared_ptr<ClipboardData> pasteData)
 	{
 		auto variantData = std::dynamic_pointer_cast<QVariantClipboardData>(pasteData);
 		if (!variantData)

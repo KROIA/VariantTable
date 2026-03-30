@@ -123,7 +123,7 @@ namespace VariantTable
 		setEditorPlaceholderText(m_date.toString(s_format));
 	}
 
-	std::shared_ptr<ClipboardData> DateEdit::createClipboadData() const
+	std::shared_ptr<ClipboardData> DateEdit::copyAction() const
 	{
 		std::shared_ptr<DateTimeClipboardData> data = std::make_shared<DateTimeClipboardData>();
 		if (hasCopyPolicy(CopyPastePolicy::Date))
@@ -132,7 +132,7 @@ namespace VariantTable
 		//	data->setTime(getTime());
 		return data;
 	}
-	bool DateEdit::onPaste(std::shared_ptr<ClipboardData> pasteData)
+	bool DateEdit::pasteAction(std::shared_ptr<ClipboardData> pasteData)
 	{
 		std::shared_ptr<DateTimeClipboardData> variantData = std::dynamic_pointer_cast<DateTimeClipboardData>(pasteData);
 		if (variantData)

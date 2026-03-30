@@ -210,7 +210,7 @@ namespace VariantTable
 		setEditorPlaceholderText(text);
 	}
 
-	std::shared_ptr<ClipboardData> RadioButton::createClipboadData() const
+	std::shared_ptr<ClipboardData> RadioButton::copyAction() const
 	{
 		std::shared_ptr<ComboBoxClipboardData> data = std::make_shared<ComboBoxClipboardData>();
 		if (hasCopyPolicy(CopyPastePolicy::Text))
@@ -226,7 +226,7 @@ namespace VariantTable
 			data->setSelectedIndex(m_selectedIndex);
 		return data;
 	}
-	bool RadioButton::onPaste(std::shared_ptr<ClipboardData> pasteData)
+	bool RadioButton::pasteAction(std::shared_ptr<ClipboardData> pasteData)
 	{
 		auto comboBoxData = std::dynamic_pointer_cast<ComboBoxClipboardData>(pasteData);
 		if (comboBoxData)

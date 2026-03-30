@@ -57,8 +57,8 @@ namespace VariantTable
 		int getPastePolicy() const { return m_pastePolicy; }
 		bool hasPastePolicy(CopyPastePolicy policy) const { return (m_pastePolicy & policy) != 0; }
 
-		std::shared_ptr<ClipboardData> createClipboadData() const override;
-		bool onPaste(std::shared_ptr<ClipboardData> pasteData) override;
+		std::shared_ptr<ClipboardData> copyAction() const override;
+		bool pasteAction(std::shared_ptr<ClipboardData> pasteData) override;
 
 	private slots:
 		void onTextChanged(const QString& newText);

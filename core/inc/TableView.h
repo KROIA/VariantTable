@@ -91,6 +91,25 @@ namespace VariantTable
             void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
 
         private:
+
+			class DefaultCopyPasteDelegate : public CopyPasteDelegate
+			{
+			public:
+				bool copyCell(CellDataBasePtr cellData, const QModelIndex& index) override
+				{
+					VT_UNUSED(index);
+					m_clipboardData = cellData->copyAction();
+					return m_clipboardData != nullptr;
+				}
+				bool pasteCell(CellDataBasePtr cellData, const QModelIndex& index) override
+				{
+					VT_UNUSED(index);
+					return cellData->pasteAction(m_clipboardData);
+				}
+			private:
+				std::shared_ptr<ClipboardData> m_clipboardData;
+			};
+
             //void onNewEditorCreated(QWidget* editor, const QModelIndex& index);
             void focusInEvent(QFocusEvent* event) override;
 
