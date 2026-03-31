@@ -39,7 +39,7 @@ namespace VariantTable
 		void getData(QWidget* editor) override;
 
 
-
+		//QSize getSizeHint(const QStyleOptionViewItem& option) const override;
 		QWidget* createEditorWidget(QWidget* parent) override;
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() override;

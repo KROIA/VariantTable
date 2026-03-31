@@ -396,6 +396,12 @@ namespace VariantTable
         rect.setWidth(width);
         return rect;
     }
+
+    void TableView::currentChanged(const QModelIndex& current, const QModelIndex& previous)
+    {
+        QTableView::currentChanged(current, previous);
+        //doRelayout();
+    }
     
     void TableView::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected) 
     {

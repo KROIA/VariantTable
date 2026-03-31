@@ -164,7 +164,16 @@ namespace VariantTable
 	}
 
 
-
+	/*QSize CheckBoxList::getSizeHint(const QStyleOptionViewItem& option) const
+	{
+		VT_UNUSED(option);
+		QSize size;
+		for (const auto& checkbox : m_checkBoxes)
+		{
+			size = size.expandedTo(checkbox->sizeHint());
+		}
+		return size;
+	}*/
 	QWidget* CheckBoxList::createEditorWidget(QWidget* parent)
 	{
 		if (m_editorWidget)
@@ -172,7 +181,12 @@ namespace VariantTable
 		IgnoreSignalsContext context(this);
 
 		m_editorWidget = new QWidget(parent);
-		buildEditorWidget();
+		//buildEditorWidget();
+
+		// Make widget adjusts its size to fit the minimum hight
+		//m_editorWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+		//m_editorWidget->layout()->setSizeConstraint(QLayout::SetMinimumSize);
+		
 		
 		return m_editorWidget;
 	}
@@ -181,7 +195,7 @@ namespace VariantTable
 		IgnoreSignalsContext context(this);
 		for(auto checkbox : m_checkBoxes)
 		{
-			checkbox->deleteLater();
+			delete checkbox;
 		}
 		m_checkBoxes.clear();
 		// Add Layout
@@ -218,6 +232,8 @@ namespace VariantTable
 			if (i >= 0 && i < m_checkBoxes.size())
 				m_checkBoxes[i]->setChecked(true);
 		}
+
+		
 	}
 	
 	QString CheckBoxList::getToolTip() const

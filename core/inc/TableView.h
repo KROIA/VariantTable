@@ -85,6 +85,8 @@ namespace VariantTable
 		QRect getColumnRect(unsigned int column) const;
 		QRect getRowRect(unsigned int row) const;
 		QRect getCellRect(unsigned int row, unsigned int column) const;
+		void currentChanged(const QModelIndex& current, const QModelIndex& previous) override;
+
 
 		private slots:
 		
