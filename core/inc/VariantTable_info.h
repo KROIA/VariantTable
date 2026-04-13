@@ -62,7 +62,7 @@ namespace VariantTable
 
 		// Library name
 		static constexpr const char* name				= "VariantTable";
-		static constexpr const char* author				= "";
+		static constexpr const char* author				= "Alex Krieg";
 		static constexpr const char* email				= "";
 		static constexpr const char* website			= "";
 		static constexpr const char* license			= "";
