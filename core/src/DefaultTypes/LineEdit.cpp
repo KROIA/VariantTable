@@ -175,7 +175,7 @@ namespace VariantTable
 	{
 		if (doIgnoreSignals())
 			return;
-		VT_UNUSED(newText);
+		m_text = newText;
 		dataChanged();
 	}
 	void LineEdit::editorWidgetDestroyed()
