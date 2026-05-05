@@ -15,6 +15,7 @@ class QPainter;
 
 namespace VariantTable
 {
+	class CellWidgetBase;
 	class CellDataBase;
 	class Model;
 	typedef size_t CellDataTypeID;
@@ -82,9 +83,9 @@ namespace VariantTable
 		virtual CellDataBasePtr clone() const = 0;
 
 		virtual bool setData(const QVariant& data) = 0;
-		virtual void setData(QWidget* editor) = 0;
+		virtual void setData(CellWidgetBase* editor) = 0;
 		virtual QVariant getData() const = 0;
-		virtual void getData(QWidget* editor) = 0;
+		virtual void getData(CellWidgetBase* editor) = 0;
 
 		virtual void setColor(const QColor& color);
 		virtual const QColor& getColor() const { return m_color; }
@@ -142,7 +143,7 @@ namespace VariantTable
 		float getPlaceholderIconXPos() const { return PlaceholderData::iconXPos; }
 		float getPlaceholderIconHeight() const { return PlaceholderData::iconHeight; }
 
-		virtual QWidget* createEditorWidget(QWidget* parent) = 0;
+		virtual CellWidgetBase* createEditorWidget(QWidget* parent) = 0;
 		virtual void editorWidgetDestroyed() = 0;
 
 		void applyColor(QWidget* editor) const;
@@ -168,7 +169,7 @@ namespace VariantTable
 			void onEditorWidgetDestroyed();
 
 		private:
-			QWidget* createEditorWidget_internal(QWidget* parent);
+			CellWidgetBase* createEditorWidget_internal(QWidget* parent);
 			void setTableData(Model* model) const 
 			{ 
 				if(m_model != model)
@@ -180,7 +181,7 @@ namespace VariantTable
 			QColor m_color = QColor(255,255,255);
 			bool m_isEditable = true;
 			mutable bool m_ignoreSignals = false;
-			mutable QWidget* m_mainEditorWidget = nullptr;
+			mutable CellWidgetBase* m_mainEditorWidget = nullptr;
 
 			struct PlaceholderData
 			{

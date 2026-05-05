@@ -2,14 +2,33 @@
 
 #include "VariantTable_base.h"
 #include "CellDataBase.h"
+#include "CellWidgetBase.h"
 
-
-class QCheckBox;
+#include <QCheckBox>
 
 namespace VariantTable
 {
+	class VARIANT_TABLE_API CheckBoxCellWidget : public CellWidgetBase
+	{
+		Q_OBJECT
+	public:
+		explicit CheckBoxCellWidget(QWidget* parent = nullptr);
+
+		void setData(const QVariant& data) override;
+		QVariant getData() const override;
+
+		QCheckBox* checkBox() const { return m_checkBox; }
+
+	protected:
+		void onAlignmentChanged(Qt::Alignment alignment) override;
+
+	private:
+		QCheckBox* m_checkBox = nullptr;
+	};
+
 	class VARIANT_TABLE_API CheckBox : public CellDataBase
 	{
+		Q_OBJECT
 		VT_CELL_DATA_OBJ(CheckBox);
 		public:
 			enum CopyPastePolicy : int
@@ -21,7 +40,7 @@ namespace VariantTable
 			CheckBox(const CheckBox& other);
 			CheckBox(const QString& text, bool value = false);
 
-			
+
 
 			void setText(const QString& text);
 			const QString& getText() const;
@@ -29,11 +48,11 @@ namespace VariantTable
 			bool isChecked() const;
 
 			bool setData(const QVariant& data) override;
-			void setData(QWidget* editor) override;
+			void setData(CellWidgetBase* editor) override;
 			QVariant getData() const override;
-			void getData(QWidget* editor) override;
+			void getData(CellWidgetBase* editor) override;
 
-			QWidget* createEditorWidget(QWidget* parent) override;
+			CellWidgetBase* createEditorWidget(QWidget* parent) override;
 			QString getToolTip() const override;
 			void editorWidgetDestroyed() override;
 			void updateIcon() const override;
@@ -41,7 +60,7 @@ namespace VariantTable
 
 			/**
 			* CopyPastePolicy enum values can be combined using bitwise OR to specify what data should be included when copying.
-			* Defines which aspects of the CheckBox should be included when copying to the clipboard. 
+			* Defines which aspects of the CheckBox should be included when copying to the clipboard.
 			* For example, you can choose to include only the text, only the checked state, or both.
 			*/
 			void setCopyPolicy(int policy) { m_copyPolicy = policy; }
@@ -67,11 +86,11 @@ namespace VariantTable
 		private slots:
 			void onStateChanged(int state);
 		private:
-			
+
 
 			QString m_text;
 			bool m_value;
-			QCheckBox* m_editor = nullptr;
+			CheckBoxCellWidget* m_editor = nullptr;
 
 			int m_copyPolicy = CopyPastePolicy::Text | CopyPastePolicy::CheckBoxState;
 			int m_pastePolicy = CopyPastePolicy::Text | CopyPastePolicy::CheckBoxState;

@@ -2,14 +2,38 @@
 
 #include "VariantTable_base.h"
 #include "CellDataBase.h"
+#include "CellWidgetBase.h"
 
+#include <QVector>
 
 class QRadioButton;
 
 namespace VariantTable
 {
+	class VARIANT_TABLE_API RadioButtonCellWidget : public CellWidgetBase
+	{
+		Q_OBJECT
+	public:
+		explicit RadioButtonCellWidget(QWidget* parent = nullptr);
+
+		void setData(const QVariant& data) override;
+		QVariant getData() const override;
+
+		const QVector<QRadioButton*>& radioButtons() const { return m_buttons; }
+		void setRadioButtons(const QVector<QRadioButton*>& buttons);
+		void clearRadioButtons();
+
+	protected:
+		void onAlignmentChanged(Qt::Alignment alignment) override;
+
+	private:
+		void applyAlignment();
+		QVector<QRadioButton*> m_buttons;
+	};
+
 	class VARIANT_TABLE_API RadioButton : public CellDataBase
 	{
+		Q_OBJECT
 		VT_CELL_DATA_OBJ(RadioButton);
 	public:
 		enum CopyPastePolicy : int
@@ -29,13 +53,21 @@ namespace VariantTable
 		void setSelectedIndex(int index);
 		int getSelectedIndex() const;
 
+		/**
+		 * @brief Set the layout configuration for the editor widget.
+		 * @param settings New layout settings; applied immediately if the editor widget exists.
+		 */
+		void setLayoutSettings(const BoxLayoutSettings& settings);
+		/** @brief Get the current editor layout configuration. */
+		const BoxLayoutSettings& getLayoutSettings() const { return m_layoutSettings; }
+
 
 		bool setData(const QVariant& data) override;
-		void setData(QWidget* editor) override;
+		void setData(CellWidgetBase* editor) override;
 		QVariant getData() const override;
-		void getData(QWidget* editor) override;
+		void getData(CellWidgetBase* editor) override;
 
-		QWidget* createEditorWidget(QWidget* parent) override;
+		CellWidgetBase* createEditorWidget(QWidget* parent) override;
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() override;
 		void updateIcon() const override;
@@ -69,12 +101,14 @@ namespace VariantTable
 	private slots:
 		void onSelectionChanged();
 	private:
-		
+
 		QStringList m_options;
 		int m_selectedIndex = -1;
 
-		QWidget* m_editorWidget = nullptr;
+		RadioButtonCellWidget* m_editorWidget = nullptr;
 		QVector<QRadioButton*> m_editorButtons;
+
+		BoxLayoutSettings m_layoutSettings; ///< Persisted layout config; reapplied on editor (re)creation.
 
 		int m_copyPolicy = CopyPastePolicy::Text | CopyPastePolicy::SelectedIndex;
 		int m_pastePolicy = CopyPastePolicy::Text | CopyPastePolicy::SelectedIndex;

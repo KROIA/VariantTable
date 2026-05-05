@@ -2,13 +2,31 @@
 
 #include "VariantTable_base.h"
 #include "CellDataBase.h"
+#include "CellWidgetBase.h"
 #include <QObject>
+#include <QPushButton>
 
-
-class QPushButton;
 
 namespace VariantTable
 {
+	class VARIANT_TABLE_API PushButtonCellWidget : public CellWidgetBase
+	{
+		Q_OBJECT
+	public:
+		explicit PushButtonCellWidget(QWidget* parent = nullptr);
+
+		void setData(const QVariant& data) override;
+		QVariant getData() const override;
+
+		QPushButton* pushButton() const { return m_pushButton; }
+
+	protected:
+		void onAlignmentChanged(Qt::Alignment a) override;
+
+	private:
+		QPushButton* m_pushButton = nullptr;
+	};
+
 	class VARIANT_TABLE_API PushButton : public CellDataBase
 	{
 		VT_CELL_DATA_OBJ(PushButton);
@@ -28,11 +46,11 @@ namespace VariantTable
 		const QString& getText() const;
 
 		bool setData(const QVariant& data) override;
-		void setData(QWidget* editor) override;
+		void setData(CellWidgetBase* editor) override;
 		QVariant getData() const override;
-		void getData(QWidget* editor) override;
+		void getData(CellWidgetBase* editor) override;
 
-		QWidget* createEditorWidget(QWidget* parent) override;
+		CellWidgetBase* createEditorWidget(QWidget* parent) override;
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() override;
 		void updateIcon() const override;
@@ -70,7 +88,7 @@ namespace VariantTable
 		void onButtonClickedInternal();
 		private:
 		QString m_text;
-		QPushButton* m_editor = nullptr;
+		PushButtonCellWidget* m_editor = nullptr;
 
 		int m_copyPolicy = CopyPastePolicy::Text;
 		int m_pastePolicy = CopyPastePolicy::Text;

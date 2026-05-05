@@ -2,6 +2,7 @@
 
 #include "VariantTable_base.h"
 #include "CellDataBase.h"
+#include "CellWidgetBase.h"
 #include <QDate>
 
 
@@ -9,8 +10,27 @@ class QDateEdit;
 
 namespace VariantTable
 {
+	class VARIANT_TABLE_API DateEditCellWidget : public CellWidgetBase
+	{
+		Q_OBJECT
+	public:
+		explicit DateEditCellWidget(QWidget* parent = nullptr);
+
+		void setData(const QVariant& data) override;
+		QVariant getData() const override;
+
+		QDateEdit* dateEdit() const { return m_dateEdit; }
+
+	protected:
+		void onAlignmentChanged(Qt::Alignment a) override;
+
+	private:
+		QDateEdit* m_dateEdit = nullptr;
+	};
+
 	class VARIANT_TABLE_API DateEdit : public CellDataBase
 	{
+		Q_OBJECT
 		VT_CELL_DATA_OBJ(DateEdit);
 		public:
 		static void setFormat(const QString& format);
@@ -30,11 +50,11 @@ namespace VariantTable
 		QDate getDate() const;
 
 		bool setData(const QVariant& data) override;
-		void setData(QWidget* editor) override;
+		void setData(CellWidgetBase* editor) override;
 		QVariant getData() const override;
-		void getData(QWidget* editor) override;
+		void getData(CellWidgetBase* editor) override;
 
-		QWidget* createEditorWidget(QWidget* parent) override;
+		CellWidgetBase* createEditorWidget(QWidget* parent) override;
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() override;
 		void updateIcon() const override;
@@ -50,7 +70,7 @@ namespace VariantTable
 		void removeCopyPolicy(CopyPastePolicy policy) { m_copyPolicy &= ~policy; }
 		int getCopyPolicy() const { return m_copyPolicy; }
 		bool hasCopyPolicy(CopyPastePolicy policy) const { return (m_copyPolicy & policy) != 0; }
-		
+
 		/**
 		* CopyPastePolicy enum values can be combined using bitwise OR to specify what data should be included when pasting.
 		*/
@@ -59,14 +79,14 @@ namespace VariantTable
 		void removePastePolicy(CopyPastePolicy policy) { m_pastePolicy &= ~policy; }
 		int getPastePolicy() const { return m_pastePolicy; }
 		bool hasPastePolicy(CopyPastePolicy policy) const { return (m_pastePolicy & policy) != 0; }
-		
+
 		std::shared_ptr<ClipboardData> copyAction() const override;
 		bool pasteAction(std::shared_ptr<ClipboardData> pasteData) override;
 	private slots:
 		void onDateChanged(const QDate& newDate);
 		private:
 		QDate m_date;
-		QDateEdit* m_editor = nullptr;
+		DateEditCellWidget* m_editor = nullptr;
 
 		int m_copyPolicy = CopyPastePolicy::Date;
 		int m_pastePolicy = CopyPastePolicy::Date;
@@ -74,6 +94,6 @@ namespace VariantTable
 		static QString s_format;
 		static QString s_dateIcon;
 
-		
+
 	};
 }

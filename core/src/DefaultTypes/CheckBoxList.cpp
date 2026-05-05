@@ -8,6 +8,52 @@
 
 namespace VariantTable
 {
+	CheckBoxListCellWidget::CheckBoxListCellWidget(QWidget* parent)
+		: CellWidgetBase(parent)
+	{
+		// Layout configuration is applied later by the owning CellDataBase via BoxLayoutSettings.
+		new QVBoxLayout(this);
+	}
+	void CheckBoxListCellWidget::setData(const QVariant& /*data*/)
+	{
+		// Data is managed by the owning CellDataBase via direct checkbox access.
+	}
+	QVariant CheckBoxListCellWidget::getData() const
+	{
+		QVector<bool> states;
+		states.reserve(m_checkBoxes.size());
+		for (auto* cb : m_checkBoxes)
+			states.push_back(cb && cb->isChecked());
+		return QVariant::fromValue(states);
+	}
+	void CheckBoxListCellWidget::setCheckBoxes(const QVector<QCheckBox*>& boxes)
+	{
+		m_checkBoxes = boxes;
+		applyAlignment();
+	}
+	void CheckBoxListCellWidget::clearCheckBoxes()
+	{
+		for (auto* cb : m_checkBoxes)
+			delete cb;
+		m_checkBoxes.clear();
+	}
+	void CheckBoxListCellWidget::onAlignmentChanged(Qt::Alignment /*alignment*/)
+	{
+		applyAlignment();
+	}
+	void CheckBoxListCellWidget::applyAlignment()
+	{
+		auto* l = layout();
+		if (!l) return;
+		Qt::Alignment a = getAlignment();
+		for (auto* cb : m_checkBoxes)
+		{
+			if (cb)
+				l->setAlignment(cb, a);
+		}
+	}
+
+
 	QString CheckBoxList::s_checkedIcon = "checkBoxList-checked.png";
 
 	CheckBoxList::CheckBoxList()
@@ -101,6 +147,16 @@ namespace VariantTable
 	}
 
 
+	void CheckBoxList::setLayoutSettings(const BoxLayoutSettings& settings)
+	{
+		m_layoutSettings = settings;
+		if (m_editorWidget)
+		{
+			m_layoutSettings.apply(qobject_cast<QBoxLayout*>(m_editorWidget->layout()));
+			buildEditorWidget(); // rebuild so checkboxes sit in the correct position relative to the (new) stretch
+		}
+	}
+
 	bool CheckBoxList::setData(const QVariant& data)
 	{
 		if(data.isValid() && data.canConvert<OptionsType>())
@@ -113,10 +169,9 @@ namespace VariantTable
 		}
 		return false;
 	}
-	void CheckBoxList::setData(QWidget* editor)
+	void CheckBoxList::setData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
-		//QCheckBoxList* CheckBoxList = qobject_cast<QCheckBoxList*>(editor);
 		if (m_editorWidget)
 		{
 			m_selectedIndexes.clear();
@@ -137,84 +192,50 @@ namespace VariantTable
 		QVector<QPair<QString, QVariant>> tmp = v.value<OptionsType>();
 		return v;
 	}
-	void CheckBoxList::getData(QWidget* editor)
+	void CheckBoxList::getData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
-		//QCheckBoxList* CheckBoxList = qobject_cast<QCheckBoxList*>(editor);
 		if (m_editorWidget)
 		{
 			IgnoreSignalsContext context(this);
 			buildEditorWidget();
-			/*int maxIndex = std::min(m_checkBoxes.size(), m_options.size());
-			if (m_checkBoxes.size() != m_options.size())
-			{
-				qWarning("CheckBoxList::getData: The number of options and checkboxes do not match");
-			}
-			for (int i = 0; i < maxIndex; ++i)
-			{
-				m_checkBoxes[i]->setText(m_options[i].first);
-				m_checkBoxes[i]->setChecked(false);
-			}
-			for (int i : m_selectedIndexes)
-			{
-				if (i >= 0 && i < m_checkBoxes.size())
-					m_checkBoxes[i]->setChecked(true);
-			}*/
 		}
 	}
 
 
-	/*QSize CheckBoxList::getSizeHint(const QStyleOptionViewItem& option) const
-	{
-		VT_UNUSED(option);
-		QSize size;
-		for (const auto& checkbox : m_checkBoxes)
-		{
-			size = size.expandedTo(checkbox->sizeHint());
-		}
-		return size;
-	}*/
-	QWidget* CheckBoxList::createEditorWidget(QWidget* parent)
+	CellWidgetBase* CheckBoxList::createEditorWidget(QWidget* parent)
 	{
 		if (m_editorWidget)
 			return m_editorWidget;
 		IgnoreSignalsContext context(this);
 
-		m_editorWidget = new QWidget(parent);
-		//buildEditorWidget();
-
-		// Make widget adjusts its size to fit the minimum hight
-		//m_editorWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
-		//m_editorWidget->layout()->setSizeConstraint(QLayout::SetMinimumSize);
-		
-		
+		m_editorWidget = new CheckBoxListCellWidget(parent);
+		m_layoutSettings.apply(qobject_cast<QBoxLayout*>(m_editorWidget->layout()));
 		return m_editorWidget;
 	}
 	void CheckBoxList::buildEditorWidget()
 	{
 		IgnoreSignalsContext context(this);
-		for(auto checkbox : m_checkBoxes)
-		{
-			delete checkbox;
-		}
+		m_editorWidget->clearCheckBoxes();
 		m_checkBoxes.clear();
-		// Add Layout
-		QLayout* layout = m_editorWidget->layout();
-		if (!layout)
-		{
-			layout = new QVBoxLayout(m_editorWidget);
-			layout->setContentsMargins(5, 5, 5, 5);
-			m_editorWidget->setLayout(layout);
-		}
 
-		// Add Radio Buttons
+		QBoxLayout* layout = qobject_cast<QBoxLayout*>(m_editorWidget->layout());
+		m_layoutSettings.apply(layout); // ensure trailing stretch / spacing are correct after clearing
+
+		// Add Check Boxes (inserted before the trailing stretch so they stack tightly at the top)
 		for (const auto& option : m_options)
 		{
 			QCheckBox* button = new QCheckBox(option.first, m_editorWidget);
 			connect(button, &QCheckBox::stateChanged, this, &CheckBoxList::onStateChanged);
-			layout->addWidget(button);
+			if (layout && m_layoutSettings.addTrailingStretch)
+				layout->insertWidget(layout->count() - 1, button);
+			else if (layout)
+				layout->addWidget(button);
+			else
+				m_editorWidget->layout()->addWidget(button);
 			m_checkBoxes.push_back(button);
 		}
+		m_editorWidget->setCheckBoxes(m_checkBoxes);
 
 		// Set data
 		int maxIndex = std::min(m_checkBoxes.size(), m_options.size());
@@ -232,10 +253,8 @@ namespace VariantTable
 			if (i >= 0 && i < m_checkBoxes.size())
 				m_checkBoxes[i]->setChecked(true);
 		}
-
-		
 	}
-	
+
 	QString CheckBoxList::getToolTip() const
 	{
 		QString text;
@@ -256,7 +275,7 @@ namespace VariantTable
 		setEditorPlaceholderIcon(IconManager::getIcon(s_checkedIcon));
 	}
 	std::shared_ptr<ClipboardData> CheckBoxList::copyAction() const
-	{ 
+	{
 		std::shared_ptr< CheckBoxListClipboardData> data = std::make_shared<CheckBoxListClipboardData>();
 		if (hasCopyPolicy(CopyPastePolicy::Text))
 		{
@@ -332,8 +351,6 @@ namespace VariantTable
 		}
 		if (!text.isEmpty())
 			text.chop(2); // Remove the last comma and space
-		//else
-		//	text = "Nothing selected";
 		setEditorPlaceholderText(text);
 	}
 }

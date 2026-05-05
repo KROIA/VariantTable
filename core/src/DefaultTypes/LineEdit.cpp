@@ -5,11 +5,36 @@
 #include <QLineEdit>
 #include <QApplication>
 #include <QPainter>
+#include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QRegExpValidator>
 
 namespace VariantTable
 {
+	// LineEditCellWidget ----------------------------------------------------
+	LineEditCellWidget::LineEditCellWidget(QWidget* parent)
+		: CellWidgetBase(parent)
+		, m_lineEdit(new QLineEdit(this))
+	{
+		auto* l = new QHBoxLayout(this);
+		l->setContentsMargins(0, 0, 0, 0);
+		l->addWidget(m_lineEdit);
+		setFocusProxy(m_lineEdit);
+	}
+	void LineEditCellWidget::setData(const QVariant& data)
+	{
+		m_lineEdit->setText(data.toString());
+	}
+	QVariant LineEditCellWidget::getData() const
+	{
+		return m_lineEdit->text();
+	}
+	void LineEditCellWidget::onAlignmentChanged(Qt::Alignment alignment)
+	{
+		m_lineEdit->setAlignment(alignment);
+	}
+
+	// LineEdit --------------------------------------------------------------
 	QString LineEdit::s_lineEditIcon = "lineEdit.png";
 
 	LineEdit::LineEdit()
@@ -37,14 +62,14 @@ namespace VariantTable
 	{
 		m_text = text;
 		if (m_editor)
-			m_editor->setText(text);
+			m_editor->lineEdit()->setText(text);
 		setEditorPlaceholderText(m_text);
 		dataChanged();
 	}
 	QString LineEdit::getText() const
 	{
-		if(m_editor)
-			return m_editor->text();
+		if (m_editor)
+			return m_editor->lineEdit()->text();
 		return m_text;
 	}
 
@@ -60,12 +85,12 @@ namespace VariantTable
 		}
 		return false;
 	}
-	void LineEdit::setData(QWidget* editor)
+	void LineEdit::setData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
 		if (m_editor)
 		{
-			m_text = m_editor->text();
+			m_text = m_editor->lineEdit()->text();
 			setEditorPlaceholderText(m_text);
 		}
 	}
@@ -73,39 +98,41 @@ namespace VariantTable
 	{
 		return QVariant(m_text);
 	}
-	void LineEdit::getData(QWidget* editor)
+	void LineEdit::getData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
 		if (m_editor)
 		{
 			IgnoreSignalsContext context(this);
-			m_editor->setText(m_text);
+			m_editor->lineEdit()->setText(m_text);
 		}
 	}
 
-	QWidget* LineEdit::createEditorWidget(QWidget* parent)
+	CellWidgetBase* LineEdit::createEditorWidget(QWidget* parent)
 	{
 		if (m_editor)
 			return m_editor;
 
 		IgnoreSignalsContext context(this);
-		m_editor = new QLineEdit(parent);
-		m_editor->setValidator(new QRegExpValidator(m_validatorRegExp, m_editor));
-		m_editor->setText(m_text);
-		connect(m_editor, &QLineEdit::textChanged, this, &LineEdit::onTextChanged);
+		m_editor = new LineEditCellWidget(parent);
+		QLineEdit* le = m_editor->lineEdit();
+		le->setValidator(new QRegExpValidator(m_validatorRegExp, le));
+		le->setText(m_text);
+		connect(le, &QLineEdit::textChanged, this, &LineEdit::onTextChanged);
 
 		return m_editor;
 	}
 	void LineEdit::setRegularExpression(const QRegExp& regExp)
-	{ 
-		m_validatorRegExp = regExp; 
+	{
+		m_validatorRegExp = regExp;
 		if (m_editor)
 		{
-			m_editor->setValidator(new QRegExpValidator(m_validatorRegExp, m_editor));
+			QLineEdit* le = m_editor->lineEdit();
+			le->setValidator(new QRegExpValidator(m_validatorRegExp, le));
 		}
 	}
-	void LineEdit::setRegularExpression(const QString& regExp) 
-	{ 
+	void LineEdit::setRegularExpression(const QString& regExp)
+	{
 		setRegularExpression(QRegExp(regExp));
 	}
 

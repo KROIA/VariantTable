@@ -5,11 +5,35 @@
 #include <QTextEdit>
 #include <QApplication>
 #include <QPainter>
+#include <QHBoxLayout>
 #include <QVBoxLayout>
 
 namespace VariantTable
 {
+	// TextEditCellWidget ----------------------------------------------------
+	TextEditCellWidget::TextEditCellWidget(QWidget* parent)
+		: CellWidgetBase(parent)
+		, m_textEdit(new QTextEdit(this))
+	{
+		auto* l = new QHBoxLayout(this);
+		l->setContentsMargins(0, 0, 0, 0);
+		l->addWidget(m_textEdit);
+		setFocusProxy(m_textEdit);
+	}
+	void TextEditCellWidget::setData(const QVariant& data)
+	{
+		m_textEdit->setText(data.toString());
+	}
+	QVariant TextEditCellWidget::getData() const
+	{
+		return m_textEdit->toPlainText();
+	}
+	void TextEditCellWidget::onAlignmentChanged(Qt::Alignment alignment)
+	{
+		m_textEdit->setAlignment(alignment);
+	}
 
+	// TextEdit --------------------------------------------------------------
 	QString TextEdit::s_textEditIcon = "lineEdit.png";
 
 
@@ -38,15 +62,15 @@ namespace VariantTable
 	{
 		m_text = text;
 		if (m_editor)
-			m_editor->setText(text);
-		
+			m_editor->textEdit()->setText(text);
+
 		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	QString TextEdit::getText() const
 	{
 		if (m_editor)
-			return m_editor->toPlainText();
+			return m_editor->textEdit()->toPlainText();
 		return m_text;
 	}
 
@@ -57,19 +81,19 @@ namespace VariantTable
 		{
 			m_text = data.toString();
 			if (m_editor)
-				m_editor->setText(m_text);
+				m_editor->textEdit()->setText(m_text);
 			updateEditorPlaceholderText();
 			dataChanged();
 			return true;
 		}
 		return false;
 	}
-	void TextEdit::setData(QWidget* editor)
+	void TextEdit::setData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
 		if (m_editor)
 		{
-			m_text = m_editor->toPlainText();
+			m_text = m_editor->textEdit()->toPlainText();
 			updateEditorPlaceholderText();
 		}
 	}
@@ -77,26 +101,27 @@ namespace VariantTable
 	{
 		return QVariant(m_text);
 	}
-	void TextEdit::getData(QWidget* editor)
+	void TextEdit::getData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
 		if (m_editor)
 		{
 			IgnoreSignalsContext context(this);
-			m_editor->setText(m_text);
+			m_editor->textEdit()->setText(m_text);
 		}
 	}
 
 
-	QWidget* TextEdit::createEditorWidget(QWidget* parent)
+	CellWidgetBase* TextEdit::createEditorWidget(QWidget* parent)
 	{
 		if (m_editor)
 			return m_editor;
 
 		IgnoreSignalsContext context(this);
-		m_editor = new QTextEdit(parent);
-		m_editor->setText(m_text);
-		connect(m_editor, &QTextEdit::textChanged, this, &TextEdit::onTextChanged);
+		m_editor = new TextEditCellWidget(parent);
+		QTextEdit* te = m_editor->textEdit();
+		te->setText(m_text);
+		connect(te, &QTextEdit::textChanged, this, &TextEdit::onTextChanged);
 
 		return m_editor;
 	}
@@ -143,7 +168,7 @@ namespace VariantTable
 			return;
 		if (m_editor)
 		{
-			m_text = m_editor->toPlainText();
+			m_text = m_editor->textEdit()->toPlainText();
 			dataChanged();
 		}
 		updateEditorPlaceholderText();

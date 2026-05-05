@@ -2,6 +2,7 @@
 
 #include "VariantTable_base.h"
 #include "CellDataBase.h"
+#include "CellWidgetBase.h"
 #include <QDateTime>
 
 
@@ -9,8 +10,27 @@ class QDateTimeEdit;
 
 namespace VariantTable
 {
+	class VARIANT_TABLE_API DateTimeEditCellWidget : public CellWidgetBase
+	{
+		Q_OBJECT
+	public:
+		explicit DateTimeEditCellWidget(QWidget* parent = nullptr);
+
+		void setData(const QVariant& data) override;
+		QVariant getData() const override;
+
+		QDateTimeEdit* dateTimeEdit() const { return m_dateTimeEdit; }
+
+	protected:
+		void onAlignmentChanged(Qt::Alignment a) override;
+
+	private:
+		QDateTimeEdit* m_dateTimeEdit = nullptr;
+	};
+
 	class VARIANT_TABLE_API DateTimeEdit : public CellDataBase
 	{
+		Q_OBJECT
 		VT_CELL_DATA_OBJ(DateTimeEdit);
 		public:
 		static void setFormat(const QString& format);
@@ -34,11 +54,11 @@ namespace VariantTable
 		QDateTime getDateTime() const;
 
 		bool setData(const QVariant& data) override;
-		void setData(QWidget* editor) override;
+		void setData(CellWidgetBase* editor) override;
 		QVariant getData() const override;
-		void getData(QWidget* editor) override;
+		void getData(CellWidgetBase* editor) override;
 
-		QWidget* createEditorWidget(QWidget* parent) override;
+		CellWidgetBase* createEditorWidget(QWidget* parent) override;
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() override;
 		void updateIcon() const override;
@@ -68,15 +88,15 @@ namespace VariantTable
 	private slots:
 		void onDateTimeChanged(const QDateTime& newDateTime);
 		private:
-		
+
 		QDateTime m_dateTime;
-	    QDateTimeEdit* m_editor = nullptr;
+		DateTimeEditCellWidget* m_editor = nullptr;
 
 		int m_copyPolicy = CopyPastePolicy::Date | CopyPastePolicy::Time;
 		int m_pastePolicy = CopyPastePolicy::Date | CopyPastePolicy::Time;
 
 		static QString s_format;
 		static QString s_dateIcon;
-		
+
 	};
 }

@@ -5,10 +5,33 @@
 #include <QDateEdit>
 #include <QApplication>
 #include <QPainter>
-#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 namespace VariantTable
 {
+	DateEditCellWidget::DateEditCellWidget(QWidget* parent)
+		: CellWidgetBase(parent)
+		, m_dateEdit(new QDateEdit(this))
+	{
+		auto* l = new QHBoxLayout(this);
+		l->setContentsMargins(0, 0, 0, 0);
+		l->addWidget(m_dateEdit);
+	}
+	void DateEditCellWidget::setData(const QVariant& data)
+	{
+		if (data.isValid() && data.canConvert<QDate>())
+			m_dateEdit->setDate(data.toDate());
+	}
+	QVariant DateEditCellWidget::getData() const
+	{
+		return QVariant(m_dateEdit->date());
+	}
+	void DateEditCellWidget::onAlignmentChanged(Qt::Alignment a)
+	{
+		m_dateEdit->setAlignment(a);
+	}
+
+
 	QString DateEdit::s_format = "dd.MM.yyyy";
 	QString DateEdit::s_dateIcon = "calendar.png";
 
@@ -45,14 +68,14 @@ namespace VariantTable
 	{
 		m_date = date;
 		if (m_editor)
-			m_editor->setDate(m_date);
+			m_editor->dateEdit()->setDate(m_date);
 		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	QDate DateEdit::getDate() const
 	{
 		if (m_editor)
-			return m_editor->date();
+			return m_editor->dateEdit()->date();
 		return m_date;
 	}
 
@@ -68,40 +91,41 @@ namespace VariantTable
 		}
 		return false;
 	}
-	void DateEdit::setData(QWidget* editor)
+	void DateEdit::setData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
 		if (m_editor)
 		{
-			m_date = m_editor->date();
+			m_date = m_editor->dateEdit()->date();
 		}
 	}
 	QVariant DateEdit::getData() const
 	{
 		return QVariant(m_date);
 	}
-	void DateEdit::getData(QWidget* editor)
+	void DateEdit::getData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
 		if (m_editor)
 		{
 			IgnoreSignalsContext context(this);
-			m_editor->setDate(m_date);
+			m_editor->dateEdit()->setDate(m_date);
 		}
 	}
 
 
 
-	QWidget* DateEdit::createEditorWidget(QWidget* parent)
+	CellWidgetBase* DateEdit::createEditorWidget(QWidget* parent)
 	{
 		if (m_editor)
 			return m_editor;
 
 		IgnoreSignalsContext context(this);
-		m_editor = new QDateEdit(parent);
-		m_editor->setDisplayFormat(s_format);
-		m_editor->setDate(m_date);
-		connect(m_editor, &QDateEdit::dateChanged, this, &DateEdit::onDateChanged);
+		m_editor = new DateEditCellWidget(parent);
+		QDateEdit* inner = m_editor->dateEdit();
+		inner->setDisplayFormat(s_format);
+		inner->setDate(m_date);
+		connect(inner, &QDateEdit::dateChanged, this, &DateEdit::onDateChanged);
 
 		return m_editor;
 	}

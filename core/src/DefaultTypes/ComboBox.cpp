@@ -3,18 +3,55 @@
 #include "IconManager.h"
 
 #include <QComboBox>
+#include <QLineEdit>
 #include <QApplication>
 #include <QPainter>
+#include <QHBoxLayout>
 #include <QVBoxLayout>
 
 namespace VariantTable
 {
+	// ComboBoxCellWidget ----------------------------------------------------
+	ComboBoxCellWidget::ComboBoxCellWidget(QWidget* parent)
+		: CellWidgetBase(parent)
+		, m_comboBox(new QComboBox(this))
+	{
+		auto* l = new QHBoxLayout(this);
+		l->setContentsMargins(0, 0, 0, 0);
+		l->addWidget(m_comboBox);
+		setFocusProxy(m_comboBox);
+	}
+	void ComboBoxCellWidget::setData(const QVariant& data)
+	{
+		// Best-effort: select index if int, else find by text
+		if (data.type() == QVariant::Int)
+			m_comboBox->setCurrentIndex(data.toInt());
+		else
+		{
+			int idx = m_comboBox->findText(data.toString());
+			if (idx >= 0)
+				m_comboBox->setCurrentIndex(idx);
+		}
+	}
+	QVariant ComboBoxCellWidget::getData() const
+	{
+		return m_comboBox->currentIndex();
+	}
+	void ComboBoxCellWidget::onAlignmentChanged(Qt::Alignment alignment)
+	{
+		if (layout())
+			layout()->setAlignment(m_comboBox, alignment);
+		if (m_comboBox->lineEdit())
+			m_comboBox->lineEdit()->setAlignment(alignment);
+	}
+
+	// ComboBox --------------------------------------------------------------
 	QString ComboBox::s_comboBoxIcon = "comboBox.png";
 
 	ComboBox::ComboBox()
 		: CellDataBase()
-		, m_options({ 
-			{"Option 1",QVariant()}, 
+		, m_options({
+			{"Option 1",QVariant()},
 			{"Option 2",QVariant()},
 			{"Option 3",QVariant()} })
 	{
@@ -74,7 +111,7 @@ namespace VariantTable
 	{
 		if (m_combo)
 		{
-			m_combo->setCurrentIndex(index);
+			m_combo->comboBox()->setCurrentIndex(index);
 		}
 		m_selectedIndex = index;
 		dataChanged();
@@ -82,7 +119,7 @@ namespace VariantTable
 	int ComboBox::getCurrentIndex() const
 	{
 		if(m_combo)
-			return m_combo->currentIndex();
+			return m_combo->comboBox()->currentIndex();
 		return m_selectedIndex;
 	}
 
@@ -98,13 +135,12 @@ namespace VariantTable
 		}
 		return false;
 	}
-	void ComboBox::setData(QWidget* editor)
+	void ComboBox::setData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
-		//QComboBox* ComboBox = qobject_cast<QComboBox*>(editor);
 		if (m_combo)
 		{
-			m_selectedIndex = m_combo->currentIndex();		
+			m_selectedIndex = m_combo->comboBox()->currentIndex();
 			updateEditorPlaceholderText();
 		}
 	}
@@ -113,41 +149,42 @@ namespace VariantTable
 		return QVariant::fromValue(m_options);
 	}
 
-	void ComboBox::getData(QWidget* editor)
+	void ComboBox::getData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
-		//QComboBox* ComboBox = qobject_cast<QComboBox*>(editor);
 		if (m_combo)
 		{
 			IgnoreSignalsContext context(this);
-			m_combo->clear();
+			QComboBox* cb = m_combo->comboBox();
+			cb->clear();
 			for (const auto& option : m_options)
 			{
-				m_combo->addItem(option.first, option.second);
+				cb->addItem(option.first, option.second);
 			}
-			m_combo->setCurrentIndex(m_selectedIndex);
+			cb->setCurrentIndex(m_selectedIndex);
 		}
 	}
 
-	QWidget* ComboBox::createEditorWidget(QWidget* parent)
+	CellWidgetBase* ComboBox::createEditorWidget(QWidget* parent)
 	{
 		if (m_combo)
 			return m_combo;
-		
+
 		IgnoreSignalsContext context(this);
-		m_combo = new QComboBox(parent);
+		m_combo = new ComboBoxCellWidget(parent);
+		QComboBox* cb = m_combo->comboBox();
 
 		// Set options
 		for(const auto& option : m_options)
 		{
-			m_combo->addItem(option.first, option.second);
+			cb->addItem(option.first, option.second);
 		}
-		m_combo->setCurrentIndex(m_selectedIndex);
-		connect(m_combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ComboBox::onIndexChanged);
+		cb->setCurrentIndex(m_selectedIndex);
+		connect(cb, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ComboBox::onIndexChanged);
 
 		return m_combo;
 	}
-	
+
 	QString ComboBox::getToolTip() const
 	{
 		QString text;
@@ -208,7 +245,7 @@ namespace VariantTable
 			painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, text);
 		}
 
-		
+
 	}
 
 	std::shared_ptr<ClipboardData> ComboBox::copyAction() const

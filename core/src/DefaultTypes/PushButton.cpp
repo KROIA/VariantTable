@@ -5,10 +5,39 @@
 #include <QPushButton>
 #include <QApplication>
 #include <QPainter>
-#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 namespace VariantTable
 {
+	PushButtonCellWidget::PushButtonCellWidget(QWidget* parent)
+		: CellWidgetBase(parent)
+		, m_pushButton(new QPushButton(this))
+	{
+		auto* l = new QHBoxLayout(this);
+		l->setContentsMargins(0, 0, 0, 0);
+		l->addWidget(m_pushButton);
+	}
+
+	void PushButtonCellWidget::setData(const QVariant& data)
+	{
+		if (m_pushButton && data.isValid())
+			m_pushButton->setText(data.toString());
+	}
+
+	QVariant PushButtonCellWidget::getData() const
+	{
+		if (m_pushButton)
+			return QVariant(m_pushButton->text());
+		return QVariant();
+	}
+
+	void PushButtonCellWidget::onAlignmentChanged(Qt::Alignment a)
+	{
+		if (m_pushButton && layout())
+			layout()->setAlignment(m_pushButton, a);
+	}
+
+
 	QString PushButton::s_pushButtonIcon = "pushButton.png";
 
 	PushButton::PushButton()
@@ -55,12 +84,12 @@ namespace VariantTable
 		}
 		return false;
 	}
-	void PushButton::setData(QWidget* editor)
+	void PushButton::setData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
-		if (m_editor)
+		if (m_editor && m_editor->pushButton())
 		{
-			m_text = m_editor->text();
+			m_text = m_editor->pushButton()->text();
 			setEditorPlaceholderText(m_text);
 			dataChanged();
 		}
@@ -69,34 +98,28 @@ namespace VariantTable
 	{
 		return QVariant(m_text);
 	}
-	void PushButton::getData(QWidget* editor)
+	void PushButton::getData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
-		if (m_editor)
+		if (m_editor && m_editor->pushButton())
 		{
-			m_editor->setText(m_text);
+			m_editor->pushButton()->setText(m_text);
 		}
 	}
 
 
-	QWidget* PushButton::createEditorWidget(QWidget* parent)
+	CellWidgetBase* PushButton::createEditorWidget(QWidget* parent)
 	{
 		if (m_editor)
-			return m_editor->parentWidget();
-		QWidget* editor = new QWidget(parent);
-		// Add Layout
-		QVBoxLayout* layout = new QVBoxLayout(editor);
-		layout->setContentsMargins(5, 5, 5, 5);
-		editor->setLayout(layout);
-		m_editor = new QPushButton(editor);
-		m_editor->setText(m_text);
-		layout->addWidget(m_editor);
+			return m_editor;
+		m_editor = new PushButtonCellWidget(parent);
+		m_editor->pushButton()->setText(m_text);
 
-		connect(m_editor, &QPushButton::clicked, this, &PushButton::onButtonClickedInternal);
+		connect(m_editor->pushButton(), &QPushButton::clicked, this, &PushButton::onButtonClickedInternal);
 
-		return editor;
+		return m_editor;
 	}
-	
+
 	QString PushButton::getToolTip() const
 	{
 		return m_text;

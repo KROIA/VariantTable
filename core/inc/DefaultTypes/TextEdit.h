@@ -2,14 +2,34 @@
 
 #include "VariantTable_base.h"
 #include "CellDataBase.h"
+#include "CellWidgetBase.h"
 
 
 class QTextEdit;
 
 namespace VariantTable
 {
+	class VARIANT_TABLE_API TextEditCellWidget : public CellWidgetBase
+	{
+		Q_OBJECT
+	public:
+		explicit TextEditCellWidget(QWidget* parent = nullptr);
+
+		void setData(const QVariant& data) override;
+		QVariant getData() const override;
+
+		QTextEdit* textEdit() const { return m_textEdit; }
+
+	protected:
+		void onAlignmentChanged(Qt::Alignment alignment) override;
+
+	private:
+		QTextEdit* m_textEdit = nullptr;
+	};
+
 	class VARIANT_TABLE_API TextEdit : public CellDataBase
 	{
+		Q_OBJECT
 		VT_CELL_DATA_OBJ(TextEdit);
 		public:
 		enum CopyPastePolicy : int
@@ -27,12 +47,12 @@ namespace VariantTable
 		QString getText() const;
 
 		bool setData(const QVariant& data) override;
-		void setData(QWidget* editor) override;
+		void setData(CellWidgetBase* editor) override;
 		QVariant getData() const override;
-		void getData(QWidget* editor) override;
+		void getData(CellWidgetBase* editor) override;
 
 
-		QWidget* createEditorWidget(QWidget* parent) override;
+		CellWidgetBase* createEditorWidget(QWidget* parent) override;
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() override;
 		void updateIcon() const override;
@@ -62,9 +82,9 @@ namespace VariantTable
 	private slots:
 		void onTextChanged();
 		private:
-		
+
 		QString m_text;
-		QTextEdit* m_editor = nullptr;
+		TextEditCellWidget* m_editor = nullptr;
 
 		int m_copyPolicy = CopyPastePolicy::Text;
 		int m_pastePolicy = CopyPastePolicy::Text;

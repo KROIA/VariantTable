@@ -5,10 +5,33 @@
 #include <QDateTimeEdit>
 #include <QApplication>
 #include <QPainter>
-#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 namespace VariantTable
 {
+	DateTimeEditCellWidget::DateTimeEditCellWidget(QWidget* parent)
+		: CellWidgetBase(parent)
+		, m_dateTimeEdit(new QDateTimeEdit(this))
+	{
+		auto* l = new QHBoxLayout(this);
+		l->setContentsMargins(0, 0, 0, 0);
+		l->addWidget(m_dateTimeEdit);
+	}
+	void DateTimeEditCellWidget::setData(const QVariant& data)
+	{
+		if (data.isValid() && data.canConvert<QDateTime>())
+			m_dateTimeEdit->setDateTime(data.toDateTime());
+	}
+	QVariant DateTimeEditCellWidget::getData() const
+	{
+		return QVariant(m_dateTimeEdit->dateTime());
+	}
+	void DateTimeEditCellWidget::onAlignmentChanged(Qt::Alignment a)
+	{
+		m_dateTimeEdit->setAlignment(a);
+	}
+
+
 	QString DateTimeEdit::s_format = "dd.MM.yyyy hh:mm:ss";
 	QString DateTimeEdit::s_dateIcon = "calendar-and-clock.png";
 
@@ -45,42 +68,42 @@ namespace VariantTable
 	{
 		m_dateTime.setDate(date);
 		if (m_editor)
-			m_editor->setDate(date);
+			m_editor->dateTimeEdit()->setDate(date);
 		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	QDate DateTimeEdit::getDate() const
 	{
 		if (m_editor)
-			return m_editor->date();
+			return m_editor->dateTimeEdit()->date();
 		return m_dateTime.date();
 	}
 	void DateTimeEdit::setTime(const QTime& time)
 	{
 		m_dateTime.setTime(time);
 		if (m_editor)
-			m_editor->setTime(time);
+			m_editor->dateTimeEdit()->setTime(time);
 		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	QTime DateTimeEdit::getTime() const
 	{
 		if (m_editor)
-			return m_editor->time();
+			return m_editor->dateTimeEdit()->time();
 		return m_dateTime.time();
 	}
 	void DateTimeEdit::setDateTime(const QDateTime& dateTime)
 	{
 		m_dateTime = dateTime;
 		if (m_editor)
-			m_editor->setDateTime(dateTime);
+			m_editor->dateTimeEdit()->setDateTime(dateTime);
 		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	QDateTime DateTimeEdit::getDateTime() const
 	{
 		if (m_editor)
-			return m_editor->dateTime();
+			return m_editor->dateTimeEdit()->dateTime();
 		return m_dateTime;
 	}
 
@@ -96,12 +119,12 @@ namespace VariantTable
 		}
 		return false;
 	}
-	void DateTimeEdit::setData(QWidget* editor)
+	void DateTimeEdit::setData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
 		if (m_editor)
 		{
-			m_dateTime = m_editor->dateTime();
+			m_dateTime = m_editor->dateTimeEdit()->dateTime();
 			updateEditorPlaceholderText();
 		}
 	}
@@ -109,25 +132,27 @@ namespace VariantTable
 	{
 		return QVariant(m_dateTime);
 	}
-	void DateTimeEdit::getData(QWidget* editor)
+	void DateTimeEdit::getData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
 		if (m_editor)
 		{
 			IgnoreSignalsContext context(this);
-			m_editor->setDateTime(m_dateTime);
+			m_editor->dateTimeEdit()->setDateTime(m_dateTime);
 		}
 	}
 
 
-	QWidget* DateTimeEdit::createEditorWidget(QWidget* parent)
+	CellWidgetBase* DateTimeEdit::createEditorWidget(QWidget* parent)
 	{
 		if (m_editor)
 			return m_editor;
 		IgnoreSignalsContext context(this);
-		m_editor = new QDateTimeEdit(parent);
-		m_editor->setDisplayFormat(s_format);
-		m_editor->setDateTime(m_dateTime);
+		m_editor = new DateTimeEditCellWidget(parent);
+		QDateTimeEdit* inner = m_editor->dateTimeEdit();
+		inner->setDisplayFormat(s_format);
+		inner->setDateTime(m_dateTime);
+		connect(inner, &QDateTimeEdit::dateTimeChanged, this, &DateTimeEdit::onDateTimeChanged);
 
 		return m_editor;
 	}
@@ -178,7 +203,7 @@ namespace VariantTable
 				setTime(variantData->getTime());
 			}
 			return true;
-		}		
+		}
 		return false;
 	}
 }

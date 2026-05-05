@@ -5,14 +5,36 @@
 #include <QTimeEdit>
 #include <QApplication>
 #include <QPainter>
-#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 namespace VariantTable
 {
+	TimeEditCellWidget::TimeEditCellWidget(QWidget* parent)
+		: CellWidgetBase(parent)
+		, m_timeEdit(new QTimeEdit(this))
+	{
+		auto* l = new QHBoxLayout(this);
+		l->setContentsMargins(0, 0, 0, 0);
+		l->addWidget(m_timeEdit);
+	}
+	void TimeEditCellWidget::setData(const QVariant& data)
+	{
+		if (data.isValid() && data.canConvert<QTime>())
+			m_timeEdit->setTime(data.toTime());
+	}
+	QVariant TimeEditCellWidget::getData() const
+	{
+		return QVariant(m_timeEdit->time());
+	}
+	void TimeEditCellWidget::onAlignmentChanged(Qt::Alignment a)
+	{
+		m_timeEdit->setAlignment(a);
+	}
+
 
 	QString TimeEdit::s_format = "hh:mm:ss";
 	QString TimeEdit::s_timeIcon = "clock.png";
-	
+
 
 
 	TimeEdit::TimeEdit()
@@ -47,14 +69,14 @@ namespace VariantTable
 	{
 		m_time = time;
 		if (m_editor)
-			m_editor->setTime(m_time);
+			m_editor->timeEdit()->setTime(m_time);
 		updateEditorPlaceholderText();
 		dataChanged();
 	}
 	QTime TimeEdit::getTime() const
 	{
 		if (m_editor)
-			return m_editor->time();
+			return m_editor->timeEdit()->time();
 		return m_time;
 	}
 
@@ -70,12 +92,12 @@ namespace VariantTable
 		}
 		return false;
 	}
-	void TimeEdit::setData(QWidget* editor)
+	void TimeEdit::setData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
 		if (m_editor)
 		{
-			m_time = m_editor->time();
+			m_time = m_editor->timeEdit()->time();
 			updateEditorPlaceholderText();
 		}
 	}
@@ -83,27 +105,28 @@ namespace VariantTable
 	{
 		return QVariant(m_time);
 	}
-	void TimeEdit::getData(QWidget* editor)
+	void TimeEdit::getData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
 		if (m_editor)
 		{
 			IgnoreSignalsContext context(this);
-			m_editor->setTime(m_time);
+			m_editor->timeEdit()->setTime(m_time);
 		}
 	}
 
 
-	QWidget* TimeEdit::createEditorWidget(QWidget* parent)
+	CellWidgetBase* TimeEdit::createEditorWidget(QWidget* parent)
 	{
 		if (m_editor)
 			return m_editor;
 
 		IgnoreSignalsContext context(this);
-		m_editor = new QTimeEdit(parent);
-		m_editor->setDisplayFormat(s_format);
-		m_editor->setTime(m_time);
-		connect(m_editor, &QTimeEdit::timeChanged, this, &TimeEdit::onTimeChanged);
+		m_editor = new TimeEditCellWidget(parent);
+		QTimeEdit* inner = m_editor->timeEdit();
+		inner->setDisplayFormat(s_format);
+		inner->setTime(m_time);
+		connect(inner, &QTimeEdit::timeChanged, this, &TimeEdit::onTimeChanged);
 
 		return m_editor;
 	}

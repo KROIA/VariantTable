@@ -2,6 +2,7 @@
 
 #include "VariantTable_base.h"
 #include "CellDataBase.h"
+#include "CellWidgetBase.h"
 #include <QTime>
 
 
@@ -9,8 +10,27 @@ class QTimeEdit;
 
 namespace VariantTable
 {
+	class VARIANT_TABLE_API TimeEditCellWidget : public CellWidgetBase
+	{
+		Q_OBJECT
+	public:
+		explicit TimeEditCellWidget(QWidget* parent = nullptr);
+
+		void setData(const QVariant& data) override;
+		QVariant getData() const override;
+
+		QTimeEdit* timeEdit() const { return m_timeEdit; }
+
+	protected:
+		void onAlignmentChanged(Qt::Alignment a) override;
+
+	private:
+		QTimeEdit* m_timeEdit = nullptr;
+	};
+
 	class VARIANT_TABLE_API TimeEdit : public CellDataBase
 	{
+		Q_OBJECT
 		VT_CELL_DATA_OBJ(TimeEdit);
 		public:
 		static void setFormat(const QString& format);
@@ -31,13 +51,13 @@ namespace VariantTable
 		QTime getTime() const;
 
 		bool setData(const QVariant& data) override;
-		void setData(QWidget* editor) override;
+		void setData(CellWidgetBase* editor) override;
 		QVariant getData() const override;
-		void getData(QWidget* editor) override;
+		void getData(CellWidgetBase* editor) override;
 
 
 
-		QWidget* createEditorWidget(QWidget* parent) override;
+		CellWidgetBase* createEditorWidget(QWidget* parent) override;
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() override;
 		void updateIcon() const override;
@@ -67,10 +87,10 @@ namespace VariantTable
 	private slots:
 		void onTimeChanged(const QTime& newTime);
 		private:
-		
+
 		QTime m_time;
-		QTimeEdit* m_editor = nullptr;
-		
+		TimeEditCellWidget* m_editor = nullptr;
+
 		int m_copyPolicy = CopyPastePolicy::Time;
 		int m_pastePolicy = CopyPastePolicy::Time;
 

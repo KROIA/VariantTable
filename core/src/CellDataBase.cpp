@@ -1,4 +1,5 @@
 #include "CellDataBase.h"
+#include "CellWidgetBase.h"
 #include "Model.h"
 #include "ClipboardData/QVariantClipboardData.h"
 
@@ -196,11 +197,10 @@ namespace VariantTable
 		editorWidgetDestroyed();
 	}
 
-	QWidget* CellDataBase::createEditorWidget_internal(QWidget* parent)
+	CellWidgetBase* CellDataBase::createEditorWidget_internal(QWidget* parent)
 	{
-		QWidget* editor = createEditorWidget(parent);
+		CellWidgetBase* editor = createEditorWidget(parent);
 		m_mainEditorWidget = editor;
-		//m_mainEditorWidget->installEventFilter(this);
 		applyColor(editor);
 		editor->setEnabled(m_isEditable);
 		connect(editor, &QObject::destroyed, this, &CellDataBase::onEditorWidgetDestroyed);

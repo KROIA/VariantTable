@@ -2,6 +2,7 @@
 
 #include "VariantTable_base.h"
 #include "CellDataBase.h"
+#include "CellWidgetBase.h"
 #include <QVector>
 #include <QPair>
 #include <QMetaType>
@@ -11,8 +12,27 @@
 
 namespace VariantTable
 {
+	class VARIANT_TABLE_API ComboBoxCellWidget : public CellWidgetBase
+	{
+		Q_OBJECT
+	public:
+		explicit ComboBoxCellWidget(QWidget* parent = nullptr);
+
+		void setData(const QVariant& data) override;
+		QVariant getData() const override;
+
+		QComboBox* comboBox() const { return m_comboBox; }
+
+	protected:
+		void onAlignmentChanged(Qt::Alignment alignment) override;
+
+	private:
+		QComboBox* m_comboBox = nullptr;
+	};
+
 	class VARIANT_TABLE_API ComboBox : public CellDataBase
 	{
+		Q_OBJECT
 		VT_CELL_DATA_OBJ(ComboBox);
 	public:
 		typedef QVector<QPair<QString, QVariant>> OptionsType;
@@ -37,11 +57,11 @@ namespace VariantTable
 
 
 		bool setData(const QVariant& data) override;
-		void setData(QWidget* editor) override;
+		void setData(CellWidgetBase* editor) override;
 		QVariant getData() const override;
-		void getData(QWidget* editor) override;
+		void getData(CellWidgetBase* editor) override;
 
-		QWidget* createEditorWidget(QWidget* parent) override;
+		CellWidgetBase* createEditorWidget(QWidget* parent) override;
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() override;
 		void updateIcon() const override;
@@ -79,7 +99,7 @@ namespace VariantTable
 		QVector<QPair<QString, QVariant>> m_options; // Text and associated data for each option
 		int m_selectedIndex = -1;
 
-		QComboBox* m_combo = nullptr;
+		ComboBoxCellWidget* m_combo = nullptr;
 
 		int m_copyPolicy = CopyPastePolicy::Text | CopyPastePolicy::SelectedIndex;
 		int m_pastePolicy = CopyPastePolicy::Text | CopyPastePolicy::SelectedIndex;

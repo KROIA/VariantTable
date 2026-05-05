@@ -2,12 +2,30 @@
 
 #include "VariantTable_base.h"
 #include "CellDataBase.h"
+#include "CellWidgetBase.h"
+#include <QProgressBar>
 
-
-class QProgressBar;
 
 namespace VariantTable
 {
+	class VARIANT_TABLE_API ProgressBarCellWidget : public CellWidgetBase
+	{
+		Q_OBJECT
+	public:
+		explicit ProgressBarCellWidget(QWidget* parent = nullptr);
+
+		void setData(const QVariant& data) override;
+		QVariant getData() const override;
+
+		QProgressBar* progressBar() const { return m_progressBar; }
+
+	protected:
+		void onAlignmentChanged(Qt::Alignment a) override;
+
+	private:
+		QProgressBar* m_progressBar = nullptr;
+	};
+
 	class VARIANT_TABLE_API ProgressBar : public CellDataBase
 	{
 		VT_CELL_DATA_OBJ(ProgressBar);
@@ -34,11 +52,11 @@ namespace VariantTable
 
 
 		bool setData(const QVariant& data) override;
-		void setData(QWidget* editor) override;
+		void setData(CellWidgetBase* editor) override;
 		QVariant getData() const override;
-		void getData(QWidget* editor) override;
+		void getData(CellWidgetBase* editor) override;
 
-		QWidget* createEditorWidget(QWidget* parent) override;
+		CellWidgetBase* createEditorWidget(QWidget* parent) override;
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() override;
 		void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const override;
@@ -69,7 +87,7 @@ namespace VariantTable
 		std::shared_ptr<ClipboardData> copyAction() const override;
 		bool pasteAction(std::shared_ptr<ClipboardData> pasteData) override;
 	private:
-		
+
 		void drawLoadingBar(QPainter* painter, const QRect& rect, int percentage,
 							const QPixmap& bar) const;
 		int m_min = 0;
@@ -77,7 +95,7 @@ namespace VariantTable
 		int m_progress = 0;
 		Qt::Orientation m_orientation = Qt::Horizontal;
 
-		QProgressBar* m_bar = nullptr;
+		ProgressBarCellWidget* m_editor = nullptr;
 
 		int m_copyPolicy = CopyPastePolicy::ProgressValue;
 		int m_pastePolicy = CopyPastePolicy::ProgressValue;

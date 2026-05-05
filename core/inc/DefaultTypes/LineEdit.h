@@ -2,14 +2,34 @@
 
 #include "VariantTable_base.h"
 #include "CellDataBase.h"
+#include "CellWidgetBase.h"
 
 
 class QLineEdit;
 
 namespace VariantTable
 {
+	class VARIANT_TABLE_API LineEditCellWidget : public CellWidgetBase
+	{
+		Q_OBJECT
+	public:
+		explicit LineEditCellWidget(QWidget* parent = nullptr);
+
+		void setData(const QVariant& data) override;
+		QVariant getData() const override;
+
+		QLineEdit* lineEdit() const { return m_lineEdit; }
+
+	protected:
+		void onAlignmentChanged(Qt::Alignment alignment) override;
+
+	private:
+		QLineEdit* m_lineEdit = nullptr;
+	};
+
 	class VARIANT_TABLE_API LineEdit : public CellDataBase
 	{
+		Q_OBJECT
 		VT_CELL_DATA_OBJ(LineEdit);
 	public:
 		enum CopyPastePolicy : int
@@ -27,14 +47,14 @@ namespace VariantTable
 		QString getText() const;
 
 		bool setData(const QVariant& data) override;
-		void setData(QWidget* editor) override;
+		void setData(CellWidgetBase* editor) override;
 		QVariant getData() const override;
-		void getData(QWidget* editor) override;
+		void getData(CellWidgetBase* editor) override;
 
 		void setRegularExpression(const QRegExp& regExp);
 		void setRegularExpression(const QString& regExp);
 
-		QWidget* createEditorWidget(QWidget* parent) override;
+		CellWidgetBase* createEditorWidget(QWidget* parent) override;
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() override;
 		void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const override;
@@ -65,7 +85,7 @@ namespace VariantTable
 	private:
 		QString m_text;
 		QRegExp m_validatorRegExp;
-		QLineEdit* m_editor = nullptr;
+		LineEditCellWidget* m_editor = nullptr;
 
 		int m_copyPolicy = CopyPastePolicy::Text;
 		int m_pastePolicy = CopyPastePolicy::Text;

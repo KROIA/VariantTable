@@ -2,14 +2,38 @@
 
 #include "VariantTable_base.h"
 #include "CellDataBase.h"
+#include "CellWidgetBase.h"
 
+#include <QVector>
 
 class QCheckBox;
 
 namespace VariantTable
 {
+	class VARIANT_TABLE_API CheckBoxListCellWidget : public CellWidgetBase
+	{
+		Q_OBJECT
+	public:
+		explicit CheckBoxListCellWidget(QWidget* parent = nullptr);
+
+		void setData(const QVariant& data) override;
+		QVariant getData() const override;
+
+		const QVector<QCheckBox*>& checkBoxes() const { return m_checkBoxes; }
+		void setCheckBoxes(const QVector<QCheckBox*>& boxes);
+		void clearCheckBoxes();
+
+	protected:
+		void onAlignmentChanged(Qt::Alignment alignment) override;
+
+	private:
+		void applyAlignment();
+		QVector<QCheckBox*> m_checkBoxes;
+	};
+
 	class VARIANT_TABLE_API CheckBoxList : public CellDataBase
 	{
+		Q_OBJECT
 		VT_CELL_DATA_OBJ(CheckBoxList);
 	public:
 		enum CopyPastePolicy : int
@@ -32,15 +56,23 @@ namespace VariantTable
 		void setCheckedIndexes(const QVector<int>& indexes);
 		QVector<int> getCheckedIndexes() const;
 
+		/**
+		 * @brief Set the layout configuration for the editor widget.
+		 * @param settings New layout settings; applied immediately if the editor widget exists.
+		 */
+		void setLayoutSettings(const BoxLayoutSettings& settings);
+		/** @brief Get the current editor layout configuration. */
+		const BoxLayoutSettings& getLayoutSettings() const { return m_layoutSettings; }
+
 
 		bool setData(const QVariant& data) override;
-		void setData(QWidget* editor) override;
+		void setData(CellWidgetBase* editor) override;
 		QVariant getData() const override;
-		void getData(QWidget* editor) override;
+		void getData(CellWidgetBase* editor) override;
 
 
 		//QSize getSizeHint(const QStyleOptionViewItem& option) const override;
-		QWidget* createEditorWidget(QWidget* parent) override;
+		CellWidgetBase* createEditorWidget(QWidget* parent) override;
 		QString getToolTip() const override;
 		void editorWidgetDestroyed() override;
 		void updateIcon() const override;
@@ -77,12 +109,14 @@ namespace VariantTable
 		void onStateChanged(int state);
 	private:
 		void buildEditorWidget();
-		
+
 		QVector<QPair<QString, QVariant>> m_options;
 		QVector<int> m_selectedIndexes;
 
-		QWidget* m_editorWidget = nullptr;
+		CheckBoxListCellWidget* m_editorWidget = nullptr;
 		QVector<QCheckBox*> m_checkBoxes;
+
+		BoxLayoutSettings m_layoutSettings; ///< Persisted layout config; reapplied on editor (re)creation.
 
 		int m_copyPolicy = CopyPastePolicy::Text | CopyPastePolicy::CheckBoxState;
 		int m_pastePolicy = CopyPastePolicy::Text | CopyPastePolicy::CheckBoxState;

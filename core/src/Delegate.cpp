@@ -1,6 +1,7 @@
 ﻿#include "Delegate.h"
 #include "Model.h"
 #include "TableView.h"
+#include "CellWidgetBase.h"
 #include <QApplication>
 #include <QPainter>
 
@@ -45,7 +46,7 @@ namespace VariantTable
         CellDataBasePtr cellData = customModel->getCellData(index.row(), index.column());
         if (!cellData)
             return;
-        cellData->getData(editor);
+        cellData->getData(qobject_cast<CellWidgetBase*>(editor));
     }
 
     void Delegate::setModelData(
@@ -60,7 +61,7 @@ namespace VariantTable
         CellDataBasePtr cellData = customModel->getCellData(index.row(), index.column());
         if (!cellData)
 			return;
-		cellData->setData(editor);
+		cellData->setData(qobject_cast<CellWidgetBase*>(editor));
     }
 
     QSize Delegate::sizeHint(

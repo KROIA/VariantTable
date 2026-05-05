@@ -10,6 +10,59 @@
 
 namespace VariantTable
 {
+	RadioButtonCellWidget::RadioButtonCellWidget(QWidget* parent)
+		: CellWidgetBase(parent)
+	{
+		// Layout configuration is applied later by the owning CellDataBase via BoxLayoutSettings.
+		new QVBoxLayout(this);
+	}
+	void RadioButtonCellWidget::setData(const QVariant& data)
+	{
+		if (!data.isValid() || !data.canConvert<int>())
+			return;
+		int idx = data.toInt();
+		for (int i = 0; i < m_buttons.size(); ++i)
+		{
+			if (m_buttons[i])
+				m_buttons[i]->setChecked(i == idx);
+		}
+	}
+	QVariant RadioButtonCellWidget::getData() const
+	{
+		for (int i = 0; i < m_buttons.size(); ++i)
+		{
+			if (m_buttons[i] && m_buttons[i]->isChecked())
+				return QVariant(i);
+		}
+		return QVariant(-1);
+	}
+	void RadioButtonCellWidget::setRadioButtons(const QVector<QRadioButton*>& buttons)
+	{
+		m_buttons = buttons;
+		applyAlignment();
+	}
+	void RadioButtonCellWidget::clearRadioButtons()
+	{
+		for (auto* b : m_buttons)
+			delete b;
+		m_buttons.clear();
+	}
+	void RadioButtonCellWidget::onAlignmentChanged(Qt::Alignment /*alignment*/)
+	{
+		applyAlignment();
+	}
+	void RadioButtonCellWidget::applyAlignment()
+	{
+		auto* l = layout();
+		if (!l) return;
+		Qt::Alignment a = getAlignment();
+		for (auto* b : m_buttons)
+		{
+			if (b)
+				l->setAlignment(b, a);
+		}
+	}
+
 
 	QString RadioButton::s_radioIcon = "radioButton.png";
 
@@ -83,6 +136,13 @@ namespace VariantTable
 
 
 
+	void RadioButton::setLayoutSettings(const BoxLayoutSettings& settings)
+	{
+		m_layoutSettings = settings;
+		if (m_editorWidget)
+			m_layoutSettings.apply(qobject_cast<QBoxLayout*>(m_editorWidget->layout()));
+	}
+
 	bool RadioButton::setData(const QVariant& data)
 	{
 		if (!data.canConvert<QStringList>())
@@ -93,7 +153,7 @@ namespace VariantTable
 		dataChanged();
 		return true;
 	}
-	void RadioButton::setData(QWidget* editor)
+	void RadioButton::setData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
 		if (m_editorWidget)
@@ -114,7 +174,7 @@ namespace VariantTable
 	{
 		return QVariant(m_options);
 	}
-	void RadioButton::getData(QWidget* editor)
+	void RadioButton::getData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
 		if (m_editorWidget)
@@ -137,30 +197,34 @@ namespace VariantTable
 	}
 
 
-	QWidget* RadioButton::createEditorWidget(QWidget* parent)
+	CellWidgetBase* RadioButton::createEditorWidget(QWidget* parent)
 	{
 		if (m_editorWidget)
 			return m_editorWidget;
 
 		IgnoreSignalsContext context(this);
-		m_editorWidget = new QWidget(parent);
+		m_editorWidget = new RadioButtonCellWidget(parent);
 
-		// Add Layout
-		QVBoxLayout* layout = new QVBoxLayout(m_editorWidget);
-		layout->setContentsMargins(5, 5, 5, 5);
-		m_editorWidget->setLayout(layout);
+		QBoxLayout* layout = qobject_cast<QBoxLayout*>(m_editorWidget->layout());
+		m_layoutSettings.apply(layout);
 
 		QButtonGroup* group = new QButtonGroup(this);
 		group->setExclusive(true);
 
-		// Add Radio Buttons
+		// Add Radio Buttons (inserted before the trailing stretch so they stack tightly at the top)
 		for (const QString& option : m_options)
 		{
 			QRadioButton* button = new QRadioButton(option, m_editorWidget);
-			layout->addWidget(button);
+			if (layout && m_layoutSettings.addTrailingStretch)
+				layout->insertWidget(layout->count() - 1, button);
+			else if (layout)
+				layout->addWidget(button);
+			else
+				m_editorWidget->layout()->addWidget(button);
 			m_editorButtons.push_back(button);
 			connect(button, &QRadioButton::toggled, this, &RadioButton::onSelectionChanged);
 		}
+		m_editorWidget->setRadioButtons(m_editorButtons);
 
 		// Set data
 		int maxIndex = std::min(m_editorButtons.size(), m_options.size());
@@ -176,7 +240,7 @@ namespace VariantTable
 		if (m_selectedIndex > 0 && m_selectedIndex < m_editorButtons.size())
 			group->button(m_selectedIndex)->setChecked(true);
 
-	
+
 		return m_editorWidget;
 	}
 

@@ -5,10 +5,39 @@
 #include <QProgressBar>
 #include <QApplication>
 #include <QPainter>
-#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 namespace VariantTable
 {
+	ProgressBarCellWidget::ProgressBarCellWidget(QWidget* parent)
+		: CellWidgetBase(parent)
+		, m_progressBar(new QProgressBar(this))
+	{
+		auto* l = new QHBoxLayout(this);
+		l->setContentsMargins(0, 0, 0, 0);
+		l->addWidget(m_progressBar);
+	}
+
+	void ProgressBarCellWidget::setData(const QVariant& data)
+	{
+		if (m_progressBar && data.isValid() && data.canConvert<int>())
+			m_progressBar->setValue(data.toInt());
+	}
+
+	QVariant ProgressBarCellWidget::getData() const
+	{
+		if (m_progressBar)
+			return QVariant(m_progressBar->value());
+		return QVariant();
+	}
+
+	void ProgressBarCellWidget::onAlignmentChanged(Qt::Alignment a)
+	{
+		if (m_progressBar)
+			m_progressBar->setAlignment(a);
+	}
+
+
 	QString ProgressBar::s_ProgressBarIcon = "ProgressBar.png";
 
 	ProgressBar::ProgressBar()
@@ -39,9 +68,9 @@ namespace VariantTable
 	{
 		if(min > m_max)
 			min = m_max;
-		if (m_bar)
-			m_bar->setMinimum(min);
-		m_min = min; 
+		if (m_editor && m_editor->progressBar())
+			m_editor->progressBar()->setMinimum(min);
+		m_min = min;
 		updateEditorPlaceholderText();
 	}
 
@@ -49,33 +78,33 @@ namespace VariantTable
 	{
 		if (max < m_min)
 			max = m_min;
-		if (m_bar)
-			m_bar->setMaximum(max);
+		if (m_editor && m_editor->progressBar())
+			m_editor->progressBar()->setMaximum(max);
 		m_max = max;
 		updateEditorPlaceholderText();
 	}
 
 	void ProgressBar::setValue(int progress)
 	{
-		if (m_bar)
+		if (m_editor && m_editor->progressBar())
 		{
-			m_bar->setValue(progress);
+			m_editor->progressBar()->setValue(progress);
 		}
 		m_progress = progress;
 		updateEditorPlaceholderText();
 	}
 	int ProgressBar::getValue() const
 	{
-		if (m_bar)
-			return m_bar->value();
+		if (m_editor && m_editor->progressBar())
+			return m_editor->progressBar()->value();
 		return m_progress;
 	}
 
 	void ProgressBar::setOrientation(Qt::Orientation orientation)
 	{
-		if (m_bar)
+		if (m_editor && m_editor->progressBar())
 		{
-			m_bar->setOrientation(orientation);
+			m_editor->progressBar()->setOrientation(orientation);
 		}
 		m_orientation = orientation;
 	}
@@ -88,14 +117,14 @@ namespace VariantTable
 			updateEditorPlaceholderText();
 			return true;
 		}
-		return false;		
+		return false;
 	}
-	void ProgressBar::setData(QWidget* editor)
+	void ProgressBar::setData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
-		if (m_bar)
+		if (m_editor && m_editor->progressBar())
 		{
-			m_progress = m_bar->value();
+			m_progress = m_editor->progressBar()->value();
 			updateEditorPlaceholderText();
 		}
 	}
@@ -104,32 +133,32 @@ namespace VariantTable
 		return QVariant(m_progress);
 	}
 
-	void ProgressBar::getData(QWidget* editor)
+	void ProgressBar::getData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
-		if (m_bar)
+		if (m_editor && m_editor->progressBar())
 		{
 			IgnoreSignalsContext context(this);
-			m_bar->setValue(m_progress);
+			m_editor->progressBar()->setValue(m_progress);
 		}
 	}
 
-	QWidget* ProgressBar::createEditorWidget(QWidget* parent)
+	CellWidgetBase* ProgressBar::createEditorWidget(QWidget* parent)
 	{
-		if (m_bar)
-			return m_bar;
+		if (m_editor)
+			return m_editor;
 
 		IgnoreSignalsContext context(this);
-		m_bar = new QProgressBar(parent);
+		m_editor = new ProgressBarCellWidget(parent);
 
-
+		QProgressBar* bar = m_editor->progressBar();
 		// Set options
-		m_bar->setOrientation(m_orientation);
-		m_bar->setMinimum(m_min);
-		m_bar->setMaximum(m_max);
-		m_bar->setValue(m_progress);
+		bar->setOrientation(m_orientation);
+		bar->setMinimum(m_min);
+		bar->setMaximum(m_max);
+		bar->setValue(m_progress);
 
-		return m_bar;
+		return m_editor;
 	}
 
 	QString ProgressBar::getToolTip() const
@@ -138,12 +167,12 @@ namespace VariantTable
 		if (m_max != m_min)
 		{
 			percentage = ((m_progress - m_min) * 100) / (m_max - m_min);
-		}		
+		}
 		return QString::number(percentage) + "%";
 	}
 	void ProgressBar::editorWidgetDestroyed()
 	{
-		m_bar = nullptr;
+		m_editor = nullptr;
 	}
 	void ProgressBar::drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const
 	{

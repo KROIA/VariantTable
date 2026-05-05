@@ -5,10 +5,36 @@
 #include <QCheckBox>
 #include <QApplication>
 #include <QPainter>
-#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 namespace VariantTable
 {
+	CheckBoxCellWidget::CheckBoxCellWidget(QWidget* parent)
+		: CellWidgetBase(parent)
+		, m_checkBox(nullptr)
+	{
+		auto* layout = new QHBoxLayout(this);
+		layout->setContentsMargins(0, 0, 0, 0);
+		m_checkBox = new QCheckBox(this);
+		layout->addWidget(m_checkBox);
+		layout->setAlignment(m_checkBox, getAlignment());
+	}
+	void CheckBoxCellWidget::setData(const QVariant& data)
+	{
+		if (data.isValid() && data.canConvert<bool>())
+			m_checkBox->setChecked(data.toBool());
+	}
+	QVariant CheckBoxCellWidget::getData() const
+	{
+		return QVariant(m_checkBox->isChecked());
+	}
+	void CheckBoxCellWidget::onAlignmentChanged(Qt::Alignment alignment)
+	{
+		if (layout() && m_checkBox)
+			layout()->setAlignment(m_checkBox, alignment);
+	}
+
+
 	QString CheckBox::s_checkedIcon = "checkBox-checked.png";
 	QString CheckBox::s_uncheckedIcon = "checkBox-unchecked.png";
 
@@ -48,7 +74,7 @@ namespace VariantTable
 	void CheckBox::setChecked(bool value)
 	{
 		if (m_editor)
-			m_editor->setChecked(value);
+			m_editor->checkBox()->setChecked(value);
 		else
 		{
 			updateIcon();
@@ -59,7 +85,7 @@ namespace VariantTable
 	bool CheckBox::isChecked() const
 	{
 		if (m_editor)
-			return m_editor->isChecked();
+			return m_editor->checkBox()->isChecked();
 		return m_value;
 	}
 
@@ -73,53 +99,46 @@ namespace VariantTable
 		}
 		return false;
 	}
-	void CheckBox::setData(QWidget* editor) 
+	void CheckBox::setData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
-		//QCheckBox* checkBox = qobject_cast<QCheckBox*>(editor);
 		if (m_editor)
 		{
-			if (m_value != m_editor->isChecked())
+			QCheckBox* cb = m_editor->checkBox();
+			if (m_value != cb->isChecked())
 			{
-				m_value = m_editor->isChecked();
+				m_value = cb->isChecked();
 				updateIcon();
 			}
 		}
 	}
-	QVariant CheckBox::getData() const 
+	QVariant CheckBox::getData() const
 	{
 		return QVariant(m_value);
 	}
-	void CheckBox::getData(QWidget* editor) 
+	void CheckBox::getData(CellWidgetBase* editor)
 	{
 		VT_UNUSED(editor);
-		//QCheckBox* checkBox = qobject_cast<QCheckBox*>(editor);
 		if (m_editor)
 		{
 			IgnoreSignalsContext context(this);
-			m_editor->setText(m_text);
-			m_editor->setChecked(m_value);
-			//checkBox->setMinimumSize(QSize(250, 100));
+			QCheckBox* cb = m_editor->checkBox();
+			cb->setText(m_text);
+			cb->setChecked(m_value);
 		}
 	}
 
-	QWidget* CheckBox::createEditorWidget(QWidget* parent)
+	CellWidgetBase* CheckBox::createEditorWidget(QWidget* parent)
 	{
 		if (m_editor)
-			return m_editor->parentWidget();
+			return m_editor;
 		IgnoreSignalsContext context(this);
-		QWidget* editor = new QWidget(parent);
-		// Add Layout
-		QVBoxLayout* layout = new QVBoxLayout(editor);
-		layout->setContentsMargins(5, 5, 5, 5);
-		editor->setLayout(layout);
-		m_editor = new QCheckBox(editor);
-		m_editor->setText(m_text);
-		m_editor->setChecked(m_value);
-		connect(m_editor, &QCheckBox::stateChanged, this, &CheckBox::onStateChanged);
-		layout->addWidget(m_editor);
-
-		return editor;
+		m_editor = new CheckBoxCellWidget(parent);
+		QCheckBox* cb = m_editor->checkBox();
+		cb->setText(m_text);
+		cb->setChecked(m_value);
+		connect(cb, &QCheckBox::stateChanged, this, &CheckBox::onStateChanged);
+		return m_editor;
 	}
 
 	QString CheckBox::getToolTip() const

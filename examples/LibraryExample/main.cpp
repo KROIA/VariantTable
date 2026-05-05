@@ -49,7 +49,10 @@ int main(int argc, char* argv[])
 	tableView->getModel()->setCellData(0, 1, VariantTable::CheckBox::create("CheckBox", false));
 	tableView->getModel()->setCellData(1, 0, VariantTable::RadioButton::create(QStringList{ "RadioA" ,"RadioB" }));
 	tableView->getModel()->setCellData(1, 1, VariantTable::RadioButton::create(QStringList{ "A" ,"B" }));
-	tableView->getModel()->setCellData(2, 0, VariantTable::CheckBoxList::create(QStringList{ "Box1" ,"Box2", "Box3"}));
+
+	auto  checkboxes = VariantTable::CheckBoxList::create(QStringList{ "Box1" ,"Box2", "Box3" });
+	checkboxes->setLayoutSettings({ 0, QMargins(0,0,0,0), QBoxLayout::TopToBottom, true });
+	tableView->getModel()->setCellData(2, 0, checkboxes);
 	tableView->getModel()->setCellData(2, 1, VariantTable::CheckBoxList::create(QStringList{ "B1" ,"B2", "B3" }));
 	tableView->getModel()->setCellData(2, 2, VariantTable::CheckBoxList::create(QStringList{ "A1" ,"A2", "A3" }));
 	tableView->getModel()->setCellData(2, 3, VariantTable::CheckBoxList::create(QStringList{ "C1" ,"C2", "C3", "C4"}));
@@ -90,7 +93,7 @@ int main(int argc, char* argv[])
 
 	
 
-	tableView->resize(800, 600);
+	tableView->resize(1800, 600);
 	tableView->resizeRowToContents(0);
 
 	QWidget* mainWidget = new QWidget;
@@ -157,7 +160,7 @@ int main(int argc, char* argv[])
 	//tableView->selectColumn(6);
 
 	mainWidget->show();
-	mainWidget->resize(300, 300);
+	mainWidget->resize(800, 300);
 
 	layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
