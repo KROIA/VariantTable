@@ -31,6 +31,8 @@ namespace VariantTable
 	void TextEditCellWidget::onAlignmentChanged(Qt::Alignment alignment)
 	{
 		m_textEdit->setAlignment(alignment);
+		if (layout())
+			layout()->setAlignment(m_textEdit, alignment);
 	}
 
 	// TextEdit --------------------------------------------------------------

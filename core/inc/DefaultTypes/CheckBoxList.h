@@ -56,13 +56,7 @@ namespace VariantTable
 		void setCheckedIndexes(const QVector<int>& indexes);
 		QVector<int> getCheckedIndexes() const;
 
-		/**
-		 * @brief Set the layout configuration for the editor widget.
-		 * @param settings New layout settings; applied immediately if the editor widget exists.
-		 */
-		void setLayoutSettings(const BoxLayoutSettings& settings);
-		/** @brief Get the current editor layout configuration. */
-		const BoxLayoutSettings& getLayoutSettings() const { return m_layoutSettings; }
+		void setLayoutSettings(const BoxLayoutSettings& settings) override;
 
 
 		bool setData(const QVariant& data) override;
@@ -115,8 +109,6 @@ namespace VariantTable
 
 		CheckBoxListCellWidget* m_editorWidget = nullptr;
 		QVector<QCheckBox*> m_checkBoxes;
-
-		BoxLayoutSettings m_layoutSettings; ///< Persisted layout config; reapplied on editor (re)creation.
 
 		int m_copyPolicy = CopyPastePolicy::Text | CopyPastePolicy::CheckBoxState;
 		int m_pastePolicy = CopyPastePolicy::Text | CopyPastePolicy::CheckBoxState;

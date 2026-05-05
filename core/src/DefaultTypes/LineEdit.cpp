@@ -32,6 +32,8 @@ namespace VariantTable
 	void LineEditCellWidget::onAlignmentChanged(Qt::Alignment alignment)
 	{
 		m_lineEdit->setAlignment(alignment);
+		if (layout())
+			layout()->setAlignment(m_lineEdit, alignment);
 	}
 
 	// LineEdit --------------------------------------------------------------

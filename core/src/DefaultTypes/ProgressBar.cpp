@@ -35,6 +35,8 @@ namespace VariantTable
 	{
 		if (m_progressBar)
 			m_progressBar->setAlignment(a);
+		if (m_progressBar && layout())
+			layout()->setAlignment(m_progressBar, a);
 	}
 
 

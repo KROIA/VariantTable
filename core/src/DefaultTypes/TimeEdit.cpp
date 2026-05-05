@@ -29,6 +29,8 @@ namespace VariantTable
 	void TimeEditCellWidget::onAlignmentChanged(Qt::Alignment a)
 	{
 		m_timeEdit->setAlignment(a);
+		if (layout())
+			layout()->setAlignment(m_timeEdit, a);
 	}
 
 

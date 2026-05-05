@@ -149,12 +149,9 @@ namespace VariantTable
 
 	void CheckBoxList::setLayoutSettings(const BoxLayoutSettings& settings)
 	{
-		m_layoutSettings = settings;
+		CellDataBase::setLayoutSettings(settings);
 		if (m_editorWidget)
-		{
-			m_layoutSettings.apply(qobject_cast<QBoxLayout*>(m_editorWidget->layout()));
 			buildEditorWidget(); // rebuild so checkboxes sit in the correct position relative to the (new) stretch
-		}
 	}
 
 	bool CheckBoxList::setData(const QVariant& data)
@@ -210,7 +207,7 @@ namespace VariantTable
 		IgnoreSignalsContext context(this);
 
 		m_editorWidget = new CheckBoxListCellWidget(parent);
-		m_layoutSettings.apply(qobject_cast<QBoxLayout*>(m_editorWidget->layout()));
+		// Layout settings are applied by CellDataBase::createEditorWidget_internal after this returns.
 		return m_editorWidget;
 	}
 	void CheckBoxList::buildEditorWidget()
@@ -220,14 +217,14 @@ namespace VariantTable
 		m_checkBoxes.clear();
 
 		QBoxLayout* layout = qobject_cast<QBoxLayout*>(m_editorWidget->layout());
-		m_layoutSettings.apply(layout); // ensure trailing stretch / spacing are correct after clearing
+		getLayoutSettings().apply(layout); // ensure trailing stretch / spacing are correct after clearing
 
 		// Add Check Boxes (inserted before the trailing stretch so they stack tightly at the top)
 		for (const auto& option : m_options)
 		{
 			QCheckBox* button = new QCheckBox(option.first, m_editorWidget);
 			connect(button, &QCheckBox::stateChanged, this, &CheckBoxList::onStateChanged);
-			if (layout && m_layoutSettings.addTrailingStretch)
+			if (layout && getLayoutSettings().addTrailingStretch)
 				layout->insertWidget(layout->count() - 1, button);
 			else if (layout)
 				layout->addWidget(button);

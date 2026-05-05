@@ -202,9 +202,19 @@ namespace VariantTable
 		CellWidgetBase* editor = createEditorWidget(parent);
 		m_mainEditorWidget = editor;
 		applyColor(editor);
+		if (editor)
+			m_layoutSettings.apply(qobject_cast<QBoxLayout*>(editor->layout()));
+		editor->setAlignment(editor->getAlignment()); // ensure editor alignment is applied to the placeholder text/icon
 		editor->setEnabled(m_isEditable);
 		connect(editor, &QObject::destroyed, this, &CellDataBase::onEditorWidgetDestroyed);
 		return editor;
+	}
+
+	void CellDataBase::setLayoutSettings(const BoxLayoutSettings& settings)
+	{
+		m_layoutSettings = settings;
+		if (m_mainEditorWidget)
+			m_layoutSettings.apply(qobject_cast<QBoxLayout*>(m_mainEditorWidget->layout()));
 	}
 
 

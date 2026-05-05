@@ -61,6 +61,7 @@ int main(int argc, char* argv[])
 	tableView->getModel()->setCellData(3, 1, VariantTable::ComboBox::create(QStringList{ "A" ,"B", "C"}));
 	tableView->getModel()->setCellData(4, 0, VariantTable::LineEdit::create("Hello World"));
 	tableView->getModel()->setCellData(4, 1, VariantTable::LineEdit::create("Text"));
+	tableView->getModel()->setCellData(4, 2, VariantTable::CheckBoxList::create(QStringList{ "B1" ,"B2", "B3" }));
 	tableView->getModel()->setCellData(5, 0, button);
 	tableView->getModel()->setCellData(5, 5, boolCell);
 	tableView->getModel()->setCellData(5, 6, boolCell);

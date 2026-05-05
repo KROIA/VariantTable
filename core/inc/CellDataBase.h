@@ -2,6 +2,7 @@
 
 #include "VariantTable_base.h"
 #include "ClipboardData.h"
+#include "CellWidgetBase.h"
 #include <QObject>
 #include <QVariant>
 #include <QSize>
@@ -93,6 +94,17 @@ namespace VariantTable
 
 		virtual void setEditable(bool editable);
 		virtual bool isEditable() const { return m_isEditable; }
+
+		/**
+		 * @brief Set the layout configuration for the editor widget.
+		 *
+		 * Applied to the editor widget's top-level QBoxLayout. Persisted on the data
+		 * object so it survives across editor recreations performed by Qt's model/view
+		 * framework. Override to perform additional work after applying (e.g. rebuilding
+		 * dynamically generated child widgets); always call the base implementation.
+		 */
+		virtual void setLayoutSettings(const BoxLayoutSettings& settings);
+		const BoxLayoutSettings& getLayoutSettings() const { return m_layoutSettings; }
 		virtual QSize getSizeHint(const QStyleOptionViewItem& option) const;
 
 		virtual void drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const;
@@ -180,6 +192,7 @@ namespace VariantTable
 			
 			QColor m_color = QColor(255,255,255);
 			bool m_isEditable = true;
+			BoxLayoutSettings m_layoutSettings; ///< Persisted layout config; reapplied on editor (re)creation.
 			mutable bool m_ignoreSignals = false;
 			mutable CellWidgetBase* m_mainEditorWidget = nullptr;
 

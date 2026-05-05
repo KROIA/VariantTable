@@ -136,13 +136,6 @@ namespace VariantTable
 
 
 
-	void RadioButton::setLayoutSettings(const BoxLayoutSettings& settings)
-	{
-		m_layoutSettings = settings;
-		if (m_editorWidget)
-			m_layoutSettings.apply(qobject_cast<QBoxLayout*>(m_editorWidget->layout()));
-	}
-
 	bool RadioButton::setData(const QVariant& data)
 	{
 		if (!data.canConvert<QStringList>())
@@ -206,7 +199,7 @@ namespace VariantTable
 		m_editorWidget = new RadioButtonCellWidget(parent);
 
 		QBoxLayout* layout = qobject_cast<QBoxLayout*>(m_editorWidget->layout());
-		m_layoutSettings.apply(layout);
+		getLayoutSettings().apply(layout);
 
 		QButtonGroup* group = new QButtonGroup(this);
 		group->setExclusive(true);
@@ -215,7 +208,7 @@ namespace VariantTable
 		for (const QString& option : m_options)
 		{
 			QRadioButton* button = new QRadioButton(option, m_editorWidget);
-			if (layout && m_layoutSettings.addTrailingStretch)
+			if (layout && getLayoutSettings().addTrailingStretch)
 				layout->insertWidget(layout->count() - 1, button);
 			else if (layout)
 				layout->addWidget(button);

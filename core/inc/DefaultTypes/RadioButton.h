@@ -53,15 +53,6 @@ namespace VariantTable
 		void setSelectedIndex(int index);
 		int getSelectedIndex() const;
 
-		/**
-		 * @brief Set the layout configuration for the editor widget.
-		 * @param settings New layout settings; applied immediately if the editor widget exists.
-		 */
-		void setLayoutSettings(const BoxLayoutSettings& settings);
-		/** @brief Get the current editor layout configuration. */
-		const BoxLayoutSettings& getLayoutSettings() const { return m_layoutSettings; }
-
-
 		bool setData(const QVariant& data) override;
 		void setData(CellWidgetBase* editor) override;
 		QVariant getData() const override;
@@ -107,8 +98,6 @@ namespace VariantTable
 
 		RadioButtonCellWidget* m_editorWidget = nullptr;
 		QVector<QRadioButton*> m_editorButtons;
-
-		BoxLayoutSettings m_layoutSettings; ///< Persisted layout config; reapplied on editor (re)creation.
 
 		int m_copyPolicy = CopyPastePolicy::Text | CopyPastePolicy::SelectedIndex;
 		int m_pastePolicy = CopyPastePolicy::Text | CopyPastePolicy::SelectedIndex;
