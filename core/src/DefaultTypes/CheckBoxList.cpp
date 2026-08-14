@@ -1,6 +1,7 @@
 #include "DefaultTypes/CheckBoxList.h"
 #include "ClipboardData/CheckBoxListClipboardData.h"
 #include "IconManager.h"
+#include "QtCompat.h"
 #include <QCheckBox>
 #include <QApplication>
 #include <QPainter>
@@ -223,7 +224,7 @@ namespace VariantTable
 		for (const auto& option : m_options)
 		{
 			QCheckBox* button = new QCheckBox(option.first, m_editorWidget);
-			connect(button, &QCheckBox::stateChanged, this, &CheckBoxList::onStateChanged);
+			connectCheckBoxStateChanged(button, this, &CheckBoxList::onStateChanged);
 			if (layout && getLayoutSettings().addTrailingStretch)
 				layout->insertWidget(layout->count() - 1, button);
 			else if (layout)

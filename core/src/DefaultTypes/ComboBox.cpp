@@ -24,7 +24,7 @@ namespace VariantTable
 	void ComboBoxCellWidget::setData(const QVariant& data)
 	{
 		// Best-effort: select index if int, else find by text
-		if (data.type() == QVariant::Int)
+		if (data.userType() == QMetaType::Int)
 			m_comboBox->setCurrentIndex(data.toInt());
 		else
 		{

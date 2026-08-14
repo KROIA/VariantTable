@@ -7,7 +7,7 @@
 #include <QPainter>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 
 namespace VariantTable
 {
@@ -78,7 +78,7 @@ namespace VariantTable
 
 	bool LineEdit::setData(const QVariant& data)
 	{
-		if(data.isValid() && data.type() == QVariant::String)
+		if(data.isValid() && data.userType() == QMetaType::QString)
 		{
 			m_text = data.toString();
 			setEditorPlaceholderText(m_text);
@@ -118,24 +118,24 @@ namespace VariantTable
 		IgnoreSignalsContext context(this);
 		m_editor = new LineEditCellWidget(parent);
 		QLineEdit* le = m_editor->lineEdit();
-		le->setValidator(new QRegExpValidator(m_validatorRegExp, le));
+		le->setValidator(new QRegularExpressionValidator(m_validatorRegExp, le));
 		le->setText(m_text);
 		connect(le, &QLineEdit::textChanged, this, &LineEdit::onTextChanged);
 
 		return m_editor;
 	}
-	void LineEdit::setRegularExpression(const QRegExp& regExp)
+	void LineEdit::setRegularExpression(const QRegularExpression& regExp)
 	{
 		m_validatorRegExp = regExp;
 		if (m_editor)
 		{
 			QLineEdit* le = m_editor->lineEdit();
-			le->setValidator(new QRegExpValidator(m_validatorRegExp, le));
+			le->setValidator(new QRegularExpressionValidator(m_validatorRegExp, le));
 		}
 	}
 	void LineEdit::setRegularExpression(const QString& regExp)
 	{
-		setRegularExpression(QRegExp(regExp));
+		setRegularExpression(QRegularExpression(regExp));
 	}
 
 	QString LineEdit::getToolTip() const

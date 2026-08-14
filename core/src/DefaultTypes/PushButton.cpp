@@ -75,7 +75,7 @@ namespace VariantTable
 
 	bool PushButton::setData(const QVariant& data)
 	{
-		if(data.isValid() && data.type() == QVariant::String)
+		if(data.isValid() && data.userType() == QMetaType::QString)
 		{
 			m_text = data.toString();
 			setEditorPlaceholderText(m_text);
