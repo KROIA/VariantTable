@@ -4,6 +4,7 @@
 #include "CellDataBase.h"
 #include "CellWidgetBase.h"
 
+#include <QRegularExpression>
 
 class QLineEdit;
 
@@ -51,7 +52,7 @@ namespace VariantTable
 		QVariant getData() const override;
 		void getData(CellWidgetBase* editor) override;
 
-		void setRegularExpression(const QRegExp& regExp);
+		void setRegularExpression(const QRegularExpression& regExp);
 		void setRegularExpression(const QString& regExp);
 
 		CellWidgetBase* createEditorWidget(QWidget* parent) override;
@@ -84,7 +85,7 @@ namespace VariantTable
 		void onTextChanged(const QString& newText);
 	private:
 		QString m_text;
-		QRegExp m_validatorRegExp;
+		QRegularExpression m_validatorRegExp;
 		LineEditCellWidget* m_editor = nullptr;
 
 		int m_copyPolicy = CopyPastePolicy::Text;
