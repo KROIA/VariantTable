@@ -178,6 +178,7 @@ namespace VariantTable
 	}
 	void ProgressBar::drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const
 	{
+		drawEditorPlaceholderColorOverlay(painter, option);
 		float marginX = 5;
 		float marginY = 10;
 		QRect rect(option.rect.x() + marginX, option.rect.y() + marginY, option.rect.width() - 2 * marginX, option.rect.height() - 2 * marginY);

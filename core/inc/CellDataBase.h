@@ -88,6 +88,17 @@ namespace VariantTable
 		virtual QVariant getData() const = 0;
 		virtual void getData(CellWidgetBase* editor) = 0;
 
+		/**
+		 * @brief Set the background color of the cell.
+		 *
+		 * An invalid QColor (the default, as returned by a default constructed QColor)
+		 * means "no color set": the painted placeholder keeps the view's own background
+		 * (selection highlight, alternating row colors) and the editor widget keeps its
+		 * default look. Pass QColor() to return a colored cell to that state.
+		 *
+		 * The color is followed by both the painted placeholder and the live editor
+		 * widget, if one currently exists. The view is repainted for this cell.
+		 */
 		virtual void setColor(const QColor& color);
 		virtual const QColor& getColor() const { return m_color; }
 
@@ -190,7 +201,7 @@ namespace VariantTable
 			Model* getModel() const { return m_model; }
 
 			
-			QColor m_color = QColor(255,255,255);
+			QColor m_color = QColor();
 			bool m_isEditable = true;
 			BoxLayoutSettings m_layoutSettings; ///< Persisted layout config; reapplied on editor (re)creation.
 			mutable bool m_ignoreSignals = false;

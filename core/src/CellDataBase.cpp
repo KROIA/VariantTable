@@ -17,7 +17,7 @@ namespace VariantTable
 
 	CellDataBase::CellDataBase()
 	{
-		m_color = QColor(255, 255, 255);
+		m_color = QColor();
 		m_isEditable = true;
 		m_mainEditorWidget = nullptr;
 		m_editorPlaceholderData.text = "";
@@ -39,8 +39,9 @@ namespace VariantTable
 
 	void CellDataBase::setColor(const QColor& color)
 	{ 
-		m_color = color; 
+		m_color = color;
 		applyColor(m_mainEditorWidget);
+		dataChanged();
 	}
 	void CellDataBase::setEditable(bool editable)
 	{
@@ -126,7 +127,10 @@ namespace VariantTable
 	{
 		if (editor)
 		{
-			editor->setStyleSheet("background-color: " + m_color.name() + ";");
+			if (m_color.isValid())
+				editor->setStyleSheet("background-color: " + m_color.name() + ";");
+			else
+				editor->setStyleSheet(QString()); // no color set: fall back to the default widget look
 		}
 	}
 	void CellDataBase::dataChanged() const
@@ -141,6 +145,9 @@ namespace VariantTable
 
 	void CellDataBase::drawEditorPlaceholderColorOverlay(QPainter* painter, const QStyleOptionViewItem& option) const
 	{
+		if (!m_color.isValid())
+			return; // no color set: leave the cell background untouched
+
 		QPen origPen = painter->pen();
 		QBrush origBrush = painter->brush();
 		// Set the brush color

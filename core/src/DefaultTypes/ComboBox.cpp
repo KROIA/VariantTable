@@ -204,6 +204,7 @@ namespace VariantTable
 	}
 	void ComboBox::drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const
 	{
+		drawEditorPlaceholderColorOverlay(painter, option);
 		const QIcon& icon = IconManager::getIcon(s_comboBoxIcon);
 		/*QString text = m_text;
 

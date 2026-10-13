@@ -144,6 +144,7 @@ namespace VariantTable
 	}
 	void LineEdit::drawEditorPlaceholder(QPainter* painter, const QStyleOptionViewItem& option) const
 	{
+		drawEditorPlaceholderColorOverlay(painter, option);
 		const QIcon& icon = IconManager::getIcon(s_lineEditIcon);
 		/*QString text = m_text;
 
