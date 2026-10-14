@@ -1,6 +1,7 @@
 #include "DefaultTypes/CheckBox.h"
 #include "ClipboardData/CheckBoxClipboardData.h"
 #include "IconManager.h"
+#include "QtCompat.h"
 
 #include <QCheckBox>
 #include <QApplication>
@@ -137,7 +138,7 @@ namespace VariantTable
 		QCheckBox* cb = m_editor->checkBox();
 		cb->setText(m_text);
 		cb->setChecked(m_value);
-		connect(cb, &QCheckBox::stateChanged, this, &CheckBox::onStateChanged);
+		connectCheckBoxStateChanged(cb, this, &CheckBox::onStateChanged);
 		return m_editor;
 	}
 

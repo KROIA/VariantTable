@@ -22,7 +22,11 @@ namespace VariantTable
 		registerType_internal<ProgressBar>();
 
 		qRegisterMetaType<VariantTable::CellDataBase::OptionsType>("VariantTable::CellDataBase::OptionsType");
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+		// Qt 6 removed qRegisterMetaTypeStreamOperators; qRegisterMetaType picks up
+		// the QDataStream operators automatically when the type declares them.
 		qRegisterMetaTypeStreamOperators<VariantTable::CellDataBase::OptionsType>("VariantTable::CellDataBase::OptionsType");
+#endif
 
 
 	}
