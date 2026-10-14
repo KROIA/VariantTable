@@ -128,7 +128,11 @@ namespace VariantTable
 		if (editor)
 		{
 			if (m_color.isValid())
-				editor->setStyleSheet("background-color: " + m_color.name() + ";");
+				// rgba() and not QColor::name(): the latter defaults to #RRGGBB and silently
+				// drops the alpha channel, so a translucent cell color would turn opaque as
+				// soon as the cell gets a real editor widget.
+				editor->setStyleSheet(QString("background-color: rgba(%1, %2, %3, %4);")
+					.arg(m_color.red()).arg(m_color.green()).arg(m_color.blue()).arg(m_color.alpha()));
 			else
 				editor->setStyleSheet(QString()); // no color set: fall back to the default widget look
 		}
