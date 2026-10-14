@@ -74,7 +74,9 @@ int main(int argc, char* argv[])
 	tableView->getModel()->setCellData(9, 0, VariantTable::DateEdit::create(QDate::currentDate()));
 	tableView->getModel()->setCellData(9, 1, VariantTable::DateEdit::create(QDate()));
 	tableView->getModel()->setCellData(10, 0, VariantTable::DateTimeEdit::create(QDateTime::currentDateTimeUtc()));
-	tableView->getModel()->setCellData(10, 1, VariantTable::DateTimeEdit::create(QDateTime()));
+	auto dateTime = VariantTable::DateTimeEdit::create(QDateTime());
+	dateTime->setColor(QColor(255, 0, 0));
+	tableView->getModel()->setCellData(10, 1, dateTime);
 
 	bool ret1 = tableView->getModel()->setHeaderData(0, Qt::Horizontal, "Column 1", Qt::DisplayRole);
 	tableView->getModel()->setHeaderData(2, Qt::Horizontal, "Column 3");
